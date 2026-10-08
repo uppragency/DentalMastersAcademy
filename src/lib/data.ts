@@ -103,3 +103,50 @@ export async function getMyOrders(userId: string): Promise<OrderRow[]> {
     .order("created_at", { ascending: false });
   return (data ?? []) as unknown as OrderRow[];
 }
+
+export type GoldProgress = {
+  active: boolean;
+  spentCents: number;
+  courses: number;
+  savedCents: number;
+  spendThresholdCents: number | null;
+  coursesThreshold: number | null;
+  windowDays: number | null;
+  percent: number;
+  remainingCents: number | null;
+  remainingCourses: number | null;
+};
+
+export async function getGoldProgress(userId: string, settings: LoyaltySettings | null): Promise<GoldProgress> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("total_cents, discount_cents, paid_at, order_items(course_id)")
+    .eq("user_id", userId)
+    .eq("status", "paid");
+
+  const since = settings?.window_days ? Date.now() - settings.window_days * 86_400_000 : null;
+  const rows = (data ?? []).filter((o) => !since || (o.paid_at && new Date(o.paid_at).getTime() >= since));
+  const spent = rows.reduce((sum, o) => sum + o.total_cents, 0);
+  const saved = (data ?? []).reduce((sum, o) => sum + o.discount_cents, 0);
+  const courseIds = new Set(rows.flatMap((o) => (o.order_items as { course_id: string }[]).map((i) => i.course_id)));
+
+  const spendT = settings?.spend_threshold_cents ?? null;
+  const coursesT = settings?.courses_threshold ?? null;
+  const ratios = [spendT ? spent / spendT : null, coursesT ? courseIds.size / coursesT : null].filter(
+    (r): r is number => r !== null,
+  );
+
+  return {
+    active: Boolean(settings?.is_active && (spendT || coursesT)),
+    spentCents: spent,
+    courses: courseIds.size,
+    savedCents: saved,
+    spendThresholdCents: spendT,
+    coursesThreshold: coursesT,
+    windowDays: settings?.window_days ?? null,
+    percent: ratios.length ? Math.min(100, Math.round(Math.max(...ratios) * 100)) : 0,
+    remainingCents: spendT ? Math.max(0, spendT - spent) : null,
+    remainingCourses: coursesT ? Math.max(0, coursesT - courseIds.size) : null,
+  };
+}

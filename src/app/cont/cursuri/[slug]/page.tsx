@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Container, Eyebrow } from "@/components/ui";
+import { Eyebrow } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data";
 import { formatDate, formatLabels } from "@/lib/format";
@@ -28,9 +28,9 @@ export default async function MyCoursePage({ params }: { params: Promise<{ slug:
   if (!enrollment) redirect(`/cursuri/${slug}`);
 
   return (
-    <Container className="max-w-3xl py-16">
-      <Link href="/cont" className="text-sm text-muted hover:text-foreground">← Contul meu</Link>
-      <Eyebrow>Curs achiziționat</Eyebrow>
+    <div className="max-w-3xl">
+      <Link href="/cont/cursuri" className="text-sm text-muted hover:text-foreground">← Cursurile mele</Link>
+      <div className="mt-6"><Eyebrow>Curs achiziționat</Eyebrow></div>
       <h1 className="mt-3 text-balance text-4xl font-semibold tracking-tight">{course.title}</h1>
       <dl className="mt-8 grid gap-4 rounded-3xl border border-line bg-card p-7 text-sm sm:grid-cols-2">
         <div><dt className="text-muted">Data</dt><dd className="mt-1 font-medium">{formatDate(course.starts_at)}</dd></div>
@@ -44,6 +44,6 @@ export default async function MyCoursePage({ params }: { params: Promise<{ slug:
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted">{course.syllabus}</p>
         </section>
       ) : null}
-    </Container>
+    </div>
   );
 }
