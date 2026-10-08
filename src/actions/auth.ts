@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type FormState = { errors?: Record<string, string[]>; message?: string } | undefined;
 
@@ -51,17 +51,18 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
   const { password, email, ...meta } = parsed.data;
-  const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: meta, emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(safeNext(formData.get("next")))}` },
-  });
-  if (error) return { message: "Nu am putut crea contul. Verifică datele sau încearcă din nou." };
+  // Cont creat fără verificare pe email (temporar, până avem mai mulți useri).
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: meta });
+  if (error) {
+    const exists = /already|registered|exists/i.test(error.message);
+    return { message: exists ? "Există deja un cont cu acest email. Autentifică-te." : "Nu am putut crea contul. Verifică datele sau încearcă din nou." };
+  }
 
-  if (data.session) redirect(safeNext(formData.get("next")));
-  return { message: "Ți-am trimis un email de confirmare. Deschide linkul din email pentru a-ți activa contul." };
+  const supabase = await createClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+  if (signInError) redirect("/autentificare");
+  redirect(safeNext(formData.get("next")));
 }
 
 export async function logout() {
