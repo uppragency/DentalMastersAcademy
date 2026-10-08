@@ -115,3 +115,21 @@ body {
 dialog::backdrop { animation: fade-in .2s ease both; }
 dialog[open] { animation: page-in .25s ease both; }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Tailwind v4 no longer sets a pointer cursor on buttons. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="range"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  label[for]:not([for=""]) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
