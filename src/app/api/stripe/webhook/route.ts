@@ -64,5 +64,22 @@ export async function POST(request: NextRequest) {
       }
     }
   }
+
+  if (event.type === "charge.refunded") {
+    const charge = event.data.object as Stripe.Charge;
+    const pi = typeof charge.payment_intent === "string" ? charge.payment_intent : null;
+    if (pi && charge.refunded) {
+      const admin = createAdminClient();
+      const { data: order } = await admin.from("orders").select("id, status").eq("stripe_payment_intent", pi).maybeSingle();
+      if (order && order.status === "paid") {
+        await admin.from("enrollments").delete().eq("order_id", order.id);
+        const { error } = await admin.rpc("admin_refund_order", { p_order: order.id, p_reason: "Rambursare din Stripe", p_by: null });
+        if (error) {
+          console.error("refund sync failed", error);
+          return NextResponse.json({ error: "refund_failed" }, { status: 500 });
+        }
+      }
+    }
+  }
   return NextResponse.json({ received: true });
 }

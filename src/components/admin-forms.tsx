@@ -262,7 +262,8 @@ export function DiscountCodeForm({ courses }: { courses: { id: string; title: st
         </select>
       </div>
       <Field label="Număr maxim de utilizări (opțional)" name="max_uses" type="number" min="1" />
-      <Field label="Expiră în (opțional)" name="expires_on" type="date" />
+      <Field label="Începe la (programare, opțional)" name="starts_on" type="date" />
+      <Field label="Expiră la (opțional)" name="expires_on" type="date" error={e?.expires_on?.[0]} />
       <div className="sm:col-span-2"><Field label="Notă internă (opțional)" name="note" /></div>
       <div className="sm:col-span-2 space-y-4">
         <Status message={state?.message} />

@@ -398,6 +398,7 @@ const codeSchema = z.object({
   value: z.coerce.number().positive({ error: "Introdu valoarea." }),
   course_id: z.string().uuid().optional(),
   max_uses: z.coerce.number().int().positive().optional(),
+  starts_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   expires_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   note: z.string().trim().max(200).optional(),
 });
@@ -410,13 +411,16 @@ export async function createDiscountCode(_: FormState, formData: FormData): Prom
     value: formData.get("value"),
     course_id: opt(formData.get("course_id")),
     max_uses: opt(formData.get("max_uses")),
+    starts_on: opt(formData.get("starts_on")),
     expires_on: opt(formData.get("expires_on")),
     note: opt(formData.get("note")),
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   const d = parsed.data;
   if (d.kind === "percent" && d.value > 100) return { errors: { value: ["Maximum 100%."] } };
+  if (d.starts_on && d.expires_on && d.expires_on < d.starts_on) return { errors: { expires_on: ["Data de expirare este înaintea celei de start."] } };
   const { error } = await supabase.from("discount_codes").insert({
+    starts_at: d.starts_on ? bucharestIso(d.starts_on, 0) : null,
     code: d.code,
     kind: d.kind,
     value: d.kind === "percent" ? Math.round(d.value) : Math.round(d.value * 100),
@@ -434,4 +438,127 @@ export async function toggleDiscountCode(id: string, active: boolean) {
   const supabase = await requireAdmin();
   await supabase.from("discount_codes").update({ active }).eq("id", id);
   revalidatePath("/admin/coduri");
+}
+
+export async function updateDiscountCode(id: string, _: FormState, formData: FormData): Promise<FormState> {
+  const supabase = await requireAdmin();
+  const parsed = codeSchema.omit({ code: true }).safeParse({
+    kind: formData.get("kind"),
+    value: formData.get("value"),
+    course_id: opt(formData.get("course_id")),
+    max_uses: opt(formData.get("max_uses")),
+    starts_on: opt(formData.get("starts_on")),
+    expires_on: opt(formData.get("expires_on")),
+    note: opt(formData.get("note")),
+  });
+  if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
+  const d = parsed.data;
+  if (d.kind === "percent" && d.value > 100) return { errors: { value: ["Maximum 100%."] } };
+  if (d.starts_on && d.expires_on && d.expires_on < d.starts_on) return { errors: { expires_on: ["Data de expirare este înaintea celei de start."] } };
+  const { error } = await supabase
+    .from("discount_codes")
+    .update({
+      kind: d.kind,
+      value: d.kind === "percent" ? Math.round(d.value) : Math.round(d.value * 100),
+      course_id: d.course_id ?? null,
+      max_uses: d.max_uses ?? null,
+      starts_at: d.starts_on ? bucharestIso(d.starts_on, 0) : null,
+      expires_at: d.expires_on ? bucharestIso(d.expires_on, 23) : null,
+      note: d.note ?? null,
+    })
+    .eq("id", id);
+  if (error) return { message: "Codul nu a putut fi salvat." };
+  revalidatePath("/admin/coduri");
+  return { message: "Codul a fost actualizat." };
+}
+
+/** Unused codes are removed; used codes are deactivated so redemption history stays intact. */
+export async function deleteDiscountCode(id: string) {
+  const supabase = await requireAdmin();
+  const { data } = await supabase.from("discount_codes").select("used_count").eq("id", id).maybeSingle();
+  if (!data) return;
+  if (data.used_count === 0) await supabase.from("discount_codes").delete().eq("id", id);
+  else await supabase.from("discount_codes").update({ active: false }).eq("id", id);
+  revalidatePath("/admin/coduri");
+  redirect("/admin/coduri");
+}
+
+const bulkSchema = z.object({
+  prefix: z.string().trim().toUpperCase().regex(/^[A-Z0-9]{2,12}$/, { error: "Prefix de 2 până la 12 litere sau cifre." }),
+  count: z.coerce.number().int().min(1, { error: "Minimum 1." }).max(200, { error: "Maximum 200." }),
+  kind: z.enum(["percent", "amount"]),
+  value: z.coerce.number().positive({ error: "Introdu valoarea." }),
+  course_id: z.string().uuid().optional(),
+  starts_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  expires_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  campaign: z.string().trim().max(80).optional(),
+});
+
+export async function bulkCreateCodes(_: FormState, formData: FormData): Promise<FormState> {
+  const supabase = await requireAdmin();
+  const parsed = bulkSchema.safeParse({
+    prefix: formData.get("prefix"),
+    count: formData.get("count"),
+    kind: formData.get("kind"),
+    value: formData.get("value"),
+    course_id: opt(formData.get("course_id")),
+    starts_on: opt(formData.get("starts_on")),
+    expires_on: opt(formData.get("expires_on")),
+    campaign: opt(formData.get("campaign")),
+  });
+  if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
+  const d = parsed.data;
+  if (d.kind === "percent" && d.value > 100) return { errors: { value: ["Maximum 100%."] } };
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const make = () => `${d.prefix}-${Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("")}`;
+  const codes = new Set<string>();
+  while (codes.size < d.count) codes.add(make());
+  const rows = [...codes].map((code) => ({
+    code,
+    kind: d.kind,
+    value: d.kind === "percent" ? Math.round(d.value) : Math.round(d.value * 100),
+    course_id: d.course_id ?? null,
+    max_uses: 1,
+    starts_at: d.starts_on ? bucharestIso(d.starts_on, 0) : null,
+    expires_at: d.expires_on ? bucharestIso(d.expires_on, 23) : null,
+    campaign: d.campaign ?? d.prefix,
+  }));
+  const { error } = await supabase.from("discount_codes").insert(rows);
+  if (error) return { message: "Codurile nu au putut fi create. Reîncearcă." };
+  revalidatePath("/admin/coduri");
+  return { message: `${rows.length} coduri unice create (o utilizare fiecare). Le exporți din lista de coduri.` };
+}
+
+export async function duplicateCourse(id: string) {
+  const supabase = await requireAdmin();
+  const { data: c } = await supabase.from("courses").select("*").eq("id", id).maybeSingle();
+  if (!c) return;
+  const base = `${c.slug}-copie`;
+  let slug = base;
+  for (let n = 2; n < 20; n++) {
+    const { data: taken } = await supabase.from("courses").select("id").eq("slug", slug).maybeSingle();
+    if (!taken) break;
+    slug = `${base}-${n}`;
+  }
+  const rest: Record<string, unknown> = { ...c };
+  for (const k of ["id", "created_at", "updated_at"]) delete rest[k];
+  const { data: created, error } = await supabase
+    .from("courses")
+    .insert({ ...rest, slug, title: `${c.title} (copie)`, status: "draft", starts_at: null, ends_at: null, registration_opens_at: null, next_edition_of: null })
+    .select("id")
+    .single();
+  if (error || !created) return;
+  const { data: lessons } = await supabase.from("course_lessons").select("*").eq("course_id", id);
+  if (lessons?.length) {
+    await supabase.from("course_lessons").insert(
+      lessons.map((l) => {
+        const copy: Record<string, unknown> = { ...l, course_id: created.id };
+        delete copy.id;
+        delete copy.created_at;
+        return copy;
+      }),
+    );
+  }
+  revalidatePath("/admin/cursuri");
+  redirect(`/admin/cursuri/${created.id}`);
 }

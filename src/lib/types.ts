@@ -44,7 +44,7 @@ export type Profile = {
   full_name: string | null;
   phone: string | null;
   specialization: string | null;
-  role: "student" | "admin";
+  role: "student" | "instructor" | "operator" | "admin";
   tier: Tier;
 };
 
