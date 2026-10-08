@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Container } from "@/components/ui";
 import { contact } from "@/content/site";
-import { LegalText } from "@/components/legal-text";
+import { LegalShell, LegalText } from "@/components/legal-text";
 import { getLegalText } from "@/lib/site-content";
 
 export const metadata: Metadata = { title: "Politica de cookies", robots: { index: false } };
@@ -16,15 +15,13 @@ export default async function Page() {
   const custom = await getLegalText("legal_cookies");
   if (custom) {
     return (
-      <Container className="max-w-3xl py-16">
-        <h1 className="text-4xl font-semibold tracking-tight">Politica de cookies</h1>
+      <LegalShell title="Politica de cookies">
         <LegalText text={custom} />
-      </Container>
+      </LegalShell>
     );
   }
   return (
-    <Container className="max-w-3xl py-16">
-      <h1 className="text-4xl font-semibold tracking-tight">Politica de cookies</h1>
+    <LegalShell title="Politica de cookies">
       <p className="mt-6 leading-relaxed text-muted">
         Folosim doar cookie-uri și stocare locală necesare funcționării platformei. Nu folosim cookie-uri de marketing sau de urmărire publicitară.
       </p>
@@ -61,6 +58,6 @@ export default async function Page() {
       <p className="mt-10 text-sm text-muted">
         Întrebări: <a className="underline underline-offset-4 hover:text-foreground" href={`mailto:${contact.email}`}>{contact.email}</a>
       </p>
-    </Container>
+    </LegalShell>
   );
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Container } from "@/components/ui";
 import { contact } from "@/content/site";
-import { LegalText } from "@/components/legal-text";
+import { LegalShell, LegalText } from "@/components/legal-text";
 import { getLegalText } from "@/lib/site-content";
 
 export const metadata: Metadata = {
@@ -60,8 +59,7 @@ const sections = [
 export default async function Page() {
   const custom = await getLegalText("legal_rambursare");
   return (
-    <Container className="max-w-3xl py-16">
-      <h1 className="text-4xl font-semibold tracking-tight">Politica de rambursare și transfer de loc</h1>
+    <LegalShell title="Politica de rambursare și transfer de loc">
       {custom ? (
         <LegalText text={custom} />
       ) : (
@@ -86,6 +84,6 @@ export default async function Page() {
           </p>
         </>
       )}
-    </Container>
+    </LegalShell>
   );
 }

@@ -7,6 +7,17 @@ export const contact = {
   socialHref: "https://www.instagram.com/dentalmastersacademy/",
 };
 
+export const company = {
+  name: "DUMITRU & MUSETESCU ACADEMY SRL",
+  brand: "Dental Masters Academy",
+  cui: "51786140",
+  regCom: "J2025034236001",
+  euid: "ROONRC.J2025034236001",
+  county: "București",
+  locality: "Sector 1",
+  address: "Str. Trotușului 29-31, cam. 3, cod poștal 012141, Sector 1, București",
+};
+
 export const stats = [
   { value: 3, suffix: "", label: "lectori cu competență în implantologie orală" },
   { value: 20, suffix: "", label: "participanți per curs, grup restrâns" },
