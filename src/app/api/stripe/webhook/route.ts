@@ -4,6 +4,7 @@ import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendPurchaseEmail } from "@/lib/email";
 import { formatPrice } from "@/lib/format";
+import { issueInvoice } from "@/lib/invoicing";
 
 export const runtime = "nodejs";
 
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
             newAccount: session.metadata.new_account === "1",
           });
         }
+        await issueInvoice(orderId);
       }
     }
   }

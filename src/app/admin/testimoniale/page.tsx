@@ -18,6 +18,8 @@ export default async function AdminTestimonials() {
           {items.map((t) => (
             <li key={t.id} className="rounded-3xl border border-line bg-card p-6">
               <p className="text-[15px] leading-relaxed">„{t.quote}”</p>
+              {!t.is_published && t.verified ? <p className="mb-3 inline-block rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-gold">Recenzie nouă de la un cursant, în așteptarea aprobării</p> : null}
+              {t.verified && t.is_published ? <p className="mb-3 inline-block rounded-full bg-line px-3 py-1 text-xs text-muted">Cursant verificat</p> : null}
               <p className="mt-3 text-sm"><span className="font-semibold">{t.author_name}</span>{t.author_title ? <span className="text-muted">, {t.author_title}</span> : null}</p>
               <div className="mt-4 flex gap-2">
                 <form action={toggleTestimonial.bind(null, t.id, !t.is_published)}>

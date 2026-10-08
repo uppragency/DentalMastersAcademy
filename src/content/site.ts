@@ -80,3 +80,22 @@ export const faqs = [
   { q: "Unde au loc cursurile?", a: "La Dental Masters Academy, București, într-un spațiu cu sală de curs, sală de chirurgie live și CBCT." },
   { q: "În ce limbă se țin cursurile?", a: "Majoritatea în limba română. Cursul Bone Grafting este predat în engleză, cu suport în română. Limba apare pe pagina fiecărui curs." },
 ];
+
+export const howItWorks = [
+  { title: "Alegi cursul", text: "Compari edițiile, programa și lectorii, apoi alegi cursul potrivit nivelului tău." },
+  { title: "Plătești online", text: "Îți creezi contul la comandă și plătești securizat cu cardul. Confirmarea ajunge pe email." },
+  { title: "Participi și continui", text: "Primești materialele în cont, reminderele înainte de curs și certificarea după participare." },
+];
+
+/** Fill with the materials or systems used in courses ONLY with written permission from each brand. Hidden when empty. */
+export const partners: string[] = [];
+
+/** Optional looping hero video (https .mp4/.webm). Hidden when empty. */
+export const heroVideoUrl = "";
+
+export const directions = {
+  mapQuery: "Str. Fabricii 46, București",
+  // Fill with confirmed details; sections are hidden while empty.
+  parking: "",
+  transport: "",
+};

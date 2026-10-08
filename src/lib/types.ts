@@ -32,6 +32,8 @@ export type Course = {
   next_edition_of: string | null;
   promo_video_url: string | null;
   faqs: { q: string; a: string }[];
+  parking_info: string | null;
+  bring_info: string | null;
   categories?: { name: string; slug: string } | null;
 };
 
@@ -61,6 +63,7 @@ export type Testimonial = {
   author_title: string | null;
   quote: string;
   photo_url: string | null;
+  verified?: boolean;
 };
 
 export type Notification = {
@@ -81,4 +84,41 @@ export type Lesson = {
   video_url: string | null;
   duration_min: number | null;
   position: number;
+};
+
+export type Trainer = {
+  id: string;
+  slug: string;
+  name: string;
+  role: string | null;
+  bio: string | null;
+  points: string[];
+  photo_url: string | null;
+  sort_order: number;
+  published: boolean;
+};
+
+export type BlogPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  body: string;
+  author_name: string;
+  trainer_id: string | null;
+  cover_url: string | null;
+  published: boolean;
+  published_at: string | null;
+  created_at: string;
+};
+
+export type EventRow = {
+  id: string;
+  title: string;
+  event_date: string;
+  location: string | null;
+  participants: number | null;
+  description: string | null;
+  photos: string[];
+  published: boolean;
 };

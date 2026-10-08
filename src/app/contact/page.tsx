@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui";
+import { LocationMap } from "@/components/location-map";
 import { ContactForm } from "@/components/contact-form";
 import { PageHero } from "@/components/page-hero";
 import { contact } from "@/content/site";
@@ -29,6 +30,7 @@ export default function ContactPage() {
         </dl>
         <div className="rounded-[2rem] border border-line bg-card p-8 sm:p-10 lg:col-span-7"><ContactForm /></div>
       </Container>
+      <Container className="pb-24"><LocationMap /></Container>
     </>
   );
 }

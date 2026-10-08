@@ -5,9 +5,11 @@ import { setLessonDone } from "@/actions/learning";
 import { Button, ButtonLink } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
 import { VideoPlayer } from "@/components/video-player";
+import { ReviewForm } from "@/components/engagement-forms";
+import { nowMs } from "@/lib/time";
 import { createClient } from "@/lib/supabase/server";
 import { getCompletedLessonIds, getCurrentProfile, getLessons } from "@/lib/data";
-import { formatDateRange, formatLabels } from "@/lib/format";
+import { formatDateRange, formatLabels, isEnded } from "@/lib/format";
 import { parseVideo } from "@/lib/video";
 import type { Course } from "@/lib/types";
 
@@ -32,13 +34,19 @@ export default async function MyCoursePage({
   // RLS: a student only sees their own enrollments
   const { data: enrollment } = await supabase
     .from("enrollments")
-    .select("id")
+    .select("id, attended")
     .eq("user_id", profile.id)
     .eq("course_id", course.id)
     .maybeSingle();
   if (!enrollment) redirect(`/cursuri/${slug}`);
 
-  const [lessons, doneIds] = await Promise.all([getLessons(course.id), getCompletedLessonIds(profile.id)]);
+  const [lessons, doneIds, { data: materials }, { count: reviewCount }] = await Promise.all([
+    getLessons(course.id),
+    getCompletedLessonIds(profile.id),
+    supabase.from("course_materials").select("id, title, description, url").eq("course_id", course.id).order("created_at"),
+    supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("course_id", course.id),
+  ]);
+  const courseOver = isEnded(course, nowMs());
   const done = new Set(doneIds);
   const current = lessons.find((l) => l.id === lectia) ?? lessons.find((l) => !done.has(l.id)) ?? lessons[0];
   const currentIdx = current ? lessons.findIndex((l) => l.id === current.id) : -1;
@@ -104,6 +112,37 @@ export default async function MyCoursePage({
             <p className="mt-4">
               <a href={`/cont/cursuri/${slug}/calendar.ics`} className="text-sm font-medium text-gold underline underline-offset-4">Adaugă în calendar</a>
             </p>
+          ) : null}
+
+          {(materials ?? []).length > 0 ? (
+            <section className="mt-14" aria-labelledby="mat">
+              <h2 id="mat" className="font-display text-3xl">Materiale</h2>
+              <ul className="mt-6 divide-y divide-line rounded-3xl border border-line bg-card">
+                {materials!.map((m) => (
+                  <li key={m.id}>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-background">
+                      <span><span className="block font-medium">{m.title}</span>{m.description ? <span className="block text-sm text-muted">{m.description}</span> : null}</span>
+                      <span className="shrink-0 text-sm font-medium text-gold">Deschide</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {enrollment.attended ? (
+            <p className="mt-10"><a href={`/cont/cursuri/${slug}/adeverinta`} className="text-sm font-medium text-gold underline underline-offset-4">Deschide adeverința de participare</a></p>
+          ) : null}
+
+          {courseOver ? (
+            <section className="mt-14 rounded-[2rem] border border-line bg-card p-8" aria-labelledby="rev">
+              <h2 id="rev" className="font-display text-3xl">Spune-ne cum a fost</h2>
+              {(reviewCount ?? 0) > 0 ? (
+                <p className="mt-3 text-sm text-muted">Ai trimis deja o recenzie. Mulțumim!</p>
+              ) : (
+                <div className="mt-5 max-w-xl"><ReviewForm courseId={course.id} /></div>
+              )}
+            </section>
           ) : null}
 
           {course.sections.length > 0 ? (

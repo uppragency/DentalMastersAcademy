@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { Category, Course, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
+import type { BlogPost, Category, Course, EventRow, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
 
 const courseSelect = "*, categories(name, slug)";
 
@@ -73,6 +73,7 @@ export type EnrollmentRow = {
   id: string;
   created_at: string;
   source: "purchase" | "gold_free" | "admin";
+  attended: boolean;
   courses: Course | null;
 };
 
@@ -80,7 +81,7 @@ export async function getMyEnrollments(userId: string): Promise<EnrollmentRow[]>
   const supabase = await createClient();
   const { data } = await supabase
     .from("enrollments")
-    .select("id, created_at, source, courses(*, categories(name, slug))")
+    .select("id, created_at, source, attended, courses(*, categories(name, slug))")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   return (data ?? []) as unknown as EnrollmentRow[];
@@ -198,3 +199,35 @@ export const getSeatCounts = cache(async (): Promise<Record<string, number>> => 
   const { data } = await supabase.rpc("enrollment_counts");
   return Object.fromEntries(((data ?? []) as { course_id: string; taken: number }[]).map((r) => [r.course_id, r.taken]));
 });
+
+export async function getTrainers(): Promise<Trainer[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("trainers").select("*").eq("published", true).order("sort_order");
+  return (data ?? []) as Trainer[];
+}
+
+export async function getTrainerBySlug(slug: string): Promise<Trainer | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("trainers").select("*").eq("slug", slug).eq("published", true).maybeSingle();
+  return (data as Trainer | null) ?? null;
+}
+
+export async function getPosts(limit?: number): Promise<BlogPost[]> {
+  const supabase = await createClient();
+  let q = supabase.from("blog_posts").select("*").eq("published", true).order("published_at", { ascending: false });
+  if (limit) q = q.limit(limit);
+  const { data } = await q;
+  return (data ?? []) as BlogPost[];
+}
+
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("blog_posts").select("*").eq("slug", slug).eq("published", true).maybeSingle();
+  return (data as BlogPost | null) ?? null;
+}
+
+export async function getEvents(): Promise<EventRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("events").select("*").eq("published", true).order("event_date", { ascending: false });
+  return (data ?? []) as EventRow[];
+}

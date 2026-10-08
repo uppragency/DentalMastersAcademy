@@ -96,6 +96,8 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
             {otherCourses.filter((c) => c.id !== course?.id).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
           </select>
         </div>
+        <Field label="Parcare și acces (apare în remindere)" name="parking_info" defaultValue={course?.parking_info ?? ""} />
+        <Field label="Ce să aducă participanții (apare în remindere)" name="bring_info" defaultValue={course?.bring_info ?? ""} />
         <Field label="Locuri (opțional)" name="capacity" type="number" min="1" defaultValue={course?.capacity ?? ""} />
         <div>
           <label htmlFor="status" className="mb-1.5 block text-sm font-medium">Status</label>

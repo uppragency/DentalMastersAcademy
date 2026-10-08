@@ -11,10 +11,10 @@ import { VideoPlayer } from "@/components/video-player";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { parseVideo } from "@/lib/video";
 import { Reveal } from "@/components/reveal";
-import { getCourseBySlug, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getSeatCounts } from "@/lib/data";
+import { getCourseBySlug, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getSeatCounts, getTrainers } from "@/lib/data";
 import { formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
-import { trainers } from "@/content/site";
+import { TrainerAvatar } from "@/components/trainer-avatar";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -33,7 +33,8 @@ export default async function CoursePage({ params }: Props) {
   const { slug } = await params;
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();
-  const [seatCounts, enrolledIds, related] = await Promise.all([
+  const [trainers, seatCounts, enrolledIds, related] = await Promise.all([
+    getTrainers(),
     getSeatCounts(),
     profile ? getEnrolledCourseIds(profile.id) : Promise.resolve([] as string[]),
     getCourses({ limit: 4 }),
@@ -189,12 +190,12 @@ export default async function CoursePage({ params }: Props) {
               <h2 id="lect-h" className="sr-only">Lectori</h2>
               <ul className="mt-8 grid gap-4 sm:grid-cols-3">
                 {trainers.map((t, i) => (
-                  <Reveal as="li" key={t.name} delay={i * 80}>
-                    <div className="h-full rounded-3xl border border-line bg-card p-6">
-                      <span aria-hidden="true" className="font-display flex size-12 items-center justify-center rounded-full bg-gold-soft text-lg text-gold">{t.name.replace("Dr. ", "").split(" ").map((p) => p[0]).join("")}</span>
+                  <Reveal as="li" key={t.id} delay={i * 80}>
+                    <Link href={`/lectori/${t.slug}`} className="block h-full rounded-3xl border border-line bg-card p-6 transition-colors hover:border-gold/50">
+                      <TrainerAvatar name={t.name} photo={t.photo_url} size={56} />
                       <p className="font-display mt-4 text-lg leading-snug">{t.name}</p>
                       <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted">{t.role}</p>
-                    </div>
+                    </Link>
                   </Reveal>
                 ))}
               </ul>

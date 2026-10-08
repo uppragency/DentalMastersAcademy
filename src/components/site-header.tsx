@@ -2,10 +2,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getUnreadCount } from "@/lib/data";
 import { MobileMenu } from "@/components/mobile-menu";
+import { NotificationBell } from "@/components/notification-bell";
+import { SearchDialog } from "@/components/search-dialog";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const navItems = [
   { href: "/cursuri", label: "Cursuri" },
-  { href: "/categorii", label: "Categorii" },
+  { href: "/lectori", label: "Lectori" },
+  { href: "/blog", label: "Blog" },
   { href: "/despre", label: "Despre noi" },
   { href: "/testimoniale", label: "Testimoniale" },
   { href: "/contact", label: "Contact" },
@@ -36,23 +40,9 @@ export async function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {userId ? (
-            <Link
-              href="/cont/notificari"
-              aria-label={unread > 0 ? `Notificări, ${unread} necitite` : "Notificări"}
-              className="relative flex size-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z" />
-                <path d="M10 19a2 2 0 0 0 4 0" />
-              </svg>
-              {unread > 0 ? (
-                <span className="absolute right-1.5 top-1.5 flex min-w-[18px] items-center justify-center rounded-full bg-gold-bright px-1 text-[10px] font-bold leading-[18px] text-ink">
-                  {unread > 9 ? "9+" : unread}
-                </span>
-              ) : null}
-            </Link>
-          ) : null}
+          <SearchDialog />
+          <ThemeToggle />
+          {userId ? <NotificationBell key={unread} unread={unread} /> : null}
           <Link
             href={userId ? "/cont" : "/autentificare"}
             className="hidden min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink transition-colors hover:bg-gold-soft sm:inline-flex"

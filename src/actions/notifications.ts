@@ -16,3 +16,17 @@ export async function markAllNotificationsRead() {
   revalidatePath("/cont/notificari");
   revalidatePath("/", "layout");
 }
+
+export async function loadLatestNotifications() {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  if (!userId) return [];
+  const { data } = await supabase
+    .from("notifications")
+    .select("id, kind, title, body, href, read_at, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(12);
+  return data ?? [];
+}

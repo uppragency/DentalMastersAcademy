@@ -5,6 +5,8 @@ import { getCourses, getCurrentProfile, getGoldProgress, getLoyaltySettings, get
 import { formatDate, formatPrice } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { CourseCard } from "@/components/course-card";
+import { Badges, JourneyMap, type JourneyNode } from "@/components/journey-map";
+import { isEnded } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Contul meu", robots: { index: false } };
 
@@ -26,7 +28,13 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
     .sort((a, b) => new Date(a.starts_at!).getTime() - new Date(b.starts_at!).getTime());
   const next = upcoming[0];
   const owned = new Set(courses.map((c) => c.id));
-  const suggestions = (await getCourses({ limit: 6 })).filter((c) => !owned.has(c.id)).slice(0, 2);
+  const allCourses = await getCourses();
+  const suggestions = allCourses.filter((c) => !owned.has(c.id) && !isEnded(c, nowMs())).slice(0, 2);
+  const attendedIds = new Set(enrollments.filter((e) => e.attended).map((e) => e.courses?.id));
+  const journey: JourneyNode[] = allCourses.map((c) => ({
+    course: c,
+    state: owned.has(c.id) ? (attendedIds.has(c.id) || isEnded(c, nowMs()) ? "done" : "booked") : "open",
+  }));
 
   const stats = [
     { label: "Cursuri achiziționate", value: String(courses.length) },
@@ -45,6 +53,7 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
       <header>
         <Eyebrow>Contul meu</Eyebrow>
         <h1 className="font-display mt-4 text-5xl font-medium sm:text-6xl">Bună{firstName ? `, ${firstName}` : ""}.</h1>
+        <div className="mt-5"><Badges courses={courses.length} gold={isGold} /></div>
       </header>
 
       <dl className="grid gap-4 sm:grid-cols-3">
@@ -92,6 +101,8 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
           <p className="mt-2 text-sm text-muted">Statusul Gold aduce reduceri și acces gratuit la activități selectate.</p>
         )}
       </section>
+
+      <JourneyMap nodes={journey} />
 
       {next ? (
         <section aria-labelledby="next-title">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";
 import { PageHero } from "@/components/page-hero";
+import { EditionsTimeline } from "@/components/editions-timeline";
 import { Reveal } from "@/components/reveal";
 import { getCategories, getCourses } from "@/lib/data";
 import { formatLabels, isEnded } from "@/lib/format";
@@ -45,6 +46,7 @@ export default async function CoursesPage({ searchParams }: Props) {
         title={<>Cursuri de <span className="text-gold-sheen">înaltă specializare.</span></>}
         lead="Programe hands-on și clinice pentru implantologie, chirurgie, parodontologie și protetică. Înscrierea și plata se fac direct în platformă."
       />
+      <EditionsTimeline courses={all.filter((c) => !isEnded(c, now))} />
       <section className="py-14 sm:py-20">
         <Container>
           <div className="space-y-4">

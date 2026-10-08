@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { ButtonLink, Container, SectionTitle, Arrow } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
@@ -6,7 +7,9 @@ import { CourseArt } from "@/components/course-art";
 import { Counter } from "@/components/counter";
 import { TestimonialsGrid } from "@/components/testimonials";
 import { getTestimonials } from "@/lib/data";
-import { advantages, facility, modules, stats, trainers } from "@/content/site";
+import { advantages, facility, modules, stats } from "@/content/site";
+import { TrainerAvatar } from "@/components/trainer-avatar";
+import { getTrainers } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Despre noi",
@@ -14,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
+  const trainers = await getTrainers();
   const testimonials = await getTestimonials(3);
   return (
     <>
@@ -79,13 +83,11 @@ export default async function AboutPage() {
           <Reveal><SectionTitle eyebrow="Experții noștri" title="Lectori care practică zilnic ceea ce predau." /></Reveal>
           <div className="mt-16 space-y-6">
             {trainers.map((t) => (
-              <Reveal key={t.name}>
+              <Reveal key={t.id}>
                 <article className="grid gap-8 rounded-[2rem] border border-line bg-card p-8 sm:p-12 lg:grid-cols-12">
                   <div className="lg:col-span-4">
-                    <span aria-hidden="true" className="font-display flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-gold-bright to-gold text-4xl text-ink">
-                      {t.name.replace("Dr. ", "").split(" ").map((p) => p[0]).join("")}
-                    </span>
-                    <h3 className="font-display mt-6 text-3xl leading-tight">{t.name}</h3>
+                    <TrainerAvatar name={t.name} photo={t.photo_url} size={96} />
+                    <h3 className="font-display mt-6 text-3xl leading-tight"><Link href={`/lectori/${t.slug}`} className="hover:text-gold">{t.name}</Link></h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted">{t.role}</p>
                   </div>
                   <div className="lg:col-span-8">

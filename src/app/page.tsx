@@ -6,13 +6,16 @@ import { TestimonialsGrid } from "@/components/testimonials";
 import { Faq } from "@/components/faq";
 import { Reveal } from "@/components/reveal";
 import { Counter } from "@/components/counter";
-import { getCategories, getCategoryCounts, getCourses, getLoyaltySettings, getTestimonials } from "@/lib/data";
+import { getCategories, getCategoryCounts, getCourses, getLoyaltySettings, getTestimonials, getTrainers } from "@/lib/data";
 import { dayNum, formatPrice, isEnded, monthShort } from "@/lib/format";
 import { nowMs } from "@/lib/time";
-import { advantages, faqs, facility, modules, stats, topics, trainers } from "@/content/site";
+import { advantages, faqs, facility, heroVideoUrl, howItWorks, modules, partners, stats, topics } from "@/content/site";
+import { LocationMap } from "@/components/location-map";
+import { TrainerAvatar } from "@/components/trainer-avatar";
 
 export default async function HomePage() {
-  const [courses, testimonials, loyalty, categories, counts] = await Promise.all([
+  const [trainers, courses, testimonials, loyalty, categories, counts] = await Promise.all([
+    getTrainers(),
     getCourses(),
     getTestimonials(),
     getLoyaltySettings(),
@@ -27,6 +30,12 @@ export default async function HomePage() {
     <>
       {/* HERO */}
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
+        {heroVideoUrl ? (
+          <>
+            <video aria-hidden="true" src={heroVideoUrl} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 -z-20 size-full object-cover opacity-40" />
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/80 to-ink/40" />
+          </>
+        ) : null}
         <div aria-hidden="true" className="grid-lines absolute inset-0 -z-10" />
         <div aria-hidden="true" className="drift absolute -right-40 -top-40 -z-10 size-[640px] rounded-full bg-gold/25 blur-[120px]" />
         <div aria-hidden="true" className="drift absolute -bottom-52 -left-40 -z-10 size-[560px] rounded-full bg-[#1c3a5e]/60 blur-[120px]" style={{ animationDelay: "-6s" }} />
@@ -118,6 +127,24 @@ export default async function HomePage() {
           ) : (
             <p className="mt-12 rounded-3xl border border-dashed border-line p-10 text-center text-muted">Cursurile vor fi afișate aici imediat ce sunt publicate.</p>
           )}
+        </Container>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section className="pb-24 sm:pb-32" aria-labelledby="how-title">
+        <Container>
+          <Reveal><div id="how-title"><SectionTitle eyebrow="Cum funcționează" title="De la alegere la certificare, în trei pași." /></div></Reveal>
+          <ol className="mt-14 grid gap-5 md:grid-cols-3">
+            {howItWorks.map((st, i) => (
+              <Reveal as="li" key={st.title} delay={i * 100}>
+                <div className="h-full rounded-[2rem] border border-line bg-card p-8">
+                  <span className="font-display text-5xl text-gold">{String(i + 1).padStart(2, "0")}</span>
+                  <h3 className="font-display mt-6 text-2xl">{st.title}</h3>
+                  <p className="mt-3 text-[15px] leading-relaxed text-muted">{st.text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </ol>
         </Container>
       </section>
 
@@ -214,13 +241,11 @@ export default async function HomePage() {
           </Reveal>
           <ul className="mt-16 grid gap-5 lg:grid-cols-3">
             {trainers.map((t, i) => (
-              <Reveal as="li" key={t.name} delay={i * 100}>
+              <Reveal as="li" key={t.id} delay={i * 100}>
                 <article className="group flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/[0.03] p-8 transition-colors hover:border-gold-bright/40 hover:bg-white/[0.06]">
                   <div className="flex items-center gap-4">
-                    <span aria-hidden="true" className="font-display flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-gold-bright to-gold text-2xl text-ink">
-                      {t.name.replace("Dr. ", "").split(" ").map((p) => p[0]).join("")}
-                    </span>
-                    <h3 className="font-display text-2xl leading-tight">{t.name}</h3>
+                    <TrainerAvatar name={t.name} photo={t.photo_url} size={64} />
+                    <h3 className="font-display text-2xl leading-tight"><Link href={`/lectori/${t.slug}`} className="hover:text-gold-bright">{t.name}</Link></h3>
                   </div>
                   <p className="mt-5 text-sm leading-relaxed text-gold-bright/90">{t.role}</p>
                   <p className="mt-5 text-[15px] leading-relaxed text-white/60">{t.bio}</p>
@@ -286,6 +311,24 @@ export default async function HomePage() {
       ) : null}
 
       {/* FAQ */}
+      {partners.length > 0 ? (
+        <section aria-label="Materiale și sisteme folosite" className="border-y border-line bg-card py-10">
+          <Container>
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-muted">Materiale și sisteme folosite în curriculum</p>
+            <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 font-display text-2xl text-foreground/70">
+              {partners.map((p) => <li key={p}>{p}</li>)}
+            </ul>
+          </Container>
+        </section>
+      ) : null}
+
+      <section className="py-24 sm:py-32" aria-labelledby="map-title">
+        <Container>
+          <Reveal><div id="map-title"><SectionTitle eyebrow="Unde ne găsești" title="Dental Masters Academy, București." /></div></Reveal>
+          <Reveal className="mt-12"><LocationMap /></Reveal>
+        </Container>
+      </section>
+
       <section className="pb-24 sm:pb-32" aria-labelledby="faq-title">
         <Container>
           <div className="grid gap-12 lg:grid-cols-12">

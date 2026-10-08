@@ -72,6 +72,8 @@ const courseSchema = z.object({
   promo_video_url: z.string().trim().url().startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
   faqs: z.string().max(10000).optional(),
   next_edition_of: z.string().uuid().optional(),
+  parking_info: z.string().trim().max(500).optional(),
+  bring_info: z.string().trim().max(500).optional(),
 });
 
 /** Blocks separated by a blank line: first line = question, rest = answer. */
@@ -112,6 +114,8 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     promo_video_url: opt(formData.get("promo_video_url")),
     faqs: opt(formData.get("faqs")),
     next_edition_of: opt(formData.get("next_edition_of")),
+    parking_info: opt(formData.get("parking_info")),
+    bring_info: opt(formData.get("bring_info")),
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
@@ -141,6 +145,8 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     promo_video_url: d.promo_video_url ?? null,
     faqs: parseFaqs(d.faqs),
     next_edition_of: d.next_edition_of ?? null,
+    parking_info: d.parking_info ?? null,
+    bring_info: d.bring_info ?? null,
     is_featured: formData.get("is_featured") === "on",
     gold_free: formData.get("gold_free") === "on",
   };

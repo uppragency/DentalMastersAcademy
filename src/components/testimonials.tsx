@@ -15,6 +15,7 @@ function Quote({ t, big = false }: { t: Testimonial; big?: boolean }) {
         <span>
           <span className="block font-semibold">{t.author_name}</span>
           {t.author_title ? <span className={big ? "text-white/55" : "text-muted"}>{t.author_title}</span> : null}
+          {t.verified ? <span className="mt-1 block text-[11px] font-semibold uppercase tracking-widest text-gold">Cursant verificat</span> : null}
         </span>
       </figcaption>
     </figure>
