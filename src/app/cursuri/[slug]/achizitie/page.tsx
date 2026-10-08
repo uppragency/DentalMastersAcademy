@@ -8,7 +8,7 @@ import { OrderSummary } from "@/components/order-summary";
 import { createClient } from "@/lib/supabase/server";
 import type { BillingProfile } from "@/lib/billing";
 import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings } from "@/lib/data";
-import { formatDateRange, formatPrice, isEnded, isNotOpen } from "@/lib/format";
+import { formatDateRange, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { paymentsEnabled } from "@/lib/stripe";
 

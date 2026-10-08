@@ -27,7 +27,7 @@ export default async function AboutPage() {
         lead="Pe o piață mondială a implantologiei în continuă evoluție, nevoia de educație structurată, aplicată și de înaltă calitate este mai mare ca oricând."
       />
 
-      <section className="py-16 sm:py-24 lg:py-32">
+      <section id="concept" className="scroll-mt-24 py-16 sm:py-24 lg:py-32">
         <Container className="grid gap-16 lg:grid-cols-12">
           <Reveal className="lg:col-span-6">
             <SectionTitle eyebrow="Misiunea noastră" title="Masterul care te duce de la cazuri simple la reabilitări complexe." />

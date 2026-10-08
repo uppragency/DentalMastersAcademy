@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/actions/auth";
+import { readBilling } from "@/lib/billing";
 
 const profileSchema = z.object({
   full_name: z.string().trim().min(2, { error: "Introdu numele complet." }).max(120),
@@ -63,4 +64,30 @@ export async function deleteBillingProfile(id: string) {
   // RLS restricts deletion to the owner's rows
   await supabase.from("billing_profiles").delete().eq("id", id);
   revalidatePath("/cont/profil");
+}
+
+export async function addBillingProfile(_: FormState, formData: FormData): Promise<FormState> {
+  const parsed = readBilling(formData);
+  if (!parsed.success) {
+    const fe = z.flattenError(parsed.error).fieldErrors as Record<string, string[]>;
+    return { errors: Object.fromEntries(Object.entries(fe).map(([k, v]) => [`billing_${k}`, v])) };
+  }
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  if (!userId) return { message: "Sesiunea a expirat. Intră din nou în cont." };
+  const b = parsed.data;
+  const { error } = await supabase.from("billing_profiles").insert({
+    user_id: userId,
+    kind: b.kind,
+    name: b.name,
+    cui: b.kind === "company" ? b.cui : null,
+    reg_com: b.kind === "company" ? (b.reg_com ?? null) : null,
+    address: b.address,
+    city: b.city,
+    county: b.county,
+  });
+  if (error) return { message: "Profilul nu a putut fi salvat." };
+  revalidatePath("/cont/profil");
+  return { message: "Profilul de facturare a fost adăugat." };
 }

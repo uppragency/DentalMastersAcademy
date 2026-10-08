@@ -210,7 +210,7 @@ export default async function CoursePage({ params }: Props) {
             ) : null}
           </div>
 
-          <aside className="lg:sticky lg:top-28 lg:self-start" aria-label="Înscriere">
+          <aside className="lg:sticky lg:top-28 lg:z-40 lg:self-start" aria-label="Înscriere">
             <div className="overflow-hidden rounded-[2rem] border border-line bg-card shadow-[0_40px_80px_-40px_rgba(8,13,23,.5)]">
               <div className="p-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{enrolled ? "Status" : ended ? "Preț ediție" : "Investiție"}</p>

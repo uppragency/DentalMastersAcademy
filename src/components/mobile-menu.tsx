@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export function MobileMenu({ items, signedIn }: { items: { href: string; label: string }[]; signedIn: boolean }) {
+export function MobileMenu({ items, signedIn }: { items: { href: string; label: string; children?: { href: string; label: string }[] }[]; signedIn: boolean }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -38,15 +38,16 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
       >
         <nav aria-label="Principal mobil" className="flex flex-col">
           {items.map((item, i) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }}
-              className={`font-display border-b border-white/10 py-5 text-3xl text-white transition-all duration-500 ${open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
-            >
-              {item.label}
-            </Link>
+            <div key={item.label} style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }} className={`border-b border-white/10 py-4 transition-all duration-500 ${open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
+              <Link href={item.href} onClick={() => setOpen(false)} className="font-display block py-1 text-3xl text-white">{item.label}</Link>
+              {item.children ? (
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {item.children.map((c) => (
+                    <li key={c.href + c.label}><Link href={c.href} onClick={() => setOpen(false)} className="inline-flex min-h-10 items-center rounded-full border border-white/15 px-4 text-sm text-white/75 hover:border-gold-bright hover:text-white">{c.label}</Link></li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           ))}
         </nav>
         <Link

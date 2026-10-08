@@ -20,10 +20,10 @@ export default async function ReferralPage() {
   const reward = Number(settings?.referral_reward_percent ?? 0);
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Cont</p>
       <h1 className="font-display mt-2 text-5xl font-medium">Recomandă un coleg</h1>
-      <p className="mt-4 text-muted">
+      <p className="mt-4 max-w-3xl text-muted">
         Colegul tău primește {friend}% reducere la prima achiziție, iar tu primești un cod de {reward}% pentru următorul curs, după ce el plătește.
       </p>
       <div className="mt-8 rounded-3xl border border-line bg-card p-7">
