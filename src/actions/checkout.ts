@@ -151,7 +151,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
       },
     ],
     metadata: { order_id: order.order_id, new_account: newAccount ? "1" : "0" },
-    success_url: `${origin}/cont?plata=succes`,
+    success_url: `${origin}/multumim/${order.order_id}`,
     cancel_url: `${origin}/cursuri/${course.slug}?plata=anulata`,
     expires_at: Math.floor(Date.now() / 1000) + 2 * 3600,
   });
