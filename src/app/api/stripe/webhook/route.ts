@@ -2,9 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPurchaseEmail } from "@/lib/email";
-import { formatPrice } from "@/lib/format";
-import { issueInvoice } from "@/lib/invoicing";
+import { handledEvents, processStripeEvent } from "@/lib/stripe-events";
 
 export const runtime = "nodejs";
 
@@ -20,66 +18,24 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
   }
+  if (!handledEvents.includes(event.type)) return NextResponse.json({ received: true });
 
-  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    if (session.payment_status === "paid" && session.metadata?.order_id) {
-      const admin = createAdminClient();
-      const orderId = session.metadata.order_id;
-      const { data: fulfilled, error } = await admin.rpc("fulfill_order", {
-        p_order: orderId,
-        p_session: session.id,
-        p_payment_intent: typeof session.payment_intent === "string" ? session.payment_intent : null,
-      });
-      if (error) {
-        console.error("fulfill_order failed", error);
-        return NextResponse.json({ error: "fulfill_failed" }, { status: 500 }); // Stripe retries
-      }
+  const admin = createAdminClient();
+  const { data: existing } = await admin.from("stripe_events").select("status, attempts").eq("id", event.id).maybeSingle();
+  if (existing?.status === "processed" || existing?.status === "ignored") return NextResponse.json({ received: true });
+  if (existing) await admin.from("stripe_events").update({ attempts: existing.attempts + 1 }).eq("id", event.id);
+  else await admin.from("stripe_events").insert({ id: event.id, type: event.type, payload: event as unknown as Record<string, unknown> });
 
-      if (fulfilled) {
-        const { data: order } = await admin
-          .from("orders")
-          .select("total_cents, currency, profiles(email, full_name), order_items(courses(title, slug))")
-          .eq("id", orderId)
-          .single();
-        const row = order as unknown as {
-          total_cents: number;
-          currency: string;
-          profiles: { email: string; full_name: string | null } | null;
-          order_items: { courses: { title: string; slug: string } | null }[];
-        } | null;
-        const profile = row?.profiles;
-        const course = row?.order_items?.[0]?.courses;
-        if (row && profile && course) {
-          await sendPurchaseEmail({
-            to: profile.email,
-            name: profile.full_name,
-            courseTitle: course.title,
-            courseSlug: course.slug,
-            totalFormatted: formatPrice(row.total_cents, row.currency.trim()),
-            newAccount: session.metadata.new_account === "1",
-          });
-        }
-        await issueInvoice(orderId);
-      }
-    }
+  let result: Awaited<ReturnType<typeof processStripeEvent>>;
+  try {
+    result = await processStripeEvent(event);
+  } catch (e) {
+    result = { status: "failed", error: e instanceof Error ? e.message : "eroare necunoscută" };
   }
-
-  if (event.type === "charge.refunded") {
-    const charge = event.data.object as Stripe.Charge;
-    const pi = typeof charge.payment_intent === "string" ? charge.payment_intent : null;
-    if (pi && charge.refunded) {
-      const admin = createAdminClient();
-      const { data: order } = await admin.from("orders").select("id, status").eq("stripe_payment_intent", pi).maybeSingle();
-      if (order && order.status === "paid") {
-        await admin.from("enrollments").delete().eq("order_id", order.id);
-        const { error } = await admin.rpc("admin_refund_order", { p_order: order.id, p_reason: "Rambursare din Stripe", p_by: null });
-        if (error) {
-          console.error("refund sync failed", error);
-          return NextResponse.json({ error: "refund_failed" }, { status: 500 });
-        }
-      }
-    }
+  await admin.from("stripe_events").update({ status: result.status, error: result.error ?? null, processed_at: new Date().toISOString() }).eq("id", event.id);
+  if (result.status === "failed") {
+    console.error("stripe event failed", event.id, result.error);
+    return NextResponse.json({ error: "processing_failed" }, { status: 500 }); // Stripe retries
   }
   return NextResponse.json({ received: true });
 }

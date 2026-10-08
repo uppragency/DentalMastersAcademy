@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { clearUserTier, revokeEnrollment, sendPasswordReset, toggleUserDisabled } from "@/actions/staff";
-import { AnonymizeForm, EnrollForm, ManualOrderForm, NoteForm, PointsForm, ProfileEditForm, TierForm } from "@/components/staff-forms";
+import { AnonymizeForm, EnrollForm, ManualOrderForm, NoteForm, PointsForm, ProfileEditForm, TierForm, TransferOrderForm } from "@/components/staff-forms";
 import { Button } from "@/components/ui";
 import { requireStaff } from "@/lib/staff";
 import { formatDate, formatPrice } from "@/lib/format";
@@ -30,7 +30,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
   const { data: user } = await admin.from("profiles").select("id, email, full_name, phone, specialization, role, tier, created_at, disabled_at, referral_code").eq("id", id).maybeSingle();
   if (!user) notFound();
 
-  const [{ data: courses }, { data: enrollments }, { data: orders }, { data: ledger }, { data: notes }, { data: override }, { data: grace }] = await Promise.all([
+  const [{ data: courses }, { data: enrollments }, { data: orders }, { data: ledger }, { data: notes }, { data: override }, { data: grace }, { data: mails }] = await Promise.all([
     admin.from("courses").select("id, title").order("title"),
     admin.from("enrollments").select("id, source, created_at, courses(title, slug)").eq("user_id", id).order("created_at", { ascending: false }),
     admin.from("orders").select("id, status, source, total_cents, currency, created_at, order_items(courses(title))").eq("user_id", id).order("created_at", { ascending: false }),
@@ -38,6 +38,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
     admin.from("user_notes").select("id, note, created_at, author:profiles!author_id(full_name, email)").eq("user_id", id).order("created_at", { ascending: false }).limit(50),
     admin.from("tier_overrides").select("tier, until, reason").eq("user_id", id).eq("active", true).maybeSingle(),
     admin.from("tier_state").select("grace_until").eq("user_id", id).maybeSingle(),
+    admin.from("email_log").select("id, subject, status, created_at").eq("user_id", id).order("created_at", { ascending: false }).limit(10),
   ]);
 
   const now = nowMs();
@@ -139,7 +140,22 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
           <h3 className="mb-4 font-medium">Adaugă comandă manuală</h3>
           <ManualOrderForm userId={id} courses={courses ?? []} />
         </div>
+        <div className="mt-6 border-t border-line pt-6">
+          <h3 className="mb-4 font-medium">Comandă prin transfer bancar (în așteptarea plății)</h3>
+          <TransferOrderForm userId={id} courses={courses ?? []} />
+        </div>
       </Card>
+
+      {(mails ?? []).length > 0 ? (
+        <Card title="Emailuri trimise" id="emailuri">
+          <ul className="divide-y divide-line text-sm">
+            {(mails ?? []).map((m) => (
+              <li key={m.id} className="flex flex-wrap justify-between gap-3 py-2"><span>{m.subject}</span><span className="text-muted">{formatDate(m.created_at)} · {m.status}</span></li>
+            ))}
+          </ul>
+          <Link href={`/admin/emailuri?q=${encodeURIComponent(user.email)}`} className="mt-4 inline-block text-sm underline underline-offset-4">Vezi tot jurnalul</Link>
+        </Card>
+      ) : null}
 
       {isAdmin ? (
         <div className="grid gap-8 xl:grid-cols-2">

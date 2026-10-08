@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/data";
 import { requireAdminClient } from "@/lib/require-admin";
 import { sendMail } from "@/lib/email";
-import { isEnded } from "@/lib/format";
+import { courseDays, isEnded } from "@/lib/format";
 import type { FormState } from "@/actions/auth";
 
 /** Notify every enrolled participant: in-account notification, optionally also email. */
@@ -26,6 +26,7 @@ async function notifyEnrolled(courseId: string, opts: { title: string; body: str
         heading: opts.title,
         paragraphs: [`${r.profiles.full_name ? `Bună, ${r.profiles.full_name}.` : "Bună."} ${opts.body}`],
         cta: { label: "Deschide în cont", href: opts.href },
+        kind: "announcement",
       });
     }
   }
@@ -74,8 +75,13 @@ export async function deleteMaterial(id: string, courseId: string) {
 
 /* Attendance and confirmation letters */
 export async function setAttendance(enrollmentId: string, courseId: string, attended: boolean) {
-  const { supabase } = await requireAdminClient();
-  await supabase.from("enrollments").update({ attended }).eq("id", enrollmentId);
+  await requireAdminClient();
+  const admin = createAdminClient();
+  const { data: course } = await admin.from("courses").select("starts_at, ends_at").eq("id", courseId).maybeSingle();
+  const days = course ? courseDays(course.starts_at, course.ends_at) : [];
+  if (days.length) await admin.from("attendance").upsert(days.map((day) => ({ enrollment_id: enrollmentId, day, present: attended })));
+  await admin.from("enrollments").update({ attended }).eq("id", enrollmentId);
+  if (attended) await admin.rpc("issue_certificate", { p_enrollment: enrollmentId });
   revalidatePath(`/admin/cursuri/${courseId}/participanti`);
 }
 
@@ -95,6 +101,8 @@ export async function sendConfirmationLetters(courseId: string): Promise<void> {
         heading: "Adeverința ta de participare",
         paragraphs: [`Mulțumim că ai participat la ${course.title}. Adeverința poate fi deschisă și printată din contul tău.`],
         cta: { label: "Deschide adeverința", href: `/cont/cursuri/${course.slug}/adeverinta` },
+        kind: "certificate",
+        userId: r.user_id,
       });
     }
   }

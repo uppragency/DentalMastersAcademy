@@ -9,18 +9,21 @@ import { Counter } from "@/components/counter";
 import { getCategories, getCategoryCounts, getCourses, getLoyaltySettings, getTestimonials, getTrainers } from "@/lib/data";
 import { dayNum, formatPrice, isEnded, monthShort } from "@/lib/format";
 import { nowMs } from "@/lib/time";
-import { advantages, faqs, facility, heroVideoUrl, howItWorks, modules, partners, stats, topics } from "@/content/site";
+import { advantages, facility, heroVideoUrl, howItWorks, modules, stats, topics } from "@/content/site";
+import { getFaqs, getPartners } from "@/lib/site-content";
 import { LocationMap } from "@/components/location-map";
 import { TrainerAvatar } from "@/components/trainer-avatar";
 
 export default async function HomePage() {
-  const [trainers, courses, testimonials, loyalty, categories, counts] = await Promise.all([
+  const [trainers, courses, testimonials, loyalty, categories, counts, faqs, partners] = await Promise.all([
     getTrainers(),
     getCourses(),
     getTestimonials(),
     getLoyaltySettings(),
     getCategories(),
     getCategoryCounts(),
+    getFaqs(),
+    getPartners(),
   ]);
   const now = nowMs();
   const upcoming = courses.filter((c) => !isEnded(c, now));

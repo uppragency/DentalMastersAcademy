@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { addEvent, savePost, saveTrainer } from "@/actions/content";
 import { Button, Field } from "@/components/ui";
+import { toBucharestLocal } from "@/lib/format";
 import type { BlogPost, Trainer } from "@/lib/types";
 
 const area = "w-full rounded-xl border border-line bg-card px-4 py-3 text-base outline-none transition-colors focus:border-gold";
@@ -45,6 +46,7 @@ export function PostForm({ post }: { post?: BlogPost }) {
       </div>
       <div><label htmlFor="cover" className="mb-1.5 block text-sm font-medium">Imagine (opțional)</label><input id="cover" type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/avif" className={fileCls} /></div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={post?.published} className="size-4 accent-[#a9833d]" /> Publicat (vizibil pe site)</label>
+      <Field label="Programează publicarea (opțional, ora României). Gol = vizibil imediat" name="publish_at" type="datetime-local" defaultValue={toBucharestLocal(post?.published_at)} />
       <Status message={state?.message} />
       <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează articolul"}</Button>
     </form>

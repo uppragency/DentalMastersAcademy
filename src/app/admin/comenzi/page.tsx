@@ -57,7 +57,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
                   <td className="px-5 py-4">{o.profiles?.full_name ?? o.profiles?.email}<span className="block text-muted">{o.profiles?.full_name ? o.profiles.email : ""}</span></td>
                   <td className="px-5 py-4">{o.order_items.map((i) => i.courses?.title).filter(Boolean).join(", ")}</td>
                   <td className="px-5 py-4 font-medium">{formatPrice(o.total_cents, o.currency.trim())}</td>
-                  <td className="px-5 py-4">{statusLabel[o.status] ?? o.status}{o.source === "manual" ? <span className="ml-2 rounded-full bg-gold-soft px-2 py-0.5 text-[11px] text-gold">manuală</span> : null}{o.invoice_number ? <span className="block text-xs text-muted">Factura {o.invoice_number}</span> : null}</td>
+                  <td className="px-5 py-4">{statusLabel[o.status] ?? o.status}{o.source === "manual" ? <span className="ml-2 rounded-full bg-gold-soft px-2 py-0.5 text-[11px] text-gold">manuală</span> : null}{o.source === "transfer" ? <span className="ml-2 rounded-full bg-gold-soft px-2 py-0.5 text-[11px] text-gold">transfer</span> : null}{o.invoice_number ? <span className="block text-xs text-muted">Factura {o.invoice_number}</span> : null}</td>
                 </tr>
               ))}
             </tbody>

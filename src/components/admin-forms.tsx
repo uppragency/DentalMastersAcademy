@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { addLesson, addTestimonial, createDiscountCode, deleteCourse, saveCourse, saveLoyalty, adjustPoints } from "@/actions/admin";
 import { Button, Field } from "@/components/ui";
+import { toBucharestLocal } from "@/lib/format";
 import type { Category, Course, LoyaltySettings } from "@/lib/types";
 
 const area =
@@ -97,6 +98,7 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
           </select>
         </div>
         <Field label="Înscrierile se deschid la (opțional, număr invers)" name="opens_on" type="date" defaultValue={opensOn} />
+        <Field label="Programează publicarea (opțional, ora României). Gol = vizibil imediat ce statusul este Publicat" name="publish_at" type="datetime-local" defaultValue={toBucharestLocal(course?.publish_at)} />
         <Field label="Video de prezentare (link https, YouTube/Vimeo/mp4)" name="promo_video_url" type="url" defaultValue={course?.promo_video_url ?? ""} error={e?.promo_video_url?.[0]} />
         <div>
           <label htmlFor="next_edition_of" className="mb-1.5 block text-sm font-medium">Ediție nouă a cursului (anunță lista de așteptare)</label>

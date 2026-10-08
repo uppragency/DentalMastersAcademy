@@ -8,6 +8,7 @@ import { getCurrentProfile } from "@/lib/data";
 import type { FormState } from "@/actions/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
+import { bucharestInstant } from "@/lib/format";
 
 async function requireAdmin() {
   const profile = await getCurrentProfile();
@@ -96,6 +97,7 @@ const courseSchema = z.object({
   end_time: z.string().optional(),
   schedule: z.string().max(10000).optional(),
   opens_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  publish_at: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/).optional(),
   promo_video_url: z.string().trim().url().startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
   faqs: z.string().max(10000).optional(),
   next_edition_of: z.string().uuid().optional(),
@@ -141,6 +143,7 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     end_time: opt(formData.get("end_time")),
     schedule: opt(formData.get("schedule")),
     opens_on: opt(formData.get("opens_on")),
+    publish_at: opt(formData.get("publish_at")),
     promo_video_url: opt(formData.get("promo_video_url")),
     faqs: opt(formData.get("faqs")),
     next_edition_of: opt(formData.get("next_edition_of")),
@@ -173,6 +176,7 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     capacity: d.capacity ?? null,
     status: d.status,
     registration_opens_at: d.opens_on ? bucharestIso(d.opens_on, 10) : null,
+    publish_at: bucharestInstant(d.publish_at),
     promo_video_url: d.promo_video_url ?? null,
     faqs: parseFaqs(d.faqs),
     next_edition_of: d.next_edition_of ?? null,
@@ -544,7 +548,7 @@ export async function duplicateCourse(id: string) {
   for (const k of ["id", "created_at", "updated_at"]) delete rest[k];
   const { data: created, error } = await supabase
     .from("courses")
-    .insert({ ...rest, slug, title: `${c.title} (copie)`, status: "draft", starts_at: null, ends_at: null, registration_opens_at: null, next_edition_of: null })
+    .insert({ ...rest, slug, title: `${c.title} (copie)`, status: "draft", starts_at: null, ends_at: null, registration_opens_at: null, publish_at: null, next_edition_of: null })
     .select("id")
     .single();
   if (error || !created) return;

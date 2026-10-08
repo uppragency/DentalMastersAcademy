@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
 import { contact, directions } from "@/content/site";
+import { processWaitlist } from "@/lib/waitlist";
+import { sendRecoveryEmail } from "@/lib/orders-ops";
 
 export const runtime = "nodejs";
 
@@ -16,6 +18,18 @@ export async function GET(request: NextRequest) {
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const admin = createAdminClient();
+  try {
+    const summary = await runDaily(admin);
+    await admin.from("cron_runs").insert({ job: "daily", ok: true, summary });
+    return NextResponse.json({ ok: true, ...summary });
+  } catch (e) {
+    const error = e instanceof Error ? e.message : "eroare necunoscută";
+    await admin.from("cron_runs").insert({ job: "daily", ok: false, error });
+    return NextResponse.json({ ok: false, error }, { status: 500 });
+  }
+}
+
+async function runDaily(admin: ReturnType<typeof createAdminClient>) {
   const { data: maintenance } = await admin.rpc("points_maintenance");
   const today = day(new Date());
   const { data: courses } = await admin.from("courses").select("id, slug, title, starts_at, ends_at, location, parking_info, bring_info").eq("status", "published").not("starts_at", "is", null);
@@ -42,7 +56,8 @@ export async function GET(request: NextRequest) {
       let href = `/cont/cursuri/${c.slug}`;
       if (kind === "review") {
         title = "Cum a fost cursul?";
-        paragraphs = [`Mulțumim că ai participat la ${c.title}. Părerea ta ne ajută: lasă o recenzie în contul tău.`];
+        paragraphs = [`Mulțumim că ai participat la ${c.title}. Evaluarea durează un minut și ne ajută să îmbunătățim următoarele ediții.`];
+        href = `/cont/cursuri/${c.slug}#feedback`;
       } else {
         title = kind === "r7" ? `Peste 7 zile: ${c.title}` : `Mâine: ${c.title}`;
         paragraphs = [
@@ -62,5 +77,71 @@ export async function GET(request: NextRequest) {
       sent++;
     }
   }
-  return NextResponse.json({ ok: true, sent, maintenance });
+  const ops = await runOps(admin);
+  return { sent, maintenance, ...ops };
+}
+
+/** Abandoned checkouts, waitlist offers, seat alerts and the daily problem digest for administrators. */
+async function runOps(admin: ReturnType<typeof createAdminClient>) {
+  const now = Date.now();
+  const hourAgo = new Date(now - 3_600_000).toISOString();
+  const dayAgo = new Date(now - 24 * 3_600_000).toISOString();
+
+  // 1. One reminder for card checkouts left unpaid for more than an hour.
+  const { data: abandoned } = await admin.from("orders").select("id").eq("status", "pending").eq("source", "stripe").is("recovery_sent_at", null).lt("created_at", hourAgo).gt("created_at", dayAgo).limit(100);
+  let recovery = 0;
+  for (const o of abandoned ?? []) if (await sendRecoveryEmail(o.id)) recovery++;
+
+  // 2. Stripe sessions expire after 2 hours: close card orders unpaid for a day (points are released by trigger).
+  const { data: stale } = await admin.from("orders").update({ status: "cancelled" }).eq("status", "pending").eq("source", "stripe").lt("created_at", dayAgo).select("id");
+
+  // 3. Waitlists: offer free seats, expire old offers.
+  const { data: courses } = await admin.from("courses").select("id, title, slug, capacity, starts_at").eq("status", "published").not("capacity", "is", null).gt("starts_at", new Date(now).toISOString());
+  let offers = 0;
+  const alerts: string[] = [];
+  const { data: enr } = await admin.from("enrollments").select("course_id");
+  const taken = new Map<string, number>();
+  for (const e of enr ?? []) taken.set(e.course_id, (taken.get(e.course_id) ?? 0) + 1);
+  for (const c of courses ?? []) {
+    offers += await processWaitlist(c.id);
+    const n = taken.get(c.id) ?? 0;
+    const cap = c.capacity!;
+    const daysLeft = Math.ceil((Date.parse(c.starts_at!) - now) / 86_400_000);
+    const candidates: { key: string; msg: string }[] = [];
+    if (n >= cap) candidates.push({ key: `seats100:${c.id}`, msg: `${c.title}: complet (${n}/${cap}).` });
+    else if (n / cap >= 0.8) candidates.push({ key: `seats80:${c.id}`, msg: `${c.title}: aproape complet (${n}/${cap}).` });
+    if (daysLeft <= 14 && daysLeft >= 0 && n / cap < 0.5) candidates.push({ key: `low14:${c.id}`, msg: `${c.title}: începe în ${daysLeft} zile și are doar ${n}/${cap} înscriși.` });
+    for (const a of candidates) {
+      const { data: inserted } = await admin.from("ops_alerts").upsert({ key: a.key, kind: "seats", message: a.msg }, { onConflict: "key", ignoreDuplicates: true }).select("key");
+      if (inserted && inserted.length > 0) alerts.push(a.msg);
+    }
+  }
+
+  // 4. Problems since yesterday.
+  const [{ count: badEvents }, { count: badMails }, { count: badInvoices }] = await Promise.all([
+    admin.from("stripe_events").select("id", { count: "exact", head: true }).eq("status", "failed"),
+    admin.from("email_log").select("id", { count: "exact", head: true }).in("status", ["failed", "bounced"]).gte("created_at", dayAgo),
+    admin.from("orders").select("id", { count: "exact", head: true }).eq("status", "paid").not("invoice_error", "is", null),
+  ]);
+  const problems: string[] = [];
+  if (badEvents) problems.push(`${badEvents} evenimente Stripe eșuate (plăți care pot să nu fi acordat accesul).`);
+  if (badMails) problems.push(`${badMails} emailuri eșuate sau respinse în ultimele 24 de ore.`);
+  if (badInvoices) problems.push(`${badInvoices} comenzi plătite cu eroare la facturare.`);
+
+  let digest = false;
+  if (alerts.length + problems.length > 0) {
+    const { data: staff } = await admin.from("profiles").select("email").eq("role", "admin").is("disabled_at", null);
+    const to = (staff ?? []).map((s) => s.email).filter(Boolean);
+    if (to.length) {
+      digest = await sendMail({
+        to,
+        subject: problems.length ? "Dental Masters Academy: probleme de verificat" : "Dental Masters Academy: alerte cursuri",
+        heading: problems.length ? "Probleme de verificat" : "Alerte cursuri",
+        paragraphs: [...problems, ...alerts],
+        cta: { label: "Deschide Stare sistem", href: "/admin/sistem" },
+        kind: "alert",
+      });
+    }
+  }
+  return { recovery, cancelled: stale?.length ?? 0, offers, alerts: alerts.length, problems: problems.length, digest };
 }

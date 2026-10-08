@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { requireAdminClient } from "@/lib/require-admin";
 import { uploadImage } from "@/lib/media";
+import { bucharestInstant } from "@/lib/format";
 import type { FormState } from "@/actions/auth";
 
 const slugify = (input: string) =>
@@ -62,7 +63,14 @@ export async function savePost(id: string | null, _: FormState, formData: FormDa
     author_name: d.author_name ?? "Echipa Dental Masters Academy",
     published,
   };
-  if (published) row.published_at = new Date().toISOString();
+  if (published) {
+    const scheduled = bucharestInstant(opt(formData.get("publish_at")));
+    if (scheduled) row.published_at = scheduled;
+    else {
+      const { data: prev } = id ? await supabase.from("blog_posts").select("published, published_at").eq("id", id).maybeSingle() : { data: null };
+      row.published_at = prev?.published && prev.published_at ? prev.published_at : new Date().toISOString();
+    }
+  }
   const cover = fileOf(formData.get("cover"));
   if (cover) {
     const up = await uploadImage(cover, "blog");

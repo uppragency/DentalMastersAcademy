@@ -1,5 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.dentalmasters.ro";
 
@@ -15,6 +16,7 @@ export async function sendPurchaseEmail(opts: {
   const from = process.env.RESEND_FROM;
   if (!key || !from) {
     console.warn("Purchase email skipped: RESEND_API_KEY or RESEND_FROM missing");
+    await logEmail({ to: opts.to, subject: "Achiziția ta la Dental Masters Academy", kind: "purchase", error: "Email neconfigurat (RESEND_API_KEY / RESEND_FROM)" });
     return;
   }
   const resend = new Resend(key);
@@ -30,13 +32,29 @@ export async function sendPurchaseEmail(opts: {
     <p><a href="${siteUrl()}/cont/cursuri/${encodeURIComponent(opts.courseSlug)}" style="display:inline-block;background:#0b1220;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none">Accesează cursul</a></p>
     <p style="color:#5d6675;font-size:13px">Dental Masters Academy</p>
   </div>`;
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from,
     to: opts.to,
     subject: "Achiziția ta la Dental Masters Academy",
     html,
   });
   if (error) console.error("Resend error", error);
+  await logEmail({ to: opts.to, subject: "Achiziția ta la Dental Masters Academy", kind: "purchase", providerId: data?.id, error: error ? error.message : undefined });
+}
+
+type LogRow = { to: string | string[]; subject: string; kind?: string; userId?: string; providerId?: string; error?: string };
+
+/** Records every send attempt for the admin email log. Never throws. */
+async function logEmail(row: LogRow) {
+  try {
+    const status = row.error ? "failed" : "sent";
+    const list = Array.isArray(row.to) ? row.to : [row.to];
+    await createAdminClient().from("email_log").insert(
+      list.map((to) => ({ to_email: to, subject: row.subject, kind: row.kind ?? null, user_id: row.userId ?? null, status, provider_id: row.providerId ?? null, error: row.error ?? null })),
+    );
+  } catch (e) {
+    console.error("email_log insert failed", e);
+  }
 }
 
 function escapeHtml(value: string) {
@@ -51,11 +69,14 @@ export async function sendMail(opts: {
   paragraphs: string[];
   cta?: { label: string; href: string };
   attachments?: { filename: string; content: string }[];
+  kind?: string;
+  userId?: string;
 }) {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
   if (!key || !from) {
     console.warn("Email skipped: RESEND_API_KEY or RESEND_FROM missing");
+    await logEmail({ to: opts.to, subject: opts.subject, kind: opts.kind, userId: opts.userId, error: "Email neconfigurat (RESEND_API_KEY / RESEND_FROM)" });
     return false;
   }
   const resend = new Resend(key);
@@ -65,13 +86,14 @@ export async function sendMail(opts: {
     ${opts.cta ? `<p><a href="${opts.cta.href.startsWith("http") ? opts.cta.href : siteUrl() + opts.cta.href}" style="display:inline-block;background:#0b1220;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none">${escapeHtml(opts.cta.label)}</a></p>` : ""}
     <p style="color:#5d6675;font-size:13px">Dental Masters Academy</p>
   </div>`;
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from,
     to: opts.to,
     subject: opts.subject,
     html,
     attachments: opts.attachments,
   });
+  await logEmail({ to: opts.to, subject: opts.subject, kind: opts.kind, userId: opts.userId, providerId: data?.id, error: error ? error.message : undefined });
   if (error) {
     console.error("Resend error", error);
     return false;

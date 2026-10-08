@@ -14,6 +14,7 @@ import {
   updateUserProfile,
 } from "@/actions/staff";
 import { bulkCreateCodes, updateDiscountCode } from "@/actions/admin";
+import { createTransferOrder } from "@/actions/ops";
 import { Button, Field } from "@/components/ui";
 import type { FormState } from "@/actions/auth";
 
@@ -105,6 +106,20 @@ export function ManualOrderForm({ userId, courses }: { userId: string; courses: 
   );
 }
 
+export function TransferOrderForm({ userId, courses }: { userId: string; courses: Course[] }) {
+  const [state, action, pending] = useAct(createTransferOrder.bind(null, userId));
+  const e = state?.errors;
+  return (
+    <form action={action} className="grid gap-5 sm:grid-cols-2" key={state?.message ?? "n"}>
+      <Select label="Curs" name="course_id" placeholder="Alege cursul" options={courses.map((c) => ({ value: c.id, label: c.title }))} error={e?.course_id?.[0]} />
+      <Field label="Sumă de plată (EUR)" name="amount" type="number" min="0" step="0.01" required error={e?.amount?.[0]} />
+      <div className="sm:col-span-2"><Field label="Notă (ex. firmă, proformă nr.)" name="note" required error={e?.note?.[0]} /></div>
+      <p className="text-sm text-muted sm:col-span-2">Comanda rămâne în așteptare, iar clientul primește pe email instrucțiunile de plată. Când banii intră, deschizi comanda și apeși „Marchează plătită”: se acordă înscrierea și punctele, se trimite confirmarea și se emite factura.</p>
+      <div className="space-y-4 sm:col-span-2"><Msg state={state} /><Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Creează comanda în așteptare"}</Button></div>
+    </form>
+  );
+}
+
 export function TierForm({ userId }: { userId: string }) {
   const [state, action, pending] = useAct(setUserTier.bind(null, userId));
   const e = state?.errors;
@@ -147,9 +162,10 @@ export function RefundForm({ orderId, stripe }: { orderId: string; stripe: boole
   return (
     <form action={action} className="space-y-4">
       <p className="text-sm text-muted">
-        {stripe ? "Rambursează integral prin Stripe, " : "Marchează comanda rambursată (plata nu a fost prin Stripe, returnezi banii separat), "}
-        retrage înscrierea, retrage punctele câștigate și returnează punctele folosite.
+        {stripe ? "Rambursează prin Stripe. " : "Marchează comanda rambursată (plata nu a fost prin Stripe, returnezi banii separat). "}
+        Rambursarea integrală retrage înscrierea, punctele câștigate și returnează punctele folosite. Rambursarea parțială doar înregistrează suma, fără alte modificări.
       </p>
+      <Field label="Sumă (EUR, gol = rambursare integrală)" name="amount" type="number" min="0" step="0.01" error={state?.errors?.amount?.[0]} />
       <Field label="Motiv" name="reason" required error={state?.errors?.reason?.[0]} />
       <Msg state={state} />
       <Button type="submit" variant="ghost" className="text-red-700" disabled={pending}>{pending ? "Se procesează..." : "Rambursează comanda"}</Button>

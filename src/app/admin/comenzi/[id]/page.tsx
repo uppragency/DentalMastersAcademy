@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cancelPendingOrder, resendConfirmation, retryInvoice } from "@/actions/staff";
+import { resendTransferInstructions } from "@/actions/ops";
 import { MarkPaidForm, RefundForm } from "@/components/staff-forms";
 import { Button } from "@/components/ui";
 import { requireStaff } from "@/lib/staff";
@@ -31,7 +32,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const o = data as unknown as {
     id: string; status: string; source: string; subtotal_cents: number; discount_cents: number; total_cents: number; currency: string;
     tier_at_purchase: Tier; discount_code: string | null; points_used: number; points_discount_cents: number; points_earned: number;
-    stripe_session_id: string | null; stripe_payment_intent: string | null; paid_at: string | null; created_at: string; refunded_at: string | null;
+    stripe_session_id: string | null; stripe_payment_intent: string | null; paid_at: string | null; created_at: string; refunded_at: string | null; refunded_cents: number;
     refund_reason: string | null; manual_note: string | null; invoice_number: string | null; invoice_url: string | null; invoice_error: string | null; billing: Billing;
     profiles: { id: string; email: string; full_name: string | null } | null;
     order_items: { unit_price_cents: number; discount_cents: number; final_price_cents: number; courses: { title: string; slug: string } | null }[];
@@ -41,7 +42,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const priceDiscount = o.discount_cents - o.points_discount_cents;
   const timeline = [
     { t: o.created_at, l: "Comandă creată" },
-    ...(o.paid_at ? [{ t: o.paid_at, l: o.source === "manual" ? "Marcată plătită manual" : "Plată confirmată" }] : []),
+    ...(o.paid_at ? [{ t: o.paid_at, l: o.source === "manual" ? "Marcată plătită manual" : o.source === "transfer" ? "Plată prin transfer confirmată" : "Plată confirmată" }] : []),
     ...(o.refunded_at ? [{ t: o.refunded_at, l: `Rambursată${o.refund_reason ? `: ${o.refund_reason}` : ""}` }] : []),
   ];
 
@@ -50,7 +51,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <Link href="/admin/comenzi" className="text-sm text-muted hover:text-foreground">← Comenzi</Link>
       <header>
         <h1 className="text-3xl font-semibold tracking-tight">Comandă {o.id.slice(0, 8)}</h1>
-        <p className="mt-1 text-sm text-muted">{statusLabel[o.status] ?? o.status} · {o.source === "manual" ? "manuală" : "Stripe"} · {formatDate(o.created_at)}</p>
+        <p className="mt-1 text-sm text-muted">{statusLabel[o.status] ?? o.status} · {o.source === "manual" ? "manuală" : o.source === "transfer" ? "transfer bancar" : "Stripe"} · {formatDate(o.created_at)}</p>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-2">
@@ -66,6 +67,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             {priceDiscount > 0 ? <Row k={`Reducere${o.discount_code ? ` (${o.discount_code})` : o.tier_at_purchase !== "standard" ? ` (nivel ${tierNames[o.tier_at_purchase]})` : ""}`} v={`−${m(priceDiscount)}`} /> : null}
             {o.points_used > 0 ? <Row k={`Puncte folosite (${o.points_used})`} v={`−${m(o.points_discount_cents)}`} /> : null}
             <Row k="Total plătit" v={m(o.total_cents)} />
+            {o.refunded_cents > 0 ? <Row k="Rambursat" v={m(o.refunded_cents)} /> : null}
             <Row k="Puncte câștigate" v={String(o.points_earned)} />
             <Row k="Nivel la achiziție" v={tierNames[o.tier_at_purchase]} />
           </dl>
@@ -95,6 +97,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         <div className="flex flex-wrap gap-3">
           {o.status === "paid" ? <form action={resendConfirmation.bind(null, id)}><Button type="submit" variant="ghost">Retrimite confirmarea</Button></form> : null}
           {o.status === "paid" && isAdmin ? <form action={retryInvoice.bind(null, id)}><Button type="submit" variant="ghost">Reîncearcă factura</Button></form> : null}
+          {o.status === "pending" && o.source === "transfer" ? <form action={resendTransferInstructions.bind(null, id)}><Button type="submit" variant="ghost">Retrimite instrucțiunile de plată</Button></form> : null}
           {o.status === "pending" ? <form action={cancelPendingOrder.bind(null, id)}><Button type="submit" variant="ghost">Anulează comanda</Button></form> : null}
         </div>
         {isAdmin && o.status === "pending" ? <div className="mt-6 border-t border-line pt-6"><h3 className="mb-3 font-medium">Marchează plătită</h3><MarkPaidForm orderId={id} /></div> : null}

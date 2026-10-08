@@ -29,6 +29,7 @@ export type Course = {
   outcomes: string[];
   sections: { title: string; items: string[] }[];
   registration_opens_at: string | null;
+  publish_at?: string | null;
   next_edition_of: string | null;
   promo_video_url: string | null;
   faqs: { q: string; a: string }[];

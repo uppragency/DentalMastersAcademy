@@ -7,6 +7,9 @@ const staffItems = [
   { href: "/admin", label: "Sumar" },
   { href: "/admin/useri", label: "Useri" },
   { href: "/admin/comenzi", label: "Comenzi" },
+  { href: "/admin/abandonate", label: "Neplătite" },
+  { href: "/admin/prezenta", label: "Prezență" },
+  { href: "/admin/emailuri", label: "Emailuri" },
 ];
 const adminItems = [
   { href: "/admin/cursuri", label: "Cursuri" },
@@ -15,11 +18,14 @@ const adminItems = [
   { href: "/admin/rapoarte", label: "Rapoarte" },
   { href: "/admin/email", label: "Email" },
   { href: "/admin/testimoniale", label: "Testimoniale" },
+  { href: "/admin/feedback", label: "Feedback" },
+  { href: "/admin/continut", label: "Conținut site" },
   { href: "/admin/lectori", label: "Lectori" },
   { href: "/admin/blog", label: "Blog" },
   { href: "/admin/evenimente", label: "Evenimente" },
   { href: "/admin/asteptare", label: "Listă de așteptare" },
   { href: "/admin/jurnal", label: "Jurnal modificări" },
+  { href: "/admin/sistem", label: "Sistem" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

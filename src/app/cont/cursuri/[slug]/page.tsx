@@ -5,7 +5,7 @@ import { setLessonDone } from "@/actions/learning";
 import { Button, ButtonLink } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
 import { VideoPlayer } from "@/components/video-player";
-import { ReviewForm } from "@/components/engagement-forms";
+import { FeedbackForm } from "@/components/engagement-forms";
 import { nowMs } from "@/lib/time";
 import { createClient } from "@/lib/supabase/server";
 import { getCompletedLessonIds, getCurrentProfile, getLessons } from "@/lib/data";
@@ -45,7 +45,7 @@ export default async function MyCoursePage({
     getLessons(course.id),
     getCompletedLessonIds(profile.id),
     supabase.from("course_materials").select("id, title, description, url").eq("course_id", course.id).order("created_at"),
-    supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("course_id", course.id),
+    supabase.from("course_feedback").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("course_id", course.id),
   ]);
   const courseOver = isEnded(course, nowMs());
   const done = new Set(doneIds);
@@ -225,12 +225,12 @@ export default async function MyCoursePage({
           ) : null}
 
           {courseOver ? (
-            <section className="mt-14 rounded-[2rem] border border-line bg-card p-8" aria-labelledby="rev">
+            <section id="feedback" className="mt-14 scroll-mt-28 rounded-[2rem] border border-line bg-card p-8" aria-labelledby="rev">
               <h2 id="rev" className="font-display text-3xl">Spune-ne cum a fost</h2>
               {(reviewCount ?? 0) > 0 ? (
-                <p className="mt-3 text-sm text-muted">Ai trimis deja o recenzie. Mulțumim!</p>
+                <p className="mt-3 text-sm text-muted">Ai trimis deja evaluarea. Mulțumim!</p>
               ) : (
-                <div className="mt-5 max-w-xl"><ReviewForm courseId={course.id} /></div>
+                <div className="mt-5 max-w-xl"><FeedbackForm courseId={course.id} /></div>
               )}
             </section>
           ) : null}

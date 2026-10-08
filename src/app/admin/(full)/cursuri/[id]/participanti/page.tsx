@@ -40,6 +40,8 @@ export default async function Participants({ params }: { params: Promise<{ id: s
         </div>
         <div className="flex flex-wrap gap-2">
           <ButtonLink href={`/admin/cursuri/${id}/participanti/export`} variant="ghost">Export CSV</ButtonLink>
+          <ButtonLink href={`/admin/cursuri/${id}/participanti/lista`} variant="ghost">Listă printabilă</ButtonLink>
+          <ButtonLink href={`/admin/prezenta/${id}`} variant="ghost">Check-in pe zile</ButtonLink>
           <form action={sendConfirmationLetters.bind(null, id)}>
             <Button type="submit" variant="gold" disabled={attended === 0}>Trimite adeverințe ({attended})</Button>
           </form>

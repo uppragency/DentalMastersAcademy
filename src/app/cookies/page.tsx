@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui";
 import { contact } from "@/content/site";
+import { LegalText } from "@/components/legal-text";
+import { getLegalText } from "@/lib/site-content";
 
 export const metadata: Metadata = { title: "Politica de cookies", robots: { index: false } };
 
@@ -10,7 +12,16 @@ const rows = [
   { name: "dma-theme (localStorage)", purpose: "Reține preferința pentru tema luminoasă sau întunecată.", duration: "Până la ștergere", kind: "Preferințe" },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const custom = await getLegalText("legal_cookies");
+  if (custom) {
+    return (
+      <Container className="max-w-3xl py-16">
+        <h1 className="text-4xl font-semibold tracking-tight">Politica de cookies</h1>
+        <LegalText text={custom} />
+      </Container>
+    );
+  }
   return (
     <Container className="max-w-3xl py-16">
       <h1 className="text-4xl font-semibold tracking-tight">Politica de cookies</h1>

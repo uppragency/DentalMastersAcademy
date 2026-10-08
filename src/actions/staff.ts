@@ -8,6 +8,8 @@ import { getStripe } from "@/lib/stripe";
 import { sendMail, sendPurchaseEmail } from "@/lib/email";
 import { issueInvoice } from "@/lib/invoicing";
 import { formatPrice } from "@/lib/format";
+import { logAudit } from "@/lib/audit";
+import { processWaitlist } from "@/lib/waitlist";
 
 const opt = (v: FormDataEntryValue | null) => (typeof v === "string" && v.trim() !== "" ? v.trim() : undefined);
 const fe = (e: z.ZodError) => ({ errors: z.flattenError(e).fieldErrors as Record<string, string[]> });
@@ -48,6 +50,7 @@ export async function updateUserProfile(userId: string, _: FormState, formData: 
   const { error } = await admin.from("profiles").update(patch).eq("id", userId);
   if (error) return { message: "Datele nu au putut fi salvate." };
   if (patch.role) await note(admin, userId, profile.id, `Rol schimbat în ${d.role}.`);
+  if (patch.role) await logAudit(profile.id, "role_change", userId, { role: d.role });
   revalidatePath(`/admin/useri/${userId}`);
   return { message: "Datele au fost salvate." };
 }
@@ -67,6 +70,7 @@ export async function enrollUser(userId: string, _: FormState, formData: FormDat
   if (!parsed.success) return fe(parsed.error);
   const { error } = await admin.rpc("admin_enroll", { p_user: userId, p_course: parsed.data.course_id, p_note: parsed.data.reason, p_by: profile.id });
   if (error) return { message: rpcMessage(error.message) };
+  await logAudit(profile.id, "enroll_user", userId, { course_id: parsed.data.course_id, reason: parsed.data.reason });
   revalidatePath(`/admin/useri/${userId}`);
   return { message: "Utilizatorul a fost înscris." };
 }
@@ -85,6 +89,7 @@ export async function manualOrder(userId: string, _: FormState, formData: FormDa
     p_by: profile.id,
   });
   if (error) return { message: rpcMessage(error.message) };
+  await logAudit(profile.id, "manual_order", userId, { course_id: parsed.data.course_id, amount: parsed.data.amount, reason: parsed.data.reason });
   revalidatePath(`/admin/useri/${userId}`);
   revalidatePath("/admin/comenzi");
   return { message: "Comanda manuală a fost creată. Punctele și nivelul au fost actualizate." };
@@ -92,10 +97,12 @@ export async function manualOrder(userId: string, _: FormState, formData: FormDa
 
 export async function revokeEnrollment(userId: string, enrollmentId: string) {
   const { admin, profile } = await requireFullAdmin();
-  const { data: e } = await admin.from("enrollments").select("courses(title)").eq("id", enrollmentId).eq("user_id", userId).maybeSingle();
+  const { data: e } = await admin.from("enrollments").select("course_id, courses(title)").eq("id", enrollmentId).eq("user_id", userId).maybeSingle();
   await admin.from("enrollments").delete().eq("id", enrollmentId).eq("user_id", userId);
   const title = (e?.courses as unknown as { title: string } | null)?.title ?? "curs";
   await note(admin, userId, profile.id, `Înscrierea la ${title} a fost retrasă.`);
+  await logAudit(profile.id, "revoke_enrollment", userId, { course: title });
+  if (e?.course_id) await processWaitlist(e.course_id);
   revalidatePath(`/admin/useri/${userId}`);
 }
 
@@ -109,6 +116,7 @@ export async function setUserTier(userId: string, _: FormState, formData: FormDa
   const until = d.until ? new Date(`${d.until}T23:59:59+03:00`).toISOString() : null;
   const { error } = await admin.rpc("admin_set_tier", { p_user: userId, p_tier: d.tier, p_until: until, p_reason: d.reason, p_by: profile.id });
   if (error) return { message: "Nivelul nu a putut fi setat." };
+  await logAudit(profile.id, "set_tier", userId, { tier: d.tier, until: d.until ?? null, reason: d.reason });
   await note(admin, userId, profile.id, `Nivel setat manual: ${d.tier}${d.until ? ` până la ${d.until}` : ""}. Motiv: ${d.reason}`);
   revalidatePath(`/admin/useri/${userId}`);
   revalidatePath("/admin/gold");
@@ -118,6 +126,7 @@ export async function setUserTier(userId: string, _: FormState, formData: FormDa
 export async function clearUserTier(userId: string) {
   const { admin, profile } = await requireFullAdmin();
   await admin.rpc("admin_set_tier", { p_user: userId, p_tier: null, p_until: null, p_reason: null, p_by: profile.id });
+  await logAudit(profile.id, "clear_tier", userId);
   await note(admin, userId, profile.id, "Nivelul manual a fost eliminat. Nivelul revine la calculul automat.");
   revalidatePath(`/admin/useri/${userId}`);
   revalidatePath("/admin/gold");
@@ -131,6 +140,7 @@ export async function adjustUserPoints(userId: string, _: FormState, formData: F
   if (!parsed.success) return fe(parsed.error);
   const { data, error } = await admin.rpc("admin_adjust_points", { p_user: userId, p_delta: parsed.data.delta, p_note: parsed.data.reason });
   if (error) return { message: "Ajustarea nu a putut fi făcută." };
+  await logAudit(profile.id, "adjust_points", userId, { delta: parsed.data.delta, reason: parsed.data.reason });
   await note(admin, userId, profile.id, `Puncte ${parsed.data.delta > 0 ? "adăugate" : "retrase"}: ${parsed.data.delta}. Motiv: ${parsed.data.reason}`);
   revalidatePath(`/admin/useri/${userId}`);
   return { message: `Sold actual: ${data} puncte.` };
@@ -150,6 +160,7 @@ export async function toggleUserDisabled(userId: string, disable: boolean) {
   await admin.auth.admin.updateUserById(userId, { ban_duration: disable ? "876000h" : "none" });
   await admin.from("profiles").update({ disabled_at: disable ? new Date().toISOString() : null }).eq("id", userId);
   await note(admin, userId, profile.id, disable ? "Cont dezactivat." : "Cont reactivat.");
+  await logAudit(profile.id, disable ? "disable_user" : "enable_user", userId);
   revalidatePath(`/admin/useri/${userId}`);
 }
 
@@ -167,6 +178,7 @@ export async function anonymizeUser(userId: string, _: FormState, formData: Form
   await admin.from("profiles").update({ email: anon, full_name: "Cont anonimizat", phone: null, specialization: null, disabled_at: new Date().toISOString() }).eq("id", userId);
   await admin.from("billing_profiles").delete().eq("user_id", userId);
   await admin.from("user_notes").delete().eq("user_id", userId);
+  await logAudit(profile.id, "anonymize_user", userId);
   await note(admin, userId, profile.id, "Cont anonimizat la cerere (GDPR). Comenzile și facturile sunt păstrate conform obligațiilor legale.");
   revalidatePath(`/admin/useri/${userId}`);
   return { message: "Contul a fost anonimizat." };
@@ -176,24 +188,45 @@ export async function anonymizeUser(userId: string, _: FormState, formData: Form
 
 export async function refundOrder(orderId: string, _: FormState, formData: FormData): Promise<FormState> {
   const { admin, profile } = await requireFullAdmin();
-  const parsed = z.object({ reason }).safeParse({ reason: formData.get("reason") });
+  const parsed = z.object({ reason, amount: z.coerce.number().min(0).max(100000).optional() }).safeParse({ reason: formData.get("reason"), amount: opt(formData.get("amount")) });
   if (!parsed.success) return fe(parsed.error);
-  const { data: o } = await admin.from("orders").select("id, status, source, stripe_payment_intent, user_id").eq("id", orderId).maybeSingle();
+  const { data: o } = await admin
+    .from("orders")
+    .select("id, status, source, stripe_payment_intent, user_id, total_cents, refunded_cents, currency, order_items(course_id)")
+    .eq("id", orderId)
+    .maybeSingle();
   if (!o) return { message: "Comanda nu a fost găsită." };
   if (o.status !== "paid") return { message: "Doar comenzile plătite pot fi rambursate." };
+
+  const remaining = o.total_cents - o.refunded_cents;
+  const wanted = parsed.data.amount ? Math.round(parsed.data.amount * 100) : remaining;
+  if (wanted <= 0 || wanted > remaining) return { errors: { amount: [`Suma maximă rambursabilă este ${formatPrice(remaining, o.currency.trim())}.`] } };
+  const full = wanted === remaining;
 
   if (o.source === "stripe" && o.stripe_payment_intent) {
     const stripe = getStripe();
     if (!stripe) return { message: "Stripe nu este configurat, rambursarea nu se poate face." };
     try {
-      await stripe.refunds.create({ payment_intent: o.stripe_payment_intent });
+      await stripe.refunds.create({ payment_intent: o.stripe_payment_intent, ...(full && o.refunded_cents === 0 ? {} : { amount: wanted }) });
     } catch (e) {
       return { message: `Stripe a refuzat rambursarea: ${e instanceof Error ? e.message : "eroare necunoscută"}` };
     }
   }
+
+  if (!full) {
+    await admin.from("orders").update({ refunded_cents: o.refunded_cents + wanted }).eq("id", orderId);
+    await note(admin, o.user_id, profile.id, `Rambursare parțială de ${formatPrice(wanted, o.currency.trim())}. Motiv: ${parsed.data.reason}`);
+    await logAudit(profile.id, "partial_refund", orderId, { cents: wanted, reason: parsed.data.reason });
+    revalidatePath(`/admin/comenzi/${orderId}`);
+    return { message: `Rambursare parțială înregistrată: ${formatPrice(wanted, o.currency.trim())}. Înscrierea și punctele rămân neschimbate.` };
+  }
+
   await admin.from("enrollments").delete().eq("order_id", orderId);
   const { error } = await admin.rpc("admin_refund_order", { p_order: orderId, p_reason: parsed.data.reason, p_by: profile.id });
   if (error) return { message: "Banii au fost returnați în Stripe, dar comanda nu s-a actualizat. Reîncearcă sau actualizează manual." };
+  await admin.from("orders").update({ refunded_cents: o.total_cents }).eq("id", orderId);
+  await logAudit(profile.id, "refund", orderId, { cents: wanted, reason: parsed.data.reason });
+  for (const i of (o.order_items ?? []) as { course_id: string }[]) await processWaitlist(i.course_id);
   revalidatePath(`/admin/comenzi/${orderId}`);
   revalidatePath("/admin/comenzi");
   return { message: "Comanda a fost rambursată. Înscrierea a fost retrasă, iar punctele au fost corectate." };
@@ -203,19 +236,26 @@ export async function markOrderPaid(orderId: string, _: FormState, formData: For
   const { admin, profile } = await requireFullAdmin();
   const parsed = z.object({ reason }).safeParse({ reason: formData.get("reason") });
   if (!parsed.success) return fe(parsed.error);
-  const { data: o } = await admin.from("orders").select("status, user_id").eq("id", orderId).maybeSingle();
+  const { data: o } = await admin.from("orders").select("status, user_id, source").eq("id", orderId).maybeSingle();
   if (!o || o.status !== "pending") return { message: "Doar comenzile în așteptare pot fi marcate plătite." };
+  const transfer = o.source === "transfer";
   const { error } = await admin.rpc("fulfill_order", { p_order: orderId, p_session: null, p_payment_intent: null });
   if (error) return { message: "Comanda nu a putut fi marcată plătită." };
-  await admin.from("orders").update({ provider: "manual", provider_ref: "manual", source: "manual", manual_note: parsed.data.reason }).eq("id", orderId);
-  await note(admin, o.user_id, profile.id, `Comandă marcată plătită manual. Motiv: ${parsed.data.reason}`);
+  await admin.from("orders").update({ provider: transfer ? "transfer" : "manual", provider_ref: transfer ? "transfer" : "manual", source: transfer ? "transfer" : "manual", manual_note: parsed.data.reason }).eq("id", orderId);
+  await note(admin, o.user_id, profile.id, `Comandă marcată plătită${transfer ? " (transfer bancar)" : " manual"}. Motiv: ${parsed.data.reason}`);
+  await logAudit(profile.id, "mark_paid", orderId, { source: o.source, reason: parsed.data.reason });
+  if (transfer) {
+    await resendConfirmation(orderId);
+    await issueInvoice(orderId);
+  }
   revalidatePath(`/admin/comenzi/${orderId}`);
-  return { message: "Comanda este marcată plătită. Înscrierea și punctele au fost acordate." };
+  return { message: "Comanda este marcată plătită. Înscrierea și punctele au fost acordate." + (transfer ? " Confirmarea a fost trimisă, iar factura a fost emisă dacă SmartBill este configurat." : "") };
 }
 
 export async function cancelPendingOrder(orderId: string) {
-  const { admin } = await requireStaff();
+  const { admin, profile } = await requireStaff();
   await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId).eq("status", "pending");
+  await logAudit(profile.id, "cancel_order", orderId);
   revalidatePath(`/admin/comenzi/${orderId}`);
   revalidatePath("/admin/comenzi");
 }
@@ -245,7 +285,8 @@ export async function resendConfirmation(orderId: string) {
 }
 
 export async function retryInvoice(orderId: string) {
-  await requireFullAdmin();
+  const { profile } = await requireFullAdmin();
+  await logAudit(profile.id, "retry_invoice", orderId);
   await issueInvoice(orderId);
   revalidatePath(`/admin/comenzi/${orderId}`);
 }
@@ -299,6 +340,7 @@ export async function sendCampaign(_: FormState, formData: FormData): Promise<Fo
       else failed++;
     }
   }
+  await logAudit(profile.id, "send_campaign", d.subject, { sent, failed, audience: d.audience });
   await admin.from("email_campaigns").insert({
     subject: d.subject,
     body: d.body,
