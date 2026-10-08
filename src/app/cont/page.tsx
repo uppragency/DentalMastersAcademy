@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ButtonLink, Eyebrow } from "@/components/ui";
-import { getCourses, getCurrentProfile, getLoyaltyState, getLoyaltySettings, getMyEnrollments } from "@/lib/data";
+import { Eyebrow } from "@/components/ui";
+import { getCourses, getCurrentProfile, getLoyaltyState, getLoyaltySettings, getMyEnrollments, getMyOrders, getUnreadCount } from "@/lib/data";
+import { EmptyState } from "@/components/empty-state";
 import { formatDate, formatPrice } from "@/lib/format";
 import { tierPerks } from "@/lib/loyalty";
 import { nowMs } from "@/lib/time";
@@ -18,7 +19,8 @@ function daysUntil(iso: string) {
 export default async function AccountOverview({ searchParams }: { searchParams: Promise<{ plata?: string }> }) {
   const { plata } = await searchParams;
   const profile = (await getCurrentProfile())!;
-  const [enrollments, loyalty] = await Promise.all([getMyEnrollments(profile.id), getLoyaltySettings()]);
+  const [enrollments, loyalty, orders, unread] = await Promise.all([getMyEnrollments(profile.id), getLoyaltySettings(), getMyOrders(profile.id), getUnreadCount(profile.id)]);
+  const paidOrders = orders.filter((o) => o.status === "paid");
   const gold = await getLoyaltyState(profile.id, loyalty);
   const perk = tierPerks(profile.tier, loyalty);
   const isGold = profile.tier !== "standard";
@@ -31,18 +33,20 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
   const next = upcoming[0];
   const owned = new Set(courses.map((c) => c.id));
   const allCourses = await getCourses();
-  const suggestions = allCourses.filter((c) => !owned.has(c.id) && !isEnded(c, nowMs())).slice(0, 2);
+  const spec = (profile.specialization ?? "").toLowerCase().split(/\s+/).filter((w) => w.length > 3);
+  const relevance = (c: { title: string; summary: string | null; categories?: { name: string } | null }) => {
+    const hay = `${c.title} ${c.summary ?? ""} ${c.categories?.name ?? ""}`.toLowerCase();
+    return spec.filter((w) => hay.includes(w)).length;
+  };
+  const suggestions = allCourses
+    .filter((c) => !owned.has(c.id) && !isEnded(c, nowMs()))
+    .sort((a, b) => relevance(b) - relevance(a))
+    .slice(0, 2);
   const attendedIds = new Set(enrollments.filter((e) => e.attended).map((e) => e.courses?.id));
   const journey: JourneyNode[] = allCourses.map((c) => ({
     course: c,
     state: owned.has(c.id) ? (attendedIds.has(c.id) || isEnded(c, nowMs()) ? "done" : "booked") : "open",
   }));
-
-  const stats = [
-    { label: "Cursuri achiziționate", value: String(courses.length) },
-    { label: "Total investit", value: formatPrice(gold.spentCents, "EUR") },
-    { label: "Puncte disponibile", value: String(gold.balance) },
-  ];
 
   return (
     <div className="space-y-10">
@@ -58,14 +62,56 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
         <div className="mt-5"><Badges courses={courses.length} gold={isGold} platinum={profile.tier === "platinum"} /></div>
       </header>
 
-      <dl className="grid gap-4 sm:grid-cols-3">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-[2rem] border border-line bg-card p-7">
-            <dt className="text-sm text-muted">{s.label}</dt>
-            <dd className="font-display mt-3 text-5xl">{s.value}</dd>
-          </div>
-        ))}
-      </dl>
+      {gold.expiringSoon > 0 ? (
+        <p role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gold-soft px-5 py-4 text-sm">
+          <span>{gold.expiringSoon} puncte expiră {gold.expiringAt ? `până la ${formatDate(gold.expiringAt)}` : "în curând"}. Le poți folosi la următoarea achiziție.</span>
+          <Link href="/cursuri" className="font-semibold underline underline-offset-4">Vezi cursurile</Link>
+        </p>
+      ) : null}
+
+      <section aria-label="Pe scurt" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="rounded-[2rem] bg-ink p-7 text-white sm:col-span-2">
+          <p className="text-sm text-white/60">Următorul curs</p>
+          {next ? (
+            <>
+              <p className="font-display mt-3 text-3xl leading-snug">{next.title}</p>
+              <p className="mt-2 text-sm text-white/60">{formatDate(next.starts_at)}{next.location ? ` · ${next.location}` : ""}</p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-gold-bright px-3.5 py-1.5 text-xs font-bold text-ink">
+                  {daysUntil(next.starts_at!) <= 0 ? "Astăzi" : `În ${daysUntil(next.starts_at!)} ${daysUntil(next.starts_at!) === 1 ? "zi" : "zile"}`}
+                </span>
+                <Link href={`/cont/cursuri/${next.slug}`} className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">Detalii curs</Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="font-display mt-3 text-3xl leading-snug">Niciun curs programat</p>
+              <p className="mt-2 text-sm text-white/60">Alege următorul pas din catalog.</p>
+              <Link href="/cursuri" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">Vezi cursurile</Link>
+            </>
+          )}
+        </div>
+        <Link href="/cont/program" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
+          <p className="text-sm text-muted">Puncte disponibile</p>
+          <p className="font-display mt-3 text-5xl">{gold.balance}</p>
+          <p className="mt-2 text-sm text-muted">{formatPrice(Math.round(gold.balance * Number(loyalty?.point_value_cents ?? 5)), "EUR")} la următoarea achiziție</p>
+        </Link>
+        <Link href="/cont/comenzi" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
+          <p className="text-sm text-muted">Comenzi plătite</p>
+          <p className="font-display mt-3 text-5xl">{paidOrders.length}</p>
+          <p className="mt-2 text-sm text-muted">{formatPrice(gold.spentCents, "EUR")} investit în ultimul an</p>
+        </Link>
+        <Link href="/cont/cursuri" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
+          <p className="text-sm text-muted">Cursuri</p>
+          <p className="font-display mt-3 text-5xl">{courses.length}</p>
+          <p className="mt-2 text-sm text-muted">{upcoming.length} viitoare</p>
+        </Link>
+        <Link href="/cont/notificari" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
+          <p className="text-sm text-muted">Notificări necitite</p>
+          <p className="font-display mt-3 text-5xl">{unread}</p>
+          <p className="mt-2 text-sm text-muted">{unread > 0 ? "Deschide notificările" : "Totul la zi"}</p>
+        </Link>
+      </section>
 
       <section aria-labelledby="gold-title" className={`rounded-[2rem] p-8 sm:p-10 ${isGold ? "bg-gradient-to-br from-[#14100a] to-[#2e220d] text-white" : "border border-line bg-card"}`}>
         <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isGold ? "text-[#d9b873]" : "text-gold"}`}>Program Gold</p>
@@ -82,29 +128,8 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
 
       <JourneyMap nodes={journey} />
 
-      {next ? (
-        <section aria-labelledby="next-title">
-          <h2 id="next-title" className="font-display text-3xl">Următorul curs</h2>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-5 rounded-[2rem] border border-line bg-card p-7">
-            <div>
-              <p className="text-lg font-semibold">{next.title}</p>
-              <p className="mt-1 text-sm text-muted">
-                {formatDate(next.starts_at)}
-                {next.location ? ` · ${next.location}` : ""}
-              </p>
-              <p className="mt-3 inline-block rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-gold">
-                {daysUntil(next.starts_at!) <= 0 ? "Astăzi" : `În ${daysUntil(next.starts_at!)} ${daysUntil(next.starts_at!) === 1 ? "zi" : "zile"}`}
-              </p>
-            </div>
-            <ButtonLink href={`/cont/cursuri/${next.slug}`}>Detalii curs</ButtonLink>
-          </div>
-        </section>
-      ) : null}
-
       {courses.length === 0 ? (
-        <p className="rounded-3xl border border-dashed border-line p-10 text-center text-muted">
-          Nu ai încă cursuri achiziționate. <Link className="font-medium text-foreground underline underline-offset-4" href="/cursuri">Vezi catalogul</Link>
-        </p>
+        <EmptyState title="Nu ai încă cursuri" text="După prima înscriere, cursurile, programul și materialele apar aici." href="/cursuri" cta="Vezi catalogul" />
       ) : null}
 
       {suggestions.length > 0 ? (

@@ -110,6 +110,7 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
         <Field label="Parcare și acces (apare în remindere)" name="parking_info" defaultValue={course?.parking_info ?? ""} />
         <Field label="Ce să aducă participanții (apare în remindere)" name="bring_info" defaultValue={course?.bring_info ?? ""} />
         <Field label="Locuri (opțional)" name="capacity" type="number" min="1" defaultValue={course?.capacity ?? ""} />
+        <Field label="Durată în ore (apare în portofoliul cursantului)" name="duration_hours" type="number" min="0.5" step="0.5" defaultValue={course?.duration_hours ?? ""} />
         <div>
           <label htmlFor="status" className="mb-1.5 block text-sm font-medium">Status</label>
           <select id="status" name="status" defaultValue={course?.status ?? "draft"} className="min-h-12 w-full rounded-xl border border-line bg-card px-4 text-base">

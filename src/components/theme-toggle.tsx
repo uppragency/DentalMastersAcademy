@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { saveTheme } from "@/actions/account";
 
 const subscribe = (cb: () => void) => {
   const obs = new MutationObserver(cb);
@@ -15,6 +16,7 @@ export function ThemeToggle() {
     const next = dark ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem("dma-theme", next); } catch { /* storage unavailable */ }
+    void saveTheme(next);
   };
   return (
     <button type="button" onClick={toggle} aria-pressed={dark} aria-label={dark ? "Comută la tema deschisă" : "Comută la tema închisă"} className="flex size-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white">

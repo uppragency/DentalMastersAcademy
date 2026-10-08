@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ButtonLink, Arrow } from "@/components/ui";
+import { Arrow } from "@/components/ui";
+import { EmptyState } from "@/components/empty-state";
+import { createClient } from "@/lib/supabase/server";
 import { CourseArt } from "@/components/course-art";
-import { getCurrentProfile, getMyEnrollments } from "@/lib/data";
+import { getCompletedLessonIds, getCurrentProfile, getMyEnrollments } from "@/lib/data";
 import { formatDateRange, formatLabels, isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 
@@ -15,36 +17,57 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
   const profile = (await getCurrentProfile())!;
   const all = await getMyEnrollments(profile.id);
   const now = nowMs();
+  const supabase = await createClient();
+  const courseIds = all.map((e) => e.courses?.id).filter((x): x is string => Boolean(x));
+  const [{ data: lessonRows }, doneIds] = await Promise.all([
+    courseIds.length ? supabase.from("course_lessons").select("id, course_id").in("course_id", courseIds) : Promise.resolve({ data: [] as { id: string; course_id: string }[] }),
+    getCompletedLessonIds(profile.id),
+  ]);
+  const done = new Set(doneIds);
+  const progress = new Map<string, { total: number; done: number }>();
+  for (const l of lessonRows ?? []) {
+    const p = progress.get(l.course_id) ?? { total: 0, done: 0 };
+    p.total++;
+    if (done.has(l.id)) p.done++;
+    progress.set(l.course_id, p);
+  }
 
-  const active = tab === "viitoare" || tab === "incheiate" ? tab : "toate";
-  const rows = all.filter((e) => {
-    if (!e.courses) return false;
-    if (active === "viitoare") return !isEnded(e.courses, now);
-    if (active === "incheiate") return isEnded(e.courses, now);
-    return true;
-  });
+  const isOnline = (e: (typeof all)[number]) => e.courses!.format !== "physical";
+  const valid = all.filter((e) => e.courses);
+  const counts = {
+    viitoare: valid.filter((e) => !isEnded(e.courses!, now)).length,
+    online: valid.filter(isOnline).length,
+    finalizate: valid.filter((e) => isEnded(e.courses!, now)).length,
+  };
+  const active = tab === "viitoare" || tab === "online" || tab === "finalizate" ? tab : "viitoare";
+  const rows = valid.filter((e) => (active === "viitoare" ? !isEnded(e.courses!, now) : active === "online" ? isOnline(e) : isEnded(e.courses!, now)));
 
   const tabs = [
-    { key: "toate", label: "Toate" },
-    { key: "viitoare", label: "Viitoare" },
-    { key: "incheiate", label: "Încheiate" },
+    { key: "viitoare", label: "Viitoare", n: counts.viitoare },
+    { key: "online", label: "Online", n: counts.online },
+    { key: "finalizate", label: "Finalizate", n: counts.finalizate },
   ];
+  const empty = {
+    viitoare: { title: "Nu ai cursuri viitoare", text: "Alege următorul curs din catalog și îți păstrăm locul în grup." },
+    online: { title: "Nu ai cursuri online", text: "Cursurile online se urmăresc în ritmul tău, cu lecții și materiale." },
+    finalizate: { title: "Niciun curs finalizat încă", text: "După curs, aici găsești adeverința, materialele și evaluarea." },
+  }[active];
 
   return (
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Cursuri plătite</p>
       <h1 className="font-display mt-2 text-5xl font-medium">Cursurile mele</h1>
-      <nav aria-label="Filtrare cursuri" className="mt-8 flex gap-2">
+      <nav aria-label="Filtrare cursuri" className="mt-8 flex gap-2 overflow-x-auto pb-1">
         {tabs.map((t) => (
           <Link
             key={t.key}
-            href={t.key === "toate" ? "/cont/cursuri" : `/cont/cursuri?tab=${t.key}`}
+            href={`/cont/cursuri?tab=${t.key}`}
             aria-current={active === t.key ? "page" : undefined}
             className={`rounded-full border px-5 py-2.5 text-sm transition-colors ${
               active === t.key ? "border-ink bg-ink text-white" : "border-line bg-card text-muted hover:text-foreground"
             }`}
           >
-            {t.label}
+            {t.label} <span className="ml-1 opacity-60">{t.n}</span>
           </Link>
         ))}
       </nav>
@@ -63,6 +86,19 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
                   <div className="flex flex-1 flex-col p-7">
                     <h2 className="font-display text-2xl leading-snug">{c.title}</h2>
                     <p className="mt-2 text-sm text-muted">{formatDateRange(c.starts_at, c.ends_at)} · {formatLabels[c.format]}</p>
+                    {(() => {
+                      const p = progress.get(c.id);
+                      if (!p || p.total === 0) return null;
+                      const pct = Math.round((p.done / p.total) * 100);
+                      return (
+                        <div className="mt-5">
+                          <div className="h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Progres curs">
+                            <div className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
+                          </div>
+                          <p className="mt-2 text-xs text-muted">{p.done} din {p.total} lecții ({pct}%)</p>
+                        </div>
+                      );
+                    })()}
                     <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-gold">Accesează cursul <Arrow className="group-hover:translate-x-1" /></span>
                   </div>
                 </Link>
@@ -71,10 +107,7 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
           })}
         </ul>
       ) : (
-        <div className="mt-8 rounded-[2rem] border border-dashed border-line p-14 text-center">
-          <p className="text-muted">Nu există cursuri în această listă.</p>
-          <ButtonLink href="/cursuri" variant="ghost" className="mt-6">Vezi catalogul</ButtonLink>
-        </div>
+        <div className="mt-8"><EmptyState title={empty.title} text={empty.text} href="/cursuri" cta="Vezi catalogul" /></div>
       )}
     </div>
   );

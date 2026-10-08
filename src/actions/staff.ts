@@ -8,6 +8,7 @@ import { getStripe } from "@/lib/stripe";
 import { sendMail, sendPurchaseEmail } from "@/lib/email";
 import { issueInvoice } from "@/lib/invoicing";
 import { formatPrice } from "@/lib/format";
+import { anonymizeAccount } from "@/lib/anonymize";
 import { logAudit } from "@/lib/audit";
 import { processWaitlist } from "@/lib/waitlist";
 
@@ -172,12 +173,7 @@ export async function anonymizeUser(userId: string, _: FormState, formData: Form
   const { data: target } = await admin.from("profiles").select("role").eq("id", userId).maybeSingle();
   if (!target) return { message: "Contul nu a fost găsit." };
   if (target.role === "admin" || target.role === "operator") return { message: "Conturile de administrare nu se anonimizează. Schimbă mai întâi rolul." };
-  const anon = `anonim-${userId.slice(0, 8)}@anonim.invalid`;
-  const { error } = await admin.auth.admin.updateUserById(userId, { email: anon, ban_duration: "876000h", user_metadata: {} });
-  if (error) return { message: "Anonimizarea a eșuat." };
-  await admin.from("profiles").update({ email: anon, full_name: "Cont anonimizat", phone: null, specialization: null, disabled_at: new Date().toISOString() }).eq("id", userId);
-  await admin.from("billing_profiles").delete().eq("user_id", userId);
-  await admin.from("user_notes").delete().eq("user_id", userId);
+  if (!(await anonymizeAccount(admin, userId))) return { message: "Anonimizarea a eșuat." };
   await logAudit(profile.id, "anonymize_user", userId);
   await note(admin, userId, profile.id, "Cont anonimizat la cerere (GDPR). Comenzile și facturile sunt păstrate conform obligațiilor legale.");
   revalidatePath(`/admin/useri/${userId}`);

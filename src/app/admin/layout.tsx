@@ -11,6 +11,7 @@ const staffGroup: NavGroup = {
     { href: "/admin/comenzi", label: "Comenzi" },
     { href: "/admin/abandonate", label: "Neplătite" },
     { href: "/admin/prezenta", label: "Prezență" },
+    { href: "/admin/transferuri", label: "Transferuri" },
     { href: "/admin/emailuri", label: "Emailuri" },
   ],
 };

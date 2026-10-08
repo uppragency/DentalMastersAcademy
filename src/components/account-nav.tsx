@@ -8,6 +8,8 @@ const items = [
   { href: "/cont/program", label: "Program Gold" },
   { href: "/cont/cursuri", label: "Cursurile mele" },
   { href: "/cont/comenzi", label: "Comenzi" },
+  { href: "/cont/adeverinte", label: "Adeverințe" },
+  { href: "/cont/portofoliu", label: "Portofoliu" },
   { href: "/cont/recomanda", label: "Recomandă un coleg" },
   { href: "/cont/profil", label: "Profil și securitate" },
 ];

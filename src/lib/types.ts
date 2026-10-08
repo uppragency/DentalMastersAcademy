@@ -34,6 +34,7 @@ export type Course = {
   promo_video_url: string | null;
   faqs: { q: string; a: string }[];
   schedule: { title: string; items: { time: string; text: string }[] }[];
+  duration_hours?: number | null;
   parking_info: string | null;
   bring_info: string | null;
   categories?: { name: string; slug: string } | null;
@@ -47,6 +48,10 @@ export type Profile = {
   specialization: string | null;
   role: "student" | "instructor" | "operator" | "admin";
   tier: Tier;
+  theme?: "light" | "dark" | null;
+  city?: string | null;
+  clinic?: string | null;
+  experience_years?: number | null;
 };
 
 export type LoyaltySettings = {

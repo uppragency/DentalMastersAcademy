@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ProfileForm, PasswordForm } from "@/components/account-forms";
+import { DeleteAccountForm, EmailForm, PasswordForm, ProfileForm, SignOutAllForm } from "@/components/account-forms";
 import { deleteBillingProfile } from "@/actions/account";
 import { Button } from "@/components/ui";
 import { BillingProfileForm } from "@/components/billing-profile-form";
@@ -52,6 +52,27 @@ export default async function ProfilePage() {
       <section aria-labelledby="pass-title">
         <h2 id="pass-title" className="text-2xl font-semibold tracking-tight">Parolă</h2>
         <div className="mt-6 rounded-3xl border border-line bg-card p-7"><PasswordForm /></div>
+      </section>
+      <section aria-labelledby="email-title">
+        <h2 id="email-title" className="text-2xl font-semibold tracking-tight">Email și sesiuni</h2>
+        <p className="mt-2 text-sm text-muted">Emailul curent: {profile.email}. Schimbarea cere confirmare prin linkul trimis la adresa nouă.</p>
+        <div className="mt-6 rounded-3xl border border-line bg-card p-7"><EmailForm current={profile.email} /></div>
+        <div className="mt-4 rounded-3xl border border-line bg-card p-7">
+          <p className="text-sm text-muted">Dacă ai folosit contul pe un dispozitiv străin, închide toate sesiunile active. Va trebui să te autentifici din nou peste tot.</p>
+          <div className="mt-4"><SignOutAllForm /></div>
+        </div>
+      </section>
+      <section aria-labelledby="data-gdpr">
+        <h2 id="data-gdpr" className="text-2xl font-semibold tracking-tight">Datele tale</h2>
+        <div className="mt-6 rounded-3xl border border-line bg-card p-7">
+          <p className="text-sm text-muted">Descarcă toate datele asociate contului tău (profil, comenzi, înscrieri, adeverințe, puncte) într-un fișier JSON.</p>
+          <a href="/api/cont/export" className="mt-4 inline-flex min-h-11 items-center rounded-full border border-line px-5 text-sm font-medium hover:bg-background">Descarcă datele mele</a>
+        </div>
+        <div className="mt-4 rounded-3xl border border-red-200 bg-card p-7">
+          <h3 className="text-lg font-semibold">Ștergere cont</h3>
+          <p className="mt-2 text-sm text-muted">Datele tale personale se șterg definitiv. Comenzile și facturile se păstrează, conform obligațiilor legale, fără să mai fie asociate numelui tău. Acțiunea nu se poate anula.</p>
+          <div className="mt-5"><DeleteAccountForm /></div>
+        </div>
       </section>
     </div>
   );

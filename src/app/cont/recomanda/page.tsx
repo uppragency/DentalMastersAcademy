@@ -33,8 +33,20 @@ export default async function ReferralPage() {
           <CopyButton value={link} />
         </div>
         <p className="mt-5 text-sm text-muted">Sau codul tău: <strong className="font-mono text-foreground">{me?.referral_code}</strong></p>
-        <p className="mt-2 text-sm text-muted">Recomandări plătite: <strong className="text-foreground">{count ?? 0}</strong></p>
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(`Îți recomand cursurile Dental Masters Academy. Cu linkul meu primești ${friend}% reducere la prima achiziție: ${link}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 inline-flex min-h-11 items-center rounded-full bg-[#1f8f4e] px-5 text-sm font-medium text-white"
+        >
+          Trimite pe WhatsApp
+        </a>
       </div>
+      <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className="rounded-3xl border border-line bg-card p-6"><dt className="text-sm text-muted">Recomandări plătite</dt><dd className="font-display mt-2 text-4xl">{count ?? 0}</dd></div>
+        <div className="rounded-3xl border border-line bg-card p-6"><dt className="text-sm text-muted">Coduri câștigate</dt><dd className="font-display mt-2 text-4xl">{(rewards ?? []).length}</dd></div>
+        <div className="rounded-3xl border border-line bg-card p-6"><dt className="text-sm text-muted">Coduri disponibile</dt><dd className="font-display mt-2 text-4xl">{(rewards ?? []).filter((r) => !(r.max_uses !== null && r.used_count >= r.max_uses)).length}</dd></div>
+      </dl>
       <h2 className="mt-12 text-2xl font-semibold tracking-tight">Codurile tale</h2>
       {(rewards ?? []).length > 0 ? (
         <ul className="mt-5 space-y-3">

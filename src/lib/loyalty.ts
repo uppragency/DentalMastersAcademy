@@ -22,3 +22,20 @@ export function tierPerks(tier: Tier, s: LoyaltySettings | null): TierPerks {
   const member = on && t !== "standard";
   return { name: tierNames[t], member, discountPercent, multiplier, capPercent, earlyMs: member ? n(s?.early_access_hours, 48) * 3_600_000 : 0 };
 }
+
+export type TierProgress = { next: Tier | null; percent: number; missing: string };
+
+/** Progress toward the next tier from spend (cents) and distinct courses in the rolling window. */
+export function tierProgress(tier: Tier, s: LoyaltySettings | null, spentCents: number, courses: number): TierProgress {
+  if (!s || !s.is_active || tier === "platinum") return { next: null, percent: 100, missing: "" };
+  const next: Tier = tier === "standard" ? "gold" : "platinum";
+  const spend = next === "gold" ? s.spend_threshold_cents : s.platinum_spend_threshold_cents;
+  const need = next === "gold" ? s.courses_threshold : s.platinum_courses_threshold;
+  const ratios = [spend ? spentCents / spend : null, need ? courses / need : null].filter((r): r is number => r !== null);
+  const percent = ratios.length ? Math.min(100, Math.round(Math.max(...ratios) * 100)) : 0;
+  const parts = [
+    spend ? `${new Intl.NumberFormat("ro-RO", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Math.max(0, spend - spentCents) / 100)}` : null,
+    need ? `${Math.max(0, need - courses)} ${need - courses === 1 ? "curs" : "cursuri"}` : null,
+  ].filter(Boolean);
+  return { next, percent, missing: parts.join(" sau ") };
+}

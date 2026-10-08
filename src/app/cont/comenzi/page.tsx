@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EmptyState } from "@/components/empty-state";
 import { getCurrentProfile, getMyOrders } from "@/lib/data";
 import { formatDate, formatPrice } from "@/lib/format";
 
@@ -13,6 +14,14 @@ export default async function MyOrders() {
   return (
     <div>
       <h1 className="font-display text-5xl font-medium">Istoric achiziții</h1>
+      {orders.some((o) => o.status === "paid") ? (
+        <p className="mt-4 text-sm text-muted">
+          Facturi pentru contabil:{" "}
+          {[...new Set(orders.map((o) => new Date(o.created_at).getFullYear()))].map((y) => (
+            <a key={y} href={`/api/facturi/arhiva?an=${y}`} className="mr-3 font-medium text-foreground underline underline-offset-4">ZIP {y}</a>
+          ))}
+        </p>
+      ) : null}
       {orders.length > 0 ? (
         <div className="mt-8 overflow-x-auto rounded-[2rem] border border-line bg-card">
           <table className="w-full min-w-[40rem] text-left text-sm">
@@ -33,7 +42,7 @@ export default async function MyOrders() {
           </table>
         </div>
       ) : (
-        <p className="mt-8 rounded-3xl border border-dashed border-line p-12 text-center text-muted">Nu există achiziții.</p>
+        <div className="mt-8"><EmptyState title="Nu ai achiziții" text="Comenzile, dovezile de plată și facturile apar aici după prima înscriere." href="/cursuri" cta="Vezi cursurile" /></div>
       )}
     </div>
   );

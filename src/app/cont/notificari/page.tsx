@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import type { Metadata } from "next";
 import { markAllNotificationsRead } from "@/actions/notifications";
 import { NotificationItem } from "@/components/notification-item";
@@ -31,7 +32,7 @@ export default async function NotificationsPage() {
           ))}
         </ul>
       ) : (
-        <p className="mt-10 rounded-3xl border border-dashed border-line p-14 text-center text-muted">Nu ai notificări.</p>
+        <div className="mt-10"><EmptyState title="Nu ai notificări" text="Aici vezi anunțuri de la organizator, materiale noi și mesaje despre cursurile tale." href="/cont/cursuri" cta="Cursurile mele" /></div>
       )}
     </div>
   );

@@ -6,6 +6,8 @@ import { Button, ButtonLink } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
 import { VideoPlayer } from "@/components/video-player";
 import { FeedbackForm } from "@/components/engagement-forms";
+import { TransferForm } from "@/components/transfer-form";
+import { cancelTransfer } from "@/actions/transfers";
 import { nowMs } from "@/lib/time";
 import { createClient } from "@/lib/supabase/server";
 import { getCompletedLessonIds, getCurrentProfile, getLessons } from "@/lib/data";
@@ -48,6 +50,7 @@ export default async function MyCoursePage({
     supabase.from("course_feedback").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("course_id", course.id),
   ]);
   const courseOver = isEnded(course, nowMs());
+  const { data: transfer } = await supabase.from("seat_transfers").select("id, to_email").eq("enrollment_id", enrollment.id).eq("status", "pending").maybeSingle();
   const done = new Set(doneIds);
   const current = lessons.find((l) => l.id === lectia) ?? lessons.find((l) => !done.has(l.id)) ?? lessons[0];
   const currentIdx = current ? lessons.findIndex((l) => l.id === current.id) : -1;
@@ -199,6 +202,19 @@ export default async function MyCoursePage({
                   </li>
                 ))}
               </ul>
+            </section>
+          ) : null}
+
+          {physical && !enrollment.attended && !courseOver && course.starts_at && Date.parse(course.starts_at) - nowMs() > 3 * 86_400_000 ? (
+            <section className="mt-14 rounded-3xl border border-line bg-card p-7" aria-labelledby="transfer">
+              <h2 id="transfer" className="font-display text-2xl">Nu mai poți participa?</h2>
+              <p className="mt-2 text-sm text-muted">Îți poți transfera locul unui coleg, fără costuri. Cererea se aprobă de organizator, iar colegul trebuie să aibă cont. Detalii în <a href="/rambursare" className="underline underline-offset-4">politica de rambursare și transfer</a>.</p>
+              {transfer ? (
+                <div className="mt-5 rounded-2xl bg-gold-soft px-5 py-4 text-sm">
+                  <p>Cerere în așteptare către <strong>{transfer.to_email}</strong>.</p>
+                  <form action={cancelTransfer.bind(null, transfer.id)} className="mt-3"><Button type="submit" variant="ghost">Anulează cererea</Button></form>
+                </div>
+              ) : <TransferForm enrollmentId={enrollment.id} />}
             </section>
           ) : null}
 
