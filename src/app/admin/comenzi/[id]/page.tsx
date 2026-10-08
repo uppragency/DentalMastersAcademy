@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cancelPendingOrder, resendConfirmation, retryInvoice } from "@/actions/staff";
-import { resendTransferInstructions } from "@/actions/ops";
+import { issueOrderProforma, resendTransferInstructions } from "@/actions/ops";
 import { MarkPaidForm, RefundForm } from "@/components/staff-forms";
 import { Button } from "@/components/ui";
 import { requireStaff } from "@/lib/staff";
@@ -34,7 +34,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     id: string; status: string; source: string; expires_at?: string | null; subtotal_cents: number; discount_cents: number; total_cents: number; currency: string;
     tier_at_purchase: Tier; discount_code: string | null; points_used: number; points_discount_cents: number; points_earned: number;
     stripe_session_id: string | null; stripe_payment_intent: string | null; paid_at: string | null; created_at: string; refunded_at: string | null; refunded_cents: number;
-    refund_reason: string | null; manual_note: string | null; invoice_number: string | null; invoice_url: string | null; invoice_error: string | null; billing: Billing;
+    refund_reason: string | null; manual_note: string | null; invoice_number: string | null; proforma_number: string | null; invoice_url: string | null; invoice_error: string | null; billing: Billing;
     profiles: { id: string; email: string; full_name: string | null } | null;
     order_items: { unit_price_cents: number; discount_cents: number; final_price_cents: number; courses: { title: string; slug: string } | null }[];
   };
@@ -82,6 +82,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             {o.billing ? <Row k="Facturare" v={<>{o.billing.name}{o.billing.cui ? `, CUI ${o.billing.cui}` : ""}<br /><span className="font-normal text-muted">{o.billing.address}, {o.billing.city}, {o.billing.county}</span></>} /> : null}
             {o.stripe_payment_intent ? <Row k="Stripe" v={<a className="underline underline-offset-4" target="_blank" rel="noopener noreferrer" href={`https://dashboard.stripe.com/payments/${o.stripe_payment_intent}`}>{o.stripe_payment_intent}</a>} /> : null}
             {o.manual_note ? <Row k="Motiv manual" v={o.manual_note} /> : null}
+            {o.source === "transfer" ? <Row k="Proformă" v={o.proforma_number ?? "Neemisă"} /> : null}
             <Row k="Factură" v={o.invoice_url ? <a className="underline underline-offset-4" target="_blank" rel="noopener noreferrer" href={o.invoice_url}>{o.invoice_number ?? "Deschide"}</a> : o.invoice_number ?? (o.invoice_error ? "Eroare la emitere" : "Neemisă")} />
           </dl>
           {o.invoice_error ? <p className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">{o.invoice_error}</p> : null}
@@ -99,6 +100,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           {o.status === "paid" ? <form action={resendConfirmation.bind(null, id)}><Button type="submit" variant="ghost">Retrimite confirmarea</Button></form> : null}
           {o.status === "paid" && isAdmin ? <form action={retryInvoice.bind(null, id)}><Button type="submit" variant="ghost">Reîncearcă factura</Button></form> : null}
           {o.status === "pending" && o.source === "transfer" ? <form action={resendTransferInstructions.bind(null, id)}><Button type="submit" variant="ghost">Retrimite instrucțiunile de plată</Button></form> : null}
+          {o.status === "pending" && o.source === "transfer" && isAdmin && !o.proforma_number ? <form action={issueOrderProforma.bind(null, id)}><Button type="submit" variant="ghost">Emite proformă</Button></form> : null}
           {o.status === "pending" ? <form action={cancelPendingOrder.bind(null, id)}><Button type="submit" variant="ghost">Anulează comanda</Button></form> : null}
         </div>
         {isAdmin && o.status === "pending" ? <div className="mt-6 border-t border-line pt-6"><h3 className="mb-3 font-medium">Marchează plătită</h3><MarkPaidForm orderId={id} /></div> : null}

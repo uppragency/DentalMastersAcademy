@@ -9,6 +9,7 @@ import { logAudit } from "@/lib/audit";
 import { processStripeEvent } from "@/lib/stripe-events";
 import { sendRecoveryEmail, sendTransferInstructions } from "@/lib/orders-ops";
 import { processWaitlist } from "@/lib/waitlist";
+import { issueProforma } from "@/lib/invoicing";
 import { sendMail } from "@/lib/email";
 import { parseFaqs } from "@/lib/site-content";
 import { courseDays, isEnded } from "@/lib/format";
@@ -233,4 +234,10 @@ export async function saveLegal(key: "legal_termeni" | "legal_confidentialitate"
   revalidatePath("/cookies");
   revalidatePath("/rambursare");
   return { message: text ? "Textul a fost salvat și este public." : "Textul a fost golit: pagina revine la varianta implicită." };
+}
+
+export async function issueOrderProforma(orderId: string): Promise<void> {
+  await requireStaff();
+  await issueProforma(orderId);
+  revalidatePath(`/admin/comenzi/${orderId}`);
 }

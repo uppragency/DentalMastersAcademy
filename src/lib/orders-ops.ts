@@ -73,3 +73,30 @@ export async function sendTransferInstructions(orderId: string): Promise<{ ok: b
   });
   return ok ? { ok: true, message: "Instrucțiunile au fost trimise." } : { ok: false, message: "Emailul nu a putut fi trimis." };
 }
+
+/** One reminder when a bank transfer reservation expires within the next day and a half. Returns true when sent. */
+export async function sendTransferReminder(orderId: string): Promise<boolean> {
+  const admin = createAdminClient();
+  const o = await loadOrder(orderId);
+  const course = o?.order_items?.[0]?.courses;
+  if (!o || o.status !== "pending" || o.source !== "transfer" || !o.expires_at || !o.profiles || !course) return false;
+  const { data: bank } = await admin.from("site_content").select("value").eq("key", "private:bank").maybeSingle();
+  const details = typeof bank?.value === "string" ? bank.value.trim() : "";
+  const ok = await sendMail({
+    to: o.profiles.email,
+    subject: `Rezervarea locului expiră în curând: ${course.title}`,
+    heading: "Rezervarea locului expiră în curând",
+    paragraphs: [
+      `${o.profiles.full_name ? `Bună, ${o.profiles.full_name}.` : "Bună."} Locul tău la ${course.title} este rezervat până ${formatDeadline(o.expires_at)}. După acest termen, comanda se anulează automat și locul se eliberează.`,
+      `Suma de plată: ${formatPrice(o.total_cents, o.currency.trim())}.`,
+      ...details.split("\n").map((l) => l.trim()).filter(Boolean),
+      `Menționează la detalii: comanda ${o.id.slice(0, 8)}.`,
+      `Ai plătit deja? Trimite dovada la ${contact.email} și confirmăm imediat.`,
+    ],
+    cta: { label: "Deschide comanda", href: `/cont/comenzi/${o.id}` },
+    kind: "transfer",
+    userId: o.user_id,
+  });
+  if (ok) await admin.from("orders").update({ reminder_sent_at: new Date().toISOString() }).eq("id", orderId);
+  return ok;
+}

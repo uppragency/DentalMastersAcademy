@@ -9,6 +9,7 @@ import { CourseImage } from "@/components/course-image";
 import { GalleryCarousel } from "@/components/gallery-carousel";
 import { CourseCard } from "@/components/course-card";
 import { Countdown } from "@/components/countdown";
+import { earlyActive } from "@/lib/pricing";
 import { Seats } from "@/components/seats";
 import { Faq } from "@/components/faq";
 import { VideoPlayer } from "@/components/video-player";
@@ -17,7 +18,7 @@ import { parseVideo } from "@/lib/video";
 import { Reveal } from "@/components/reveal";
 import { getCourseBySlug, getCourseRating, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getPendingTransfer, getSeatCounts, getTrainers } from "@/lib/data";
 import { tierPerks } from "@/lib/loyalty";
-import { formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
+import { formatDate, formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { JsonLd } from "@/components/json-ld";
 import { courseJsonLd, eventJsonLd, faqJsonLd } from "@/lib/structured-data";
@@ -78,6 +79,7 @@ export default async function CoursePage({ params }: Props) {
   ];
 
   const discount = perk.discountPercent;
+  const early = earlyActive(course, now);
   const finalPrice = Math.round(course.price_cents * (1 - discount / 100));
   const free = Boolean(perk.member && course.gold_free);
   const others = related.filter((c) => c.id !== course.id).slice(0, 3);
@@ -242,8 +244,14 @@ export default async function CoursePage({ params }: Props) {
                 {!enrolled && !free && (discount > 0 || course.old_price_cents) ? (
                   <p className="mt-2 text-sm text-muted">
                     <span className="line-through">{formatPrice(discount > 0 ? course.price_cents : course.old_price_cents!, course.currency)}</span>
-                    {discount > 0 ? <span className="ml-2 font-medium text-gold">Reducere {perk.name} {discount}%</span> : <span className="ml-2 font-medium text-gold">Preț redus</span>}
+                    {discount > 0 ? <span className="ml-2 font-medium text-gold">Reducere {perk.name} {discount}%</span> : <span className="ml-2 font-medium text-gold">{early ? "Preț early bird" : "Preț redus"}</span>}
                   </p>
+                ) : null}
+                {early && !enrolled && !free && !ended ? (
+                  <div className="mt-6 rounded-2xl bg-gold-soft p-4">
+                    <p className="text-sm font-medium">Preț early bird până pe {formatDate(course.early_until!)}. Apoi {formatPrice(course.old_price_cents!, course.currency)}.</p>
+                    <div className="mt-3"><Countdown to={course.early_until!} label="Timp rămas până la finalul prețului early bird" /></div>
+                  </div>
                 ) : null}
 
                 <dl className="mt-7 space-y-4 border-t border-line pt-7 text-sm">

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/data";
 import { formatDate, formatPrice } from "@/lib/format";
-import { courseMethods, formatDeadline } from "@/lib/transfer";
+import { courseMethods, formatDeadline, parseIbans } from "@/lib/transfer";
 import { contact } from "@/content/site";
 import { ButtonLink } from "@/components/ui";
 import { CopyButton } from "@/components/copy-button";
@@ -67,7 +67,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     bank = typeof b?.value === "string" ? b.value : "";
   }
   const bankLines = bank.split("\n").map((l) => l.trim()).filter(Boolean);
-  const iban = bankLines.map((l) => /^IBAN\s*:\s*(.+)$/i.exec(l)?.[1]).find(Boolean)?.replace(/\s+/g, "") ?? "";
+  const ibans = parseIbans(bankLines);
   const canCard = course ? courseMethods(course.payment_methods).includes("card") : false;
   const shortId = o.id.slice(0, 8).toUpperCase();
 
@@ -100,7 +100,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 <li><span className="font-semibold">3. Îți activăm înscrierea</span> după ce vedem banii în cont. Factura se emite la confirmare.</li>
               </ol>
               <div className="mt-5 flex flex-wrap gap-3 print:hidden">
-                {iban ? <CopyButton value={iban} label="Copiază IBAN" /> : null}
+                {ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? `Copiază IBAN ${i.label}` : "Copiază IBAN"} />)}
                 {canCard && course ? <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="ghost">Plătește cu cardul</ButtonLink> : null}
               </div>
               {canCard ? <p className="mt-3 text-xs text-muted print:hidden">Dacă plata cu cardul reușește, această comandă se anulează automat.</p> : null}

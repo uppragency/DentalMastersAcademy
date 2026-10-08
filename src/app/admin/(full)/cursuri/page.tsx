@@ -22,7 +22,7 @@ export default async function AdminCourses() {
       </div>
       {courses.length > 0 ? (
         <div className="mt-8 overflow-x-auto rounded-3xl border border-line bg-card">
-          <table className="w-full min-w-[40rem] text-left text-sm">
+          <table className="w-full min-w-[48rem] text-left text-sm">
             <thead className="border-b border-line text-muted">
               <tr><th className="px-5 py-3 font-medium">Titlu</th><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3 font-medium">Preț</th><th className="px-5 py-3 font-medium">Status</th><th className="px-5 py-3" /></tr>
             </thead>
@@ -33,7 +33,7 @@ export default async function AdminCourses() {
                   <td className="px-5 py-4">{formatDate(c.starts_at)}</td>
                   <td className="px-5 py-4">{formatPrice(c.price_cents, c.currency.trim())}</td>
                   <td className="px-5 py-4">{statusLabel[c.status]}</td>
-                  <td className="px-5 py-4 text-right"><form action={duplicateCourse.bind(null, c.id)}><Button type="submit" variant="ghost" className="min-h-9 px-4">Duplică ediția</Button></form></td>
+                  <td className="px-5 py-4 text-right"><form action={duplicateCourse.bind(null, c.id)} className="flex items-center justify-end gap-2"><input type="date" name="starts_on" aria-label={`Data noii ediții pentru ${c.title}`} className="min-h-9 rounded-full border border-line bg-background px-3 text-xs" /><Button type="submit" variant="ghost" className="min-h-9 px-4">Clonează ca ediție nouă</Button></form></td>
                 </tr>
               ))}
             </tbody>

@@ -9,6 +9,7 @@ import { getStripe, paymentsEnabled } from "@/lib/stripe";
 import type { FormState } from "@/actions/auth";
 import { courseMethods, transferDeadline, type PayMethod } from "@/lib/transfer";
 import { sendTransferInstructions } from "@/lib/orders-ops";
+import { issueProforma } from "@/lib/invoicing";
 import { readBilling, type BillingInput } from "@/lib/billing";
 
 const guestSchema = z.object({
@@ -21,7 +22,6 @@ const guestSchema = z.object({
     .min(8, { error: "Parola trebuie să aibă minimum 8 caractere." })
     .regex(/[a-zA-Z]/, { error: "Parola trebuie să conțină o literă." })
     .regex(/[0-9]/, { error: "Parola trebuie să conțină o cifră." }),
-  accept_terms: z.literal("on", { error: "Trebuie să accepți termenii și condițiile." }),
 });
 
 export async function startCheckout(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
@@ -72,14 +72,12 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
       phone: formData.get("phone") || undefined,
       specialization: formData.get("specialization") || undefined,
       password: formData.get("password"),
-      accept_terms: formData.get("accept_terms"),
     });
     if (!parsed.success || billingFieldErrors) {
       return { errors: { ...(parsed.success ? {} : z.flattenError(parsed.error).fieldErrors), ...billingFieldErrors } };
     }
 
-    const { email, password, accept_terms: _t, ...meta } = parsed.data;
-    void _t;
+    const { email, password, ...meta } = parsed.data;
     const { error: createError } = await admin.auth.admin.createUser({
       email,
       password,
@@ -166,6 +164,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     await admin.from("orders").update({ source: "transfer", expires_at: transferDeadline().toISOString() }).eq("id", order.order_id);
     try {
       await sendTransferInstructions(order.order_id);
+      await issueProforma(order.order_id);
     } catch {
       /* the thank-you page shows the same details; the admin can resend */
     }

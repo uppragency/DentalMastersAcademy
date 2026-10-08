@@ -55,16 +55,6 @@ export function CheckoutForm({
           <Field label="Parolă" name="password" type="password" autoComplete="new-password" minLength={8} required error={e?.password?.[0]} />
           <Field label="Telefon (opțional)" name="phone" type="tel" autoComplete="tel" error={e?.phone?.[0]} />
           <Field label="Specializare (opțional)" name="specialization" error={e?.specialization?.[0]} />
-          <div>
-            <label className="flex items-start gap-3 text-sm">
-              <input type="checkbox" name="accept_terms" required className="mt-1 size-4 accent-[#a9833d]" />
-              <span>
-                Sunt de acord cu <Link href="/termeni" className="underline underline-offset-4">Termenii și condițiile</Link> și cu{" "}
-                <Link href="/confidentialitate" className="underline underline-offset-4">Politica de confidențialitate</Link>.
-              </span>
-            </label>
-            {e?.accept_terms?.[0] ? <p className="mt-1.5 text-sm text-red-700">{e.accept_terms[0]}</p> : null}
-          </div>
         </>
       ) : null}
 
@@ -138,6 +128,10 @@ export function CheckoutForm({
         <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> <Link href="/rambursare" className="underline underline-offset-4 hover:text-foreground">Politica de rambursare și transfer</Link></li>
         <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> Întrebări? <a href={contact.phoneHref} className="underline underline-offset-4 hover:text-foreground">{contact.phone}</a></li>
       </ul>
+      <p className="text-center text-xs leading-relaxed text-muted">
+        Prin plasarea comenzii accepți <Link href="/termeni" className="underline underline-offset-4 hover:text-foreground">Termenii și condițiile</Link>. Vezi{" "}
+        <Link href="/confidentialitate" className="underline underline-offset-4 hover:text-foreground">Politica de confidențialitate</Link>.
+      </p>
       {!enabled && !free && method === "card" ? <p className="text-center text-xs text-muted">Plata online va fi activată în curând.</p> : null}
     </form>
   );

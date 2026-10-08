@@ -348,3 +348,112 @@ export async function sendCampaign(_: FormState, formData: FormData): Promise<Fo
   revalidatePath("/admin/email");
   return { message: `Trimis către ${sent} destinatari${failed ? `, ${failed} eșuate` : ""}.` };
 }
+
+
+/* Bank statement matching */
+export type StatementMatch = {
+  orderId: string;
+  ref: string;
+  customer: string;
+  course: string;
+  expectedCents: number;
+  currency: string;
+  foundAmount: string | null;
+  exact: boolean;
+};
+export type StatementState = { message?: string; matches?: StatementMatch[]; unmatchedRows?: number } | undefined;
+
+function splitCsvLine(line: string, sep: string) {
+  const out: string[] = [];
+  let cur = "";
+  let q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]!;
+    if (ch === '"') {
+      if (q && line[i + 1] === '"') { cur += '"'; i++; } else q = !q;
+    } else if (ch === sep && !q) { out.push(cur); cur = ""; } else cur += ch;
+  }
+  out.push(cur);
+  return out.map((c) => c.trim());
+}
+
+/** "1.400,00", "1,400.00" and "1400.00" to 140000 cents; null when the cell is not an amount. */
+function amountToCents(cell: string): number | null {
+  const t = cell.replace(/[^\d.,-]/g, "");
+  if (!/\d/.test(t)) return null;
+  const lastComma = t.lastIndexOf(",");
+  const lastDot = t.lastIndexOf(".");
+  const dec = Math.max(lastComma, lastDot);
+  let n: number;
+  if (dec >= 0 && t.length - dec - 1 <= 2) n = Number(t.slice(0, dec).replace(/[.,]/g, "") + "." + t.slice(dec + 1));
+  else n = Number(t.replace(/[.,]/g, ""));
+  return Number.isFinite(n) ? Math.round(Math.abs(n) * 100) : null;
+}
+
+/** Reads a bank statement CSV and proposes matches with pending transfer orders (reference in the details, then amount). */
+export async function matchStatement(_: StatementState, formData: FormData): Promise<StatementState> {
+  const { admin } = await requireFullAdmin();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { message: "Alege fișierul CSV al extrasului de cont." };
+  if (file.size > 2 * 1024 * 1024) return { message: "Fișierul este prea mare (maximum 2 MB)." };
+  const text = (await file.text()).replace(/^\uFEFF/, "");
+  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
+  if (lines.length === 0) return { message: "Fișierul este gol." };
+  const sep = (lines[0]!.match(/;/g)?.length ?? 0) >= (lines[0]!.match(/,/g)?.length ?? 0) ? ";" : ",";
+
+  const { data } = await admin
+    .from("orders")
+    .select("id, total_cents, currency, profiles!orders_user_id_fkey(full_name, email), order_items(courses(title))")
+    .eq("status", "pending")
+    .eq("source", "transfer");
+  const orders = (data ?? []) as unknown as { id: string; total_cents: number; currency: string; profiles: { full_name: string | null; email: string } | null; order_items: { courses: { title: string } | null }[] }[];
+
+  const matches = new Map<string, StatementMatch>();
+  let unmatched = 0;
+  for (const line of lines) {
+    const cells = splitCsvLine(line, sep);
+    const haystack = line.toLowerCase();
+    const hit = orders.filter((o) => haystack.includes(o.id.slice(0, 8).toLowerCase()));
+    if (hit.length !== 1) { unmatched++; continue; }
+    const o = hit[0]!;
+    if (matches.has(o.id)) continue;
+    const amounts = cells.map((c) => ({ c, cents: amountToCents(c) })).filter((a) => a.cents !== null);
+    const exactCell = amounts.find((a) => a.cents === o.total_cents);
+    matches.set(o.id, {
+      orderId: o.id,
+      ref: o.id.slice(0, 8).toUpperCase(),
+      customer: o.profiles?.full_name ?? o.profiles?.email ?? "client",
+      course: o.order_items[0]?.courses?.title ?? "curs",
+      expectedCents: o.total_cents,
+      currency: o.currency.trim(),
+      foundAmount: (exactCell ?? amounts[0])?.c ?? null,
+      exact: Boolean(exactCell),
+    });
+  }
+  if (matches.size === 0) return { message: "Nicio comandă în așteptare nu are referința în acest extras.", matches: [], unmatchedRows: unmatched };
+  return { matches: [...matches.values()], unmatchedRows: unmatched };
+}
+
+/** Marks the selected pending transfer orders as paid, one by one, with the same effects as the manual action. */
+export async function confirmStatementMatches(_: { message?: string } | undefined, formData: FormData): Promise<{ message?: string }> {
+  const { admin, profile } = await requireFullAdmin();
+  const ids = formData.getAll("order").map(String).filter(Boolean);
+  if (ids.length === 0) return { message: "Selectează cel puțin o comandă." };
+  let ok = 0;
+  const failed: string[] = [];
+  for (const id of ids) {
+    const { data: o } = await admin.from("orders").select("status, user_id, source").eq("id", id).maybeSingle();
+    if (!o || o.status !== "pending" || o.source !== "transfer") { failed.push(id.slice(0, 8)); continue; }
+    const { error } = await admin.rpc("fulfill_order", { p_order: id, p_session: null, p_payment_intent: null });
+    if (error) { failed.push(id.slice(0, 8)); continue; }
+    await admin.from("orders").update({ provider: "transfer", provider_ref: "transfer", source: "transfer", manual_note: "Confirmat din extras de cont" }).eq("id", id);
+    await note(admin, o.user_id, profile.id, "Comandă marcată plătită (transfer bancar). Motiv: Confirmat din extras de cont");
+    await logAudit(profile.id, "mark_paid", id, { source: "transfer", reason: "statement" });
+    await resendConfirmation(id);
+    await issueInvoice(id);
+    ok++;
+  }
+  revalidatePath("/admin/comenzi");
+  revalidatePath("/admin");
+  return { message: `${ok} comenzi marcate plătite.${failed.length ? ` Nu s-au putut procesa: ${failed.join(", ")}.` : ""}` };
+}

@@ -28,6 +28,8 @@ export type Course = {
   language: string | null;
   ends_at: string | null;
   old_price_cents: number | null;
+  early_price_cents?: number | null;
+  early_until?: string | null;
   audience: string[];
   outcomes: string[];
   sections: { title: string; items: string[] }[];

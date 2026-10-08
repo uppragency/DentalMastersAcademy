@@ -110,6 +110,8 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
         <Field label="Limba" name="language" defaultValue={course?.language ?? ""} />
         <Field label="Locație" name="location" defaultValue={course?.location ?? ""} />
         <Field label="Preț" name="price" type="number" step="0.01" min="0" defaultValue={course ? course.price_cents / 100 : ""} required error={e?.price?.[0]} />
+        <Field label="Preț early bird (opțional)" name="early_price" type="number" step="0.01" min="0" defaultValue={course?.early_price_cents != null ? course.early_price_cents / 100 : ""} error={e?.early_price?.[0]} />
+        <Field label="Early bird valabil până la (data, inclusiv)" name="early_until" type="date" defaultValue={course?.early_until ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Bucharest" }).format(new Date(course.early_until)) : ""} error={e?.early_until?.[0]} />
         <Field label="Preț vechi, tăiat (opțional)" name="old_price" type="number" step="0.01" min="0" defaultValue={course?.old_price_cents ? course.old_price_cents / 100 : ""} />
         <div>
           <label htmlFor="currency" className="mb-1.5 block text-sm font-medium">Moneda</label>

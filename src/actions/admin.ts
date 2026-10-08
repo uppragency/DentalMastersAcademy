@@ -9,7 +9,8 @@ import type { FormState } from "@/actions/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
 import { uploadImage } from "@/lib/media";
-import { bucharestInstant } from "@/lib/format";
+import { bucharestInstant, isEnded } from "@/lib/format";
+import { announceScheduleChange } from "@/lib/lifecycle";
 
 async function requireAdmin() {
   const profile = await getCurrentProfile();
@@ -98,6 +99,8 @@ const courseSchema = z.object({
   start_time: z.string().optional(),
   end_time: z.string().optional(),
   schedule: z.string().max(10000).optional(),
+  early_price: z.coerce.number().min(0).optional(),
+  early_until: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   opens_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   publish_at: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/).optional(),
   promo_video_url: z.string().trim().url().startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
@@ -133,6 +136,8 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     language: opt(formData.get("language")),
     currency: formData.get("currency"),
     old_price: opt(formData.get("old_price")),
+    early_price: opt(formData.get("early_price")),
+    early_until: opt(formData.get("early_until")),
     audience: opt(formData.get("audience")),
     outcomes: opt(formData.get("outcomes")),
     sections: opt(formData.get("sections")),
@@ -156,6 +161,8 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
   const d = parsed.data;
+  if ((d.early_price == null) !== (d.early_until == null)) return { errors: { early_price: ["Completează atât prețul early bird, cât și data până la care este valabil."] } };
+  if (d.early_price != null && d.early_price >= d.price) return { errors: { early_price: ["Prețul early bird trebuie să fie mai mic decât prețul întreg."] } };
   const row = {
     title: d.title,
     slug: slugify(d.slug || d.title),
@@ -169,6 +176,8 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     schedule: parseSchedule(d.schedule),
     language: d.language ?? null,
     old_price_cents: d.old_price ? Math.round(d.old_price * 100) : null,
+    early_price_cents: d.early_price != null ? Math.round(d.early_price * 100) : null,
+    early_until: d.early_until ? bucharestIso(d.early_until, 23, 59) : null,
     audience: lines(d.audience),
     outcomes: lines(d.outcomes),
     sections: parseSections(d.sections),
@@ -218,11 +227,20 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
   if (methods.length === 0) return { message: "Alege cel puțin o metodă de plată (card sau transfer bancar)." };
   Object.assign(row, { payment_methods: methods });
 
+  const { data: prev } = id ? await supabase.from("courses").select("starts_at, ends_at, location, status").eq("id", id).maybeSingle() : { data: null };
+
   const saved = id
     ? await supabase.from("courses").update(row).eq("id", id).select("id").maybeSingle()
     : await supabase.from("courses").insert(row).select("id").maybeSingle();
   if (saved.error || !saved.data) {
     return { message: saved.error?.code === "23505" ? "Există deja un curs cu acest slug." : "Cursul nu a putut fi salvat." };
+  }
+  if (prev && prev.status === "published" && row.status === "published" && id && !isEnded({ starts_at: prev.starts_at, ends_at: prev.ends_at }, Date.now())) {
+    try {
+      await announceScheduleChange(createAdminClient(), { id, title: row.title, slug: row.slug }, prev, { starts_at: row.starts_at, ends_at: row.ends_at, location: row.location });
+    } catch {
+      /* the course is saved; the notice can be sent by hand if it failed */
+    }
   }
   if (row.status === "published" && row.next_edition_of) {
     await notifyWaitlist(row.next_edition_of, { title: row.title, slug: row.slug });
@@ -565,22 +583,36 @@ export async function bulkCreateCodes(_: FormState, formData: FormData): Promise
   return { message: `${rows.length} coduri unice create (o utilizare fiecare). Le exporți din lista de coduri.` };
 }
 
-export async function duplicateCourse(id: string) {
+export async function duplicateCourse(id: string, formData: FormData) {
   const supabase = await requireAdmin();
   const { data: c } = await supabase.from("courses").select("*").eq("id", id).maybeSingle();
   if (!c) return;
-  const base = `${c.slug}-copie`;
+  const newDate = String(formData.get("starts_on") ?? "");
+  const hasDate = /^\d{4}-\d{2}-\d{2}$/.test(newDate);
+  const base = hasDate ? `${c.slug}-${newDate.slice(0, 7)}` : `${c.slug}-copie`;
   let slug = base;
   for (let n = 2; n < 20; n++) {
     const { data: taken } = await supabase.from("courses").select("id").eq("slug", slug).maybeSingle();
     if (!taken) break;
     slug = `${base}-${n}`;
   }
+  // New date: keep the original start time and the original length (in days) of the edition.
+  let dates: { starts_at: string | null; ends_at: string | null } = { starts_at: null, ends_at: null };
+  if (hasDate && c.starts_at) {
+    const hm = (iso: string) => new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso)).split(":").map(Number) as [number, number];
+    const ymd = (iso: string) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Bucharest" }).format(new Date(iso));
+    const spanDays = c.ends_at ? Math.round((Date.parse(ymd(c.ends_at)) - Date.parse(ymd(c.starts_at))) / 86_400_000) : 0;
+    const endDate = new Date(Date.parse(newDate) + spanDays * 86_400_000).toISOString().slice(0, 10);
+    dates = {
+      starts_at: bucharestIso(newDate, ...hm(c.starts_at)),
+      ends_at: bucharestIso(endDate, ...(c.ends_at ? hm(c.ends_at) : hm(c.starts_at))),
+    };
+  }
   const rest: Record<string, unknown> = { ...c };
   for (const k of ["id", "created_at", "updated_at"]) delete rest[k];
   const { data: created, error } = await supabase
     .from("courses")
-    .insert({ ...rest, slug, title: `${c.title} (copie)`, status: "draft", starts_at: null, ends_at: null, registration_opens_at: null, publish_at: null, next_edition_of: null })
+    .insert({ ...rest, slug, title: hasDate ? c.title : `${c.title} (copie)`, status: "draft", ...dates, registration_opens_at: null, publish_at: null, next_edition_of: null, early_price_cents: null, early_until: null })
     .select("id")
     .single();
   if (error || !created) return;

@@ -29,3 +29,13 @@ export function transferDeadline(from: Date = new Date()): Date {
 export function formatDeadline(d: Date | string): string {
   return new Intl.DateTimeFormat("ro-RO", { timeZone: "Europe/Bucharest", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(d));
 }
+
+/** Every "IBAN ...: value" line from the bank details text, with a short label (EUR, LEI or empty). */
+export function parseIbans(lines: string[]): { label: string; value: string }[] {
+  const out: { label: string; value: string }[] = [];
+  for (const l of lines) {
+    const m = /^IBAN\s*([^:]*):\s*(.+)$/i.exec(l);
+    if (m) out.push({ label: m[1]!.trim().toUpperCase(), value: m[2]!.replace(/\s+/g, "") });
+  }
+  return out;
+}

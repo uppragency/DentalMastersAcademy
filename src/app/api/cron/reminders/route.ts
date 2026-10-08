@@ -3,8 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
 import { contact, directions } from "@/content/site";
 import { processWaitlist } from "@/lib/waitlist";
-import { sendRecoveryEmail } from "@/lib/orders-ops";
-import { runMonthlyReport, runPostPurchase, runViewAlerts } from "@/lib/lifecycle";
+import { sendRecoveryEmail, sendTransferReminder } from "@/lib/orders-ops";
+import { runEditionReports, runMonthlyReport, runPostPurchase, runViewAlerts } from "@/lib/lifecycle";
 
 export const runtime = "nodejs";
 
@@ -82,7 +82,8 @@ async function runDaily(admin: ReturnType<typeof createAdminClient>) {
   const lifecycle = await runPostPurchase(admin);
   const views = await runViewAlerts(admin);
   const report = await runMonthlyReport(admin);
-  return { sent, maintenance, ...ops, ...lifecycle, ...views, ...report };
+  const editions = await runEditionReports(admin);
+  return { sent, maintenance, ...ops, ...lifecycle, ...views, ...report, ...editions };
 }
 
 /** Abandoned checkouts, waitlist offers, seat alerts and the daily problem digest for administrators. */
@@ -117,6 +118,11 @@ async function runOps(admin: ReturnType<typeof createAdminClient>) {
       userId: l.user_id,
     });
   }
+
+  // 2c. Reminder for transfer reservations that expire within 36 hours (once per order).
+  const { data: soon } = await admin.from("orders").select("id").eq("status", "pending").eq("source", "transfer").is("reminder_sent_at", null).gt("expires_at", new Date(now).toISOString()).lt("expires_at", new Date(now + 36 * 3_600_000).toISOString()).limit(100);
+  let transferReminders = 0;
+  for (const o of soon ?? []) if (await sendTransferReminder(o.id)) transferReminders++;
 
   // 3. Waitlists: offer free seats, expire old offers.
   const { data: courses } = await admin.from("courses").select("id, title, slug, capacity, starts_at").eq("status", "published").not("capacity", "is", null).gt("starts_at", new Date(now).toISOString());
@@ -166,5 +172,5 @@ async function runOps(admin: ReturnType<typeof createAdminClient>) {
       });
     }
   }
-  return { recovery, cancelled: stale?.length ?? 0, transferLapsed: lapsed?.length ?? 0, offers, alerts: alerts.length, problems: problems.length, digest };
+  return { recovery, cancelled: stale?.length ?? 0, transferLapsed: lapsed?.length ?? 0, transferReminders, offers, alerts: alerts.length, problems: problems.length, digest };
 }

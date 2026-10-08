@@ -11,7 +11,7 @@ const staffGroup: NavGroup = {
     { href: "/admin/comenzi", label: "Comenzi" },
     { href: "/admin/abandonate", label: "Neplătite" },
     { href: "/admin/prezenta", label: "Prezență" },
-    { href: "/admin/transferuri", label: "Transferuri" },
+    { href: "/admin/transferuri", label: "Transferuri de loc" },
     { href: "/admin/emailuri", label: "Emailuri" },
   ],
 };
@@ -24,6 +24,10 @@ const adminGroups: NavGroup[] = [
       { href: "/admin/gold", label: "Program Gold" },
       { href: "/admin/asteptare", label: "Listă de așteptare" },
     ],
+  },
+  {
+    label: "Finanțe",
+    items: [{ href: "/admin/plati", label: "Plăți din extras" }],
   },
   {
     label: "Marketing",

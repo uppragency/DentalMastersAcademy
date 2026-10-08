@@ -18,8 +18,9 @@ export async function previewDiscount(courseId: string, rawCode: string): Promis
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub ?? null;
 
-  const { data: course } = await admin.from("courses").select("id, price_cents").eq("id", courseId).eq("status", "published").maybeSingle();
+  const { data: course } = await admin.from("courses").select("id, price_cents, early_price_cents, early_until").eq("id", courseId).eq("status", "published").maybeSingle();
   if (!course) return { ok: false, message: "Cursul nu mai este disponibil." };
+  if (course.early_price_cents != null && course.early_until && Date.parse(course.early_until) > Date.now()) course.price_cents = course.early_price_cents;
   const { data: settings } = await admin.from("loyalty_settings").select("*").maybeSingle();
 
   let goldDisc = 0;

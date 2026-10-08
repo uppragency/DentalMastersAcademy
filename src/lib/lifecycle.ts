@@ -180,3 +180,94 @@ export async function runMonthlyReport(admin: Admin) {
   });
   return { report: ok };
 }
+
+
+/** Seven days after an edition ends, emails the administrators its numbers. Once per edition via ops_alerts. */
+export async function runEditionReports(admin: Admin) {
+  const today = day(new Date());
+  const { data: courses } = await admin.from("courses").select("id, title, slug, capacity, currency, starts_at, ends_at").eq("status", "published").not("starts_at", "is", null);
+  const due = (courses ?? []).filter((c) => {
+    const since = diffDays(today, day(new Date(c.ends_at ?? c.starts_at!)));
+    return since >= 7 && since <= 21;
+  });
+  let sent = 0;
+  for (const c of due) {
+    const { data: first } = await admin.from("ops_alerts").upsert({ key: `edition:${c.id}`, kind: "report", message: `Raport ediție ${c.title}` }, { onConflict: "key", ignoreDuplicates: true }).select("key");
+    if (!first || first.length === 0) continue;
+
+    const [{ data: enr }, { data: items }, { data: fb }] = await Promise.all([
+      admin.from("enrollments").select("source, attended").eq("course_id", c.id),
+      admin.from("order_items").select("final_price_cents, orders!inner(status, source, discount_code)").eq("course_id", c.id).eq("orders.status", "paid"),
+      admin.from("course_feedback").select("rating").eq("course_id", c.id),
+    ]);
+    const total = (enr ?? []).length;
+    const attended = (enr ?? []).filter((e) => e.attended).length;
+    const absent = total - attended;
+    const fill = c.capacity ? `${total}/${c.capacity} (${Math.round((total / c.capacity) * 100)}%)` : `${total} înscriși`;
+    const rows = (items ?? []) as unknown as { final_price_cents: number; orders: { source: string | null; discount_code: string | null } }[];
+    const revenue = rows.reduce((sum, r) => sum + r.final_price_cents, 0);
+    const bySource = new Map<string, number>();
+    for (const r of rows) bySource.set(r.orders.source ?? "necunoscut", (bySource.get(r.orders.source ?? "necunoscut") ?? 0) + 1);
+    for (const e of enr ?? []) if (e.source && e.source !== "purchase") bySource.set(`înscriere ${e.source}`, (bySource.get(`înscriere ${e.source}`) ?? 0) + 1);
+    const label: Record<string, string> = { stripe: "card", transfer: "transfer bancar", manual: "manual" };
+    const sources = [...bySource].map(([k, n]) => `${label[k] ?? k}: ${n}`).join("; ") || "fără comenzi";
+    const coded = rows.filter((r) => r.orders.discount_code).length;
+    const ratings = (fb ?? []).map((f) => f.rating);
+    const avg = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : null;
+
+    const { data: staff } = await admin.from("profiles").select("email").eq("role", "admin").is("disabled_at", null);
+    const to = (staff ?? []).map((p) => p.email).filter(Boolean);
+    if (to.length === 0) continue;
+    const ok = await sendMail({
+      to,
+      subject: `Raport ediție: ${c.title}`,
+      heading: `Raport ediție: ${c.title}`,
+      paragraphs: [
+        `Grad de ocupare: ${fill}.`,
+        `Venit din comenzi plătite: ${formatPrice(revenue, c.currency.trim())}. Comenzi cu cod de reducere: ${coded} din ${rows.length}.`,
+        `Prezență: ${attended} prezenți, ${absent} absenți.`,
+        `Feedback: ${avg ? `nota medie ${avg} din 5, ${ratings.length} răspunsuri din ${total} înscriși` : "niciun răspuns încă"}.`,
+        `Sursa comenzilor: ${sources}.`,
+      ],
+      cta: { label: "Deschide prezența", href: "/admin/prezenta" },
+      kind: "report",
+    });
+    if (ok) sent++;
+  }
+  return { editionReports: sent };
+}
+
+/** Tells everyone enrolled that the date, time or place of an edition changed, with the old and new values. */
+export async function announceScheduleChange(
+  admin: Admin,
+  course: { id: string; title: string; slug: string },
+  before: { starts_at: string | null; ends_at: string | null; location: string | null },
+  after: { starts_at: string | null; ends_at: string | null; location: string | null },
+) {
+  const fmt = (a: string | null, b: string | null) => (a ? formatDateRange(a, b) : "nedefinit");
+  const changes: string[] = [];
+  if (Date.parse(before.starts_at ?? "") !== Date.parse(after.starts_at ?? "") || Date.parse(before.ends_at ?? "") !== Date.parse(after.ends_at ?? "")) {
+    changes.push(`Data și ora: înainte ${fmt(before.starts_at, before.ends_at)}, acum ${fmt(after.starts_at, after.ends_at)}.`);
+  }
+  if ((before.location ?? "") !== (after.location ?? "")) changes.push(`Locația: înainte ${before.location || "nedefinită"}, acum ${after.location || "nedefinită"}.`);
+  if (changes.length === 0) return 0;
+
+  const { data: rows } = await admin.from("enrollments").select("user_id, profiles(email, full_name)").eq("course_id", course.id);
+  let n = 0;
+  for (const r of (rows ?? []) as unknown as { user_id: string; profiles: { email: string; full_name: string | null } | null }[]) {
+    await admin.from("notifications").insert({ user_id: r.user_id, kind: "info", title: `Schimbare la ${course.title}`, body: changes[0]!, href: `/cont/cursuri/${course.slug}` });
+    if (r.profiles?.email) {
+      const ok = await sendMail({
+        to: r.profiles.email,
+        subject: `Schimbare importantă: ${course.title}`,
+        heading: "Au apărut modificări la cursul tău",
+        paragraphs: [`${r.profiles.full_name ? `Bună, ${r.profiles.full_name}.` : "Bună."} S-a modificat ${course.title}.`, ...changes, "Dacă nu îți mai convine noul program, scrie-ne și găsim o soluție."],
+        cta: { label: "Vezi detaliile", href: `/cont/cursuri/${course.slug}` },
+        kind: "info",
+        userId: r.user_id,
+      });
+      if (ok) n++;
+    }
+  }
+  return n;
+}

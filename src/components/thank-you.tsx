@@ -6,7 +6,7 @@ import { CourseImage } from "@/components/course-image";
 import { ButtonLink, Container } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateRange, formatLabels, formatPrice } from "@/lib/format";
-import { formatDeadline } from "@/lib/transfer";
+import { formatDeadline, parseIbans } from "@/lib/transfer";
 import { contact } from "@/content/site";
 import type { Course } from "@/lib/types";
 
@@ -28,7 +28,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
   const waiting = status === "pending";
   const isTransfer = status === "transfer" && Boolean(transfer);
   const bankLines = (transfer?.bank ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
-  const iban = bankLines.map((l) => /^IBAN\s*:\s*(.+)$/i.exec(l)?.[1]).find(Boolean)?.replace(/\s+/g, "") ?? "";
+  const ibans = parseIbans(bankLines);
   const first = profile.full_name?.split(" ")[0] ?? "";
   const physical = course?.format !== "online";
   const [{ data: me }] = await Promise.all([supabase.from("profiles").select("referral_code").eq("id", profile.id).single()]);
@@ -107,7 +107,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
                   <dt className="text-muted">Detalii plată</dt><dd className="font-medium">Comanda {o.id.slice(0, 8).toUpperCase()}</dd>
                   <dt className="text-muted">Termen</dt><dd className="font-medium">{formatDeadline(transfer!.deadline)}</dd>
                 </dl>
-                {iban ? <div className="mt-5"><CopyButton value={iban} label="Copiază IBAN" /></div> : null}
+                {ibans.length > 0 ? <div className="mt-5 flex flex-wrap gap-3">{ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? `Copiază IBAN ${i.label}` : "Copiază IBAN"} />)}</div> : null}
                 <p className="mt-5 text-xs leading-relaxed text-muted">Am trimis aceste date și pe email. Dacă plata nu ajunge până la termen, comanda se anulează automat, iar locul se eliberează.</p>
               </section>
           </div>

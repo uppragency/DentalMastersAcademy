@@ -13,7 +13,7 @@ export default async function AdminHome() {
   const since30 = new Date(now - 30 * 86_400_000).toISOString();
   const stale = new Date(now - 3_600_000).toISOString();
 
-  const [paid30, users30, pendingOld, invoiceErr, redemptions, courses, recent, ledger, settings, seats] = await Promise.all([
+  const [paid30, users30, pendingOld, invoiceErr, redemptions, courses, recent, ledger, settings, seats, transfers, seatReq] = await Promise.all([
     admin.from("orders").select("total_cents, currency").eq("status", "paid").gte("paid_at", since30),
     admin.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", since30),
     admin.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending").lt("created_at", stale),
@@ -24,7 +24,24 @@ export default async function AdminHome() {
     isAdmin ? admin.from("points_ledger").select("remaining, expires_at").gt("remaining", 0) : Promise.resolve({ data: [] as { remaining: number; expires_at: string | null }[] }),
     admin.from("loyalty_settings").select("point_value_cents").maybeSingle(),
     getSeatCounts(),
+    admin.from("orders").select("id, total_cents, currency, expires_at, created_at, profiles!orders_user_id_fkey(full_name, email), order_items(courses(title))").eq("status", "pending").eq("source", "transfer").order("expires_at", { ascending: true }).limit(20),
+    admin.from("seat_transfers").select("id", { count: "exact", head: true }).eq("status", "pending"),
   ]);
+  type TransferRow = { id: string; total_cents: number; currency: string; expires_at: string | null; profiles: { full_name: string | null; email: string } | null; order_items: { courses: { title: string } | null }[] };
+  const transferRows = (transfers.data ?? []) as unknown as TransferRow[];
+  const todayStr = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Bucharest" }).format(new Date(now));
+  const expiresToday = (t: TransferRow) => t.expires_at !== null && new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Bucharest" }).format(new Date(t.expires_at)) === todayStr;
+  type Todo = { text: string; href: string; strong?: boolean };
+  const todoRaw: Todo[] = [
+    ...transferRows.map((t) => ({
+      text: `Transfer de confirmat: ${t.profiles?.full_name ?? t.profiles?.email ?? "client"}, ${t.order_items[0]?.courses?.title ?? "curs"}, ${formatPrice(t.total_cents, t.currency.trim())}${t.expires_at ? (expiresToday(t) ? ", rezervarea expiră azi" : `, rezervat până ${formatDate(t.expires_at)}`) : ""}`,
+      href: `/admin/comenzi/${t.id}`,
+      strong: expiresToday(t),
+    })),
+    ...((seatReq.count ?? 0) > 0 ? [{ text: `${seatReq.count} cereri de transfer de loc de analizat`, href: "/admin/transferuri" }] : []),
+    ...((invoiceErr.count ?? 0) > 0 ? [{ text: `${invoiceErr.count} comenzi plătite cu eroare la facturare`, href: "/admin/comenzi?status=paid" }] : []),
+  ];
+  const todo = [...todoRaw].sort((a, b) => Number(b.strong ?? false) - Number(a.strong ?? false));
 
   const byCur = new Map<string, number>();
   for (const o of paid30.data ?? []) byCur.set(String(o.currency).trim(), (byCur.get(String(o.currency).trim()) ?? 0) + o.total_cents);
@@ -42,12 +59,26 @@ export default async function AdminHome() {
   ];
   const alerts = [
     (pendingOld.count ?? 0) > 0 ? { text: `${pendingOld.count} comenzi în așteptare de peste o oră`, href: "/admin/comenzi?status=pending" } : null,
-    (invoiceErr.count ?? 0) > 0 ? { text: `${invoiceErr.count} comenzi plătite cu eroare la facturare`, href: "/admin/comenzi?status=paid" } : null,
   ].filter((a): a is { text: string; href: string } => a !== null);
 
   return (
     <div className="space-y-10">
       <h1 className="text-3xl font-semibold tracking-tight">Sumar</h1>
+      <section aria-labelledby="azi" className="rounded-3xl border border-line bg-card p-7">
+        <div className="mb-4 flex items-baseline justify-between gap-3">
+          <h2 id="azi" className="text-lg font-semibold">De făcut azi</h2>
+          <Link href="/admin/plati" className="text-sm font-medium underline underline-offset-4">Potrivește plățile din extras</Link>
+        </div>
+        {todo.length > 0 ? (
+          <ul className="divide-y divide-line text-sm">
+            {todo.map((t) => (
+              <li key={t.href + t.text}><Link href={t.href} className={`block py-3 hover:underline ${t.strong ? "font-semibold" : ""}`}>{t.text}</Link></li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted">Nimic de făcut acum. Nu sunt transferuri de confirmat, cereri sau facturi cu eroare.</p>
+        )}
+      </section>
       {alerts.length > 0 ? (
         <ul className="space-y-2">{alerts.map((a) => <li key={a.href}><Link href={a.href} className="block rounded-2xl bg-gold-soft px-5 py-3 text-sm font-medium hover:underline">{a.text}</Link></li>)}</ul>
       ) : null}

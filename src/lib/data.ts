@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { withEffectivePrice } from "@/lib/pricing";
 import type { PointsRow, BlogPost, Category, Course, EventRow, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
 
 const courseSelect = "*, categories(name, slug)";
@@ -23,7 +24,8 @@ export async function getCourses(opts: { category?: string; format?: string; fea
   if (opts.featured) query = query.eq("is_featured", true);
 
   const { data } = await query;
-  const rows = (data ?? []) as Course[];
+  const nowForPrice = Date.now();
+  const rows = ((data ?? []) as Course[]).map((c) => withEffectivePrice(c, nowForPrice));
   const counts = await getSeatCounts();
   const now = Date.now();
   // Open editions first (soonest first), then not yet open, then sold out, then ended (most recent first).
@@ -47,7 +49,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
-  return (data as Course | null) ?? null;
+  return data ? withEffectivePrice(data as Course, Date.now()) : null;
 }
 
 export async function getTestimonials(limit?: number): Promise<Testimonial[]> {
