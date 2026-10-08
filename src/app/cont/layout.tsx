@@ -16,7 +16,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
       <Container className="py-6 sm:py-8 lg:py-12">
         <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
           <aside className="lg:sticky lg:top-28 lg:self-start">
-            <div className={`relative overflow-hidden rounded-[2rem] p-6 ${profile.tier === "gold" ? "bg-gradient-to-br from-[#14100a] to-[#2e220d] text-white" : "bg-ink text-white"}`}>
+            <div className={`relative overflow-hidden rounded-[2rem] p-6 ${profile.tier === "platinum" ? "bg-gradient-to-br from-[#10131a] to-[#2a3140] text-white" : profile.tier === "gold" ? "bg-gradient-to-br from-[#14100a] to-[#2e220d] text-white" : "bg-ink text-white"}`}>
               <div aria-hidden="true" className="absolute -right-10 -top-10 size-40 rounded-full bg-gold-bright/20 blur-3xl" />
               <div className="relative flex items-center gap-4">
                 <Avatar name={name} tier={profile.tier} />

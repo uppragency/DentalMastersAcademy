@@ -12,6 +12,7 @@ import { WaitlistForm } from "@/components/waitlist-form";
 import { parseVideo } from "@/lib/video";
 import { Reveal } from "@/components/reveal";
 import { getCourseBySlug, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getSeatCounts, getTrainers } from "@/lib/data";
+import { tierPerks } from "@/lib/loyalty";
 import { formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { TrainerAvatar } from "@/components/trainer-avatar";
@@ -42,7 +43,8 @@ export default async function CoursePage({ params }: Props) {
   const enrolled = enrolledIds.includes(course.id);
   const now = nowMs();
   const ended = isEnded(course, now);
-  const notOpen = !ended && isNotOpen(course, now);
+  const perk = tierPerks(profile?.tier ?? "standard", loyalty);
+  const notOpen = !ended && isNotOpen(course, now, perk.earlyMs);
   const taken = seatCounts[course.id] ?? 0;
   const soldOut = Boolean(course.capacity && taken >= course.capacity);
   const promo = parseVideo(course.promo_video_url);
@@ -56,10 +58,9 @@ export default async function CoursePage({ params }: Props) {
     ...(course.faqs.length ? [["faq", "Întrebări"]] : []),
   ];
 
-  const isGold = profile?.tier === "gold" && loyalty?.is_active;
-  const discount = isGold ? Number(loyalty!.gold_discount_percent) : 0;
+  const discount = perk.discountPercent;
   const finalPrice = Math.round(course.price_cents * (1 - discount / 100));
-  const free = Boolean(isGold && course.gold_free);
+  const free = Boolean(perk.member && course.gold_free);
   const others = related.filter((c) => c.id !== course.id).slice(0, 3);
   const paragraphs = paragraphsOf(course);
 
@@ -220,7 +221,7 @@ export default async function CoursePage({ params }: Props) {
                 {!enrolled && !free && (discount > 0 || course.old_price_cents) ? (
                   <p className="mt-2 text-sm text-muted">
                     <span className="line-through">{formatPrice(discount > 0 ? course.price_cents : course.old_price_cents!, course.currency)}</span>
-                    {discount > 0 ? <span className="ml-2 font-medium text-gold">Reducere Gold {discount}%</span> : <span className="ml-2 font-medium text-gold">Preț redus</span>}
+                    {discount > 0 ? <span className="ml-2 font-medium text-gold">Reducere {perk.name} {discount}%</span> : <span className="ml-2 font-medium text-gold">Preț redus</span>}
                   </p>
                 ) : null}
 

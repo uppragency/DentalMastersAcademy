@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { BillingProfile } from "@/lib/billing";
 import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings } from "@/lib/data";
 import { formatDateRange, isEnded, isNotOpen } from "@/lib/format";
+import { tierPerks } from "@/lib/loyalty";
 import { nowMs } from "@/lib/time";
 import { paymentsEnabled } from "@/lib/stripe";
 
@@ -18,7 +19,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();
-  if (isEnded(course, nowMs()) || isNotOpen(course, nowMs())) redirect(`/cursuri/${slug}`);
+  const perk = tierPerks(profile?.tier ?? "standard", loyalty);
+  if (isEnded(course, nowMs()) || isNotOpen(course, nowMs(), perk.earlyMs)) redirect(`/cursuri/${slug}`);
   const refCode = (await cookies()).get("dma_ref")?.value ?? "";
 
   let billingProfiles: BillingProfile[] = [];
@@ -32,10 +34,15 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   }
   if (profile && (await getEnrolledCourseIds(profile.id)).includes(course.id)) redirect(`/cont/cursuri/${slug}`);
 
-  const isGold = profile?.tier === "gold" && loyalty?.is_active;
-  const discount = isGold ? Number(loyalty!.gold_discount_percent) : 0;
+  const discount = perk.discountPercent;
   const total = Math.round(course.price_cents * (1 - discount / 100));
-  const free = Boolean(isGold && course.gold_free) || total === 0;
+  const free = Boolean(perk.member && course.gold_free) || total === 0;
+  let pointsBalance = 0;
+  if (profile && loyalty?.is_active && !free) {
+    const supabase = await createClient();
+    const { data: rows } = await supabase.from("points_ledger").select("remaining, expires_at").gt("remaining", 0);
+    pointsBalance = (rows ?? []).filter((r) => !r.expires_at || new Date(r.expires_at).getTime() > nowMs()).reduce((s, r) => s + r.remaining, 0);
+  }
 
   return (
     <div className="bg-background">
@@ -62,7 +69,18 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
           <div className="p-7">
             <h2 className="font-display text-2xl leading-snug">{course.title}</h2>
             <p className="mt-1 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>
-            <OrderSummary courseId={course.id} priceCents={course.price_cents} currency={course.currency} goldPercent={discount} free={free} defaultCode={refCode} />
+            <OrderSummary
+              courseId={course.id}
+              priceCents={course.price_cents}
+              currency={course.currency}
+              tierName={perk.name}
+              tierPercent={discount}
+              free={free}
+              defaultCode={refCode}
+              pointsBalance={pointsBalance}
+              pointValueCents={Number(loyalty?.point_value_cents ?? 5)}
+              capPercent={perk.capPercent}
+            />
             <p className="mt-5 text-xs leading-relaxed text-muted">Plată securizată prin Stripe. Datele cardului nu trec prin serverele noastre.</p>
           </div>
         </aside>

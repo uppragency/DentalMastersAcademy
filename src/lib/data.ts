@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { BlogPost, Category, Course, EventRow, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
+import type { PointsRow, BlogPost, Category, Course, EventRow, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
 
 const courseSelect = "*, categories(name, slug)";
 
@@ -240,4 +240,40 @@ export async function getEvents(): Promise<EventRow[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("events").select("*").eq("published", true).order("event_date", { ascending: false });
   return (data ?? []) as EventRow[];
+}
+
+export type LoyaltyState = {
+  spentCents: number;
+  courses: number;
+  savedCents: number;
+  balance: number;
+  expiringSoon: number;
+  expiringAt: string | null;
+  graceUntil: string | null;
+  history: PointsRow[];
+};
+
+export async function getLoyaltyState(userId: string, settings: LoyaltySettings | null): Promise<LoyaltyState> {
+  const supabase = await createClient();
+  const now = Date.now();
+  const [{ data: orders }, { data: ledger }, { data: grace }] = await Promise.all([
+    supabase.from("orders").select("total_cents, discount_cents, paid_at, order_items(course_id)").eq("user_id", userId).eq("status", "paid"),
+    supabase.from("points_ledger").select("id, kind, delta, remaining, expires_at, note, created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(200),
+    supabase.from("tier_state").select("grace_until").eq("user_id", userId).maybeSingle(),
+  ]);
+  const since = settings?.window_days ? now - settings.window_days * 86_400_000 : null;
+  const inWindow = (orders ?? []).filter((o) => !since || (o.paid_at && new Date(o.paid_at).getTime() >= since));
+  const rows = (ledger ?? []) as PointsRow[];
+  const live = rows.filter((r) => r.remaining > 0 && (!r.expires_at || new Date(r.expires_at).getTime() > now));
+  const soon = live.filter((r) => r.expires_at && new Date(r.expires_at).getTime() <= now + 30 * 86_400_000);
+  return {
+    spentCents: inWindow.reduce((sum, o) => sum + o.total_cents, 0),
+    courses: new Set(inWindow.flatMap((o) => (o.order_items as { course_id: string }[]).map((i) => i.course_id))).size,
+    savedCents: (orders ?? []).reduce((sum, o) => sum + o.discount_cents, 0),
+    balance: live.reduce((sum, r) => sum + r.remaining, 0),
+    expiringSoon: soon.reduce((sum, r) => sum + r.remaining, 0),
+    expiringAt: soon.map((r) => r.expires_at!).sort()[0] ?? null,
+    graceUntil: grace?.grace_until && new Date(grace.grace_until).getTime() > now ? grace.grace_until : null,
+    history: rows.slice(0, 50),
+  };
 }

@@ -254,24 +254,52 @@ export async function deleteTestimonial(id: string) {
   revalidatePath("/", "layout");
 }
 
+const num = (min = 0, max = 100000) => z.coerce.number().min(min).max(max);
 const loyaltySchema = z.object({
   spend_ron: z.coerce.number().min(0).optional(),
   courses_threshold: z.coerce.number().int().min(0).optional(),
   window_days: z.coerce.number().int().min(0).optional(),
-  gold_discount_percent: z.coerce.number().min(0).max(100),
-  referral_friend_percent: z.coerce.number().min(0).max(100),
-  referral_reward_percent: z.coerce.number().min(0).max(100),
+  gold_discount_percent: num(0, 100),
+  platinum_spend: z.coerce.number().min(0).optional(),
+  platinum_courses: z.coerce.number().int().min(0).optional(),
+  platinum_discount_percent: num(0, 100),
+  referral_friend_percent: num(0, 100),
+  referral_reward_percent: num(0, 100),
+  point_value_cents: num(0.01, 100000),
+  points_expiry_months: z.coerce.number().int().min(1).max(120),
+  points_multiplier_standard: num(0, 100),
+  points_multiplier_gold: num(0, 100),
+  points_multiplier_platinum: num(0, 100),
+  points_cap_standard: num(0, 100),
+  points_cap_gold: num(0, 100),
+  points_cap_platinum: num(0, 100),
+  early_access_hours: z.coerce.number().int().min(0).max(720),
+  tier_grace_days: z.coerce.number().int().min(0).max(365),
 });
 
 export async function saveLoyalty(_: FormState, formData: FormData): Promise<FormState> {
   const supabase = await requireAdmin();
+  const g = (k: string) => formData.get(k);
   const parsed = loyaltySchema.safeParse({
-    spend_ron: opt(formData.get("spend_ron")),
-    courses_threshold: opt(formData.get("courses_threshold")),
-    window_days: opt(formData.get("window_days")),
-    gold_discount_percent: formData.get("gold_discount_percent"),
-    referral_friend_percent: formData.get("referral_friend_percent"),
-    referral_reward_percent: formData.get("referral_reward_percent"),
+    spend_ron: opt(g("spend_ron")),
+    courses_threshold: opt(g("courses_threshold")),
+    window_days: opt(g("window_days")),
+    gold_discount_percent: g("gold_discount_percent"),
+    platinum_spend: opt(g("platinum_spend")),
+    platinum_courses: opt(g("platinum_courses")),
+    platinum_discount_percent: g("platinum_discount_percent"),
+    referral_friend_percent: g("referral_friend_percent"),
+    referral_reward_percent: g("referral_reward_percent"),
+    point_value_cents: g("point_value_cents"),
+    points_expiry_months: g("points_expiry_months"),
+    points_multiplier_standard: g("points_multiplier_standard"),
+    points_multiplier_gold: g("points_multiplier_gold"),
+    points_multiplier_platinum: g("points_multiplier_platinum"),
+    points_cap_standard: g("points_cap_standard"),
+    points_cap_gold: g("points_cap_gold"),
+    points_cap_platinum: g("points_cap_platinum"),
+    early_access_hours: g("early_access_hours"),
+    tier_grace_days: g("tier_grace_days"),
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   const d = parsed.data;
@@ -283,13 +311,45 @@ export async function saveLoyalty(_: FormState, formData: FormData): Promise<For
       courses_threshold: d.courses_threshold || null,
       window_days: d.window_days || null,
       gold_discount_percent: d.gold_discount_percent,
+      platinum_spend_threshold_cents: d.platinum_spend ? Math.round(d.platinum_spend * 100) : null,
+      platinum_courses_threshold: d.platinum_courses || null,
+      platinum_discount_percent: d.platinum_discount_percent,
       referral_friend_percent: d.referral_friend_percent,
       referral_reward_percent: d.referral_reward_percent,
+      point_value_cents: d.point_value_cents,
+      points_expiry_months: d.points_expiry_months,
+      points_multiplier_standard: d.points_multiplier_standard,
+      points_multiplier_gold: d.points_multiplier_gold,
+      points_multiplier_platinum: d.points_multiplier_platinum,
+      points_cap_standard: d.points_cap_standard,
+      points_cap_gold: d.points_cap_gold,
+      points_cap_platinum: d.points_cap_platinum,
+      early_access_hours: d.early_access_hours,
+      tier_grace_days: d.tier_grace_days,
     })
     .eq("id", true);
   if (error) return { message: "Setările nu au putut fi salvate." };
   revalidatePath("/", "layout");
-  return { message: "Setările Gold au fost salvate. Se aplică la următoarea comandă plătită." };
+  return { message: "Setările au fost salvate. Se aplică la următoarea comandă plătită." };
+}
+
+const pointsSchema = z.object({
+  email: z.email({ error: "Introdu un email valid." }).trim().toLowerCase(),
+  delta: z.coerce.number().int().min(-1_000_000).max(1_000_000).refine((v) => v !== 0, { error: "Introdu un număr diferit de 0." }),
+  note: z.string().trim().min(3, { error: "Introdu motivul." }).max(200),
+});
+
+export async function adjustPoints(_: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const parsed = pointsSchema.safeParse({ email: formData.get("email"), delta: formData.get("delta"), note: formData.get("note") });
+  if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
+  const admin = createAdminClient();
+  const { data: user } = await admin.from("profiles").select("id").eq("email", parsed.data.email).maybeSingle();
+  if (!user) return { errors: { email: ["Nu există un cont cu acest email."] } };
+  const { data, error } = await admin.rpc("admin_adjust_points", { p_user: user.id, p_delta: parsed.data.delta, p_note: parsed.data.note });
+  if (error) return { message: "Ajustarea nu a putut fi făcută." };
+  revalidatePath("/admin/gold");
+  return { message: `Sold actual: ${data} puncte.` };
 }
 
 const lessonSchema = z.object({

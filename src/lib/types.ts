@@ -1,4 +1,4 @@
-export type Tier = "standard" | "gold";
+export type Tier = "standard" | "gold" | "platinum";
 export type CourseFormat = "physical" | "online" | "hybrid";
 
 export type Category = { id: string; slug: string; name: string; sort_order: number };
@@ -56,6 +56,29 @@ export type LoyaltySettings = {
   gold_discount_percent: number;
   referral_friend_percent: number;
   referral_reward_percent: number;
+  platinum_spend_threshold_cents: number | null;
+  platinum_courses_threshold: number | null;
+  platinum_discount_percent: number;
+  point_value_cents: number;
+  points_expiry_months: number;
+  points_multiplier_standard: number;
+  points_multiplier_gold: number;
+  points_multiplier_platinum: number;
+  points_cap_standard: number;
+  points_cap_gold: number;
+  points_cap_platinum: number;
+  early_access_hours: number;
+  tier_grace_days: number;
+};
+
+export type PointsRow = {
+  id: string;
+  kind: "earn" | "redeem" | "restore" | "expire" | "adjust";
+  delta: number;
+  remaining: number;
+  expires_at: string | null;
+  note: string | null;
+  created_at: string;
 };
 
 export type Testimonial = {

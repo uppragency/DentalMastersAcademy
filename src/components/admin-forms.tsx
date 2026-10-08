@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { addLesson, addTestimonial, createDiscountCode, deleteCourse, saveCourse, saveLoyalty } from "@/actions/admin";
+import { addLesson, addTestimonial, createDiscountCode, deleteCourse, saveCourse, saveLoyalty, adjustPoints } from "@/actions/admin";
 import { Button, Field } from "@/components/ui";
 import type { Category, Course, LoyaltySettings } from "@/lib/types";
 
@@ -158,23 +158,63 @@ export function TestimonialForm() {
 export function LoyaltyForm({ settings }: { settings: LoyaltySettings }) {
   const [state, action, pending] = useActionState(saveLoyalty, undefined);
   const e = state?.errors;
+  const n = (v: number | string | null | undefined) => (v === null || v === undefined ? "" : Number(v));
+  const money = (v: number | null) => (v ? v / 100 : "");
   return (
-    <form action={action} className="space-y-5">
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={settings.is_active} className="size-4 accent-[#a9833d]" /> Program Gold activ</label>
-      <p className="text-sm text-muted">Un medic devine Gold dacă îndeplinește oricare dintre praguri. Lasă gol sau 0 pentru a dezactiva un prag.</p>
+    <form action={action} className="space-y-6">
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={settings.is_active} className="size-4 accent-[#a9833d]" /> Program activ (niveluri și puncte)</label>
+      <p className="text-sm text-muted">Valorile în bani sunt în moneda cursurilor (EUR). Un prag gol sau 0 este dezactivat. Statusul se obține dacă îndeplinești oricare prag, în perioada de calcul.</p>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Prag valoare achiziții (în moneda cursurilor)" name="spend_ron" type="number" min="0" step="1" defaultValue={settings.spend_threshold_cents ? settings.spend_threshold_cents / 100 : ""} error={e?.spend_ron?.[0]} />
-        <Field label="Prag număr cursuri" name="courses_threshold" type="number" min="0" defaultValue={settings.courses_threshold ?? ""} error={e?.courses_threshold?.[0]} />
-        <Field label="Perioadă de calcul (zile, gol = tot istoricul)" name="window_days" type="number" min="0" defaultValue={settings.window_days ?? ""} error={e?.window_days?.[0]} />
-        <Field label="Reducere Gold (%)" name="gold_discount_percent" type="number" min="0" max="100" step="0.5" defaultValue={Number(settings.gold_discount_percent)} required error={e?.gold_discount_percent?.[0]} />
+        <Field label="Perioadă de calcul (zile, gol = tot istoricul)" name="window_days" type="number" min="0" defaultValue={n(settings.window_days)} error={e?.window_days?.[0]} />
+        <Field label="Perioadă de grație la retrogradare (zile)" name="tier_grace_days" type="number" min="0" defaultValue={n(settings.tier_grace_days)} required error={e?.tier_grace_days?.[0]} />
       </div>
+      <fieldset className="grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
+        <legend className="mb-3 font-semibold">Gold</legend>
+        <Field label="Prag achiziții (EUR)" name="spend_ron" type="number" min="0" step="1" defaultValue={money(settings.spend_threshold_cents)} error={e?.spend_ron?.[0]} />
+        <Field label="Prag număr cursuri" name="courses_threshold" type="number" min="0" defaultValue={n(settings.courses_threshold)} error={e?.courses_threshold?.[0]} />
+        <Field label="Reducere automată (%)" name="gold_discount_percent" type="number" min="0" max="100" step="0.5" defaultValue={n(settings.gold_discount_percent)} required error={e?.gold_discount_percent?.[0]} />
+        <Field label="Multiplicator puncte" name="points_multiplier_gold" type="number" min="0" step="0.1" defaultValue={n(settings.points_multiplier_gold)} required error={e?.points_multiplier_gold?.[0]} />
+        <Field label="Plafon plată cu puncte (% din preț)" name="points_cap_gold" type="number" min="0" max="100" step="1" defaultValue={n(settings.points_cap_gold)} required error={e?.points_cap_gold?.[0]} />
+      </fieldset>
+      <fieldset className="grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
+        <legend className="mb-3 font-semibold">Platinum</legend>
+        <Field label="Prag achiziții (EUR)" name="platinum_spend" type="number" min="0" step="1" defaultValue={money(settings.platinum_spend_threshold_cents)} error={e?.platinum_spend?.[0]} />
+        <Field label="Prag număr cursuri" name="platinum_courses" type="number" min="0" defaultValue={n(settings.platinum_courses_threshold)} error={e?.platinum_courses?.[0]} />
+        <Field label="Reducere automată (%)" name="platinum_discount_percent" type="number" min="0" max="100" step="0.5" defaultValue={n(settings.platinum_discount_percent)} required error={e?.platinum_discount_percent?.[0]} />
+        <Field label="Multiplicator puncte" name="points_multiplier_platinum" type="number" min="0" step="0.1" defaultValue={n(settings.points_multiplier_platinum)} required error={e?.points_multiplier_platinum?.[0]} />
+        <Field label="Plafon plată cu puncte (% din preț)" name="points_cap_platinum" type="number" min="0" max="100" step="1" defaultValue={n(settings.points_cap_platinum)} required error={e?.points_cap_platinum?.[0]} />
+      </fieldset>
+      <fieldset className="grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
+        <legend className="mb-3 font-semibold">Standard și puncte</legend>
+        <Field label="Multiplicator puncte Standard" name="points_multiplier_standard" type="number" min="0" step="0.1" defaultValue={n(settings.points_multiplier_standard)} required error={e?.points_multiplier_standard?.[0]} />
+        <Field label="Plafon plată cu puncte Standard (%)" name="points_cap_standard" type="number" min="0" max="100" step="1" defaultValue={n(settings.points_cap_standard)} required error={e?.points_cap_standard?.[0]} />
+        <Field label="Valoarea unui punct (în cenți)" name="point_value_cents" type="number" min="0.01" step="0.01" defaultValue={n(settings.point_value_cents)} required error={e?.point_value_cents?.[0]} />
+        <Field label="Valabilitatea punctelor (luni)" name="points_expiry_months" type="number" min="1" defaultValue={n(settings.points_expiry_months)} required error={e?.points_expiry_months?.[0]} />
+        <Field label="Înscriere anticipată Gold și Platinum (ore)" name="early_access_hours" type="number" min="0" defaultValue={n(settings.early_access_hours)} required error={e?.early_access_hours?.[0]} />
+      </fieldset>
       <div className="grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
-        <Field label="Recomandare: reducere pentru colegul invitat (%)" name="referral_friend_percent" type="number" min="0" max="100" step="0.5" defaultValue={Number(settings.referral_friend_percent)} required />
-        <Field label="Recomandare: recompensă pentru cel care recomandă (%)" name="referral_reward_percent" type="number" min="0" max="100" step="0.5" defaultValue={Number(settings.referral_reward_percent)} required />
+        <Field label="Recomandare: reducere pentru colegul invitat (%)" name="referral_friend_percent" type="number" min="0" max="100" step="0.5" defaultValue={n(settings.referral_friend_percent)} required />
+        <Field label="Recomandare: recompensă pentru cel care recomandă (%)" name="referral_reward_percent" type="number" min="0" max="100" step="0.5" defaultValue={n(settings.referral_reward_percent)} required />
       </div>
-      <p className="text-sm text-muted">Reducerile nu se cumulează: se aplică cea mai mare dintre Gold, cod și recomandare.</p>
+      <p className="text-sm text-muted">Reducerile nu se cumulează: se aplică cea mai mare dintre nivel, cod și recomandare. Punctele se pot folosi peste orice reducere, în limita plafonului.</p>
       <Status message={state?.message} />
       <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează setările"}</Button>
+    </form>
+  );
+}
+
+export function AdjustPointsForm() {
+  const [state, action, pending] = useActionState(adjustPoints, undefined);
+  const e = state?.errors;
+  return (
+    <form action={action} className="grid gap-5 sm:grid-cols-2">
+      <Field label="Email cont" name="email" type="email" required error={e?.email?.[0]} />
+      <Field label="Puncte (negativ pentru retragere)" name="delta" type="number" step="1" required error={e?.delta?.[0]} />
+      <div className="sm:col-span-2"><Field label="Motiv" name="note" required error={e?.note?.[0]} /></div>
+      <div className="sm:col-span-2 space-y-4">
+        <Status message={state?.message} />
+        <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Aplică ajustarea"}</Button>
+      </div>
     </form>
   );
 }

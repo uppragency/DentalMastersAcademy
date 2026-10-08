@@ -39,6 +39,6 @@ export function isEnded(c: { starts_at: string | null; ends_at: string | null },
   return Boolean(ref && new Date(ref).getTime() < now);
 }
 
-export function isNotOpen(c: { registration_opens_at: string | null }, now: number) {
-  return Boolean(c.registration_opens_at && new Date(c.registration_opens_at).getTime() > now);
+export function isNotOpen(c: { registration_opens_at: string | null }, now: number, earlyMs = 0) {
+  return Boolean(c.registration_opens_at && new Date(c.registration_opens_at).getTime() > now + earlyMs);
 }

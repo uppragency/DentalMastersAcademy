@@ -102,7 +102,9 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
 
   const rawCode = formData.get("discount_code");
   const code = typeof rawCode === "string" && rawCode.trim() ? rawCode.trim().slice(0, 40) : null;
-  const { data: rows, error: orderError } = await admin.rpc("create_order_with_code", { p_user: userId, p_course: courseId, p_code: code });
+  const rawPoints = Number(formData.get("points") ?? 0);
+  const points = Number.isFinite(rawPoints) ? Math.max(0, Math.min(1_000_000, Math.floor(rawPoints))) : 0;
+  const { data: rows, error: orderError } = await admin.rpc("create_order_with_points", { p_user: userId, p_course: courseId, p_code: code, p_points: points });
   if (orderError) {
     const m = orderError.message;
     if (m.includes("already_enrolled")) redirect(`/cont/cursuri/${course.slug}`);
@@ -151,6 +153,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     metadata: { order_id: order.order_id, new_account: newAccount ? "1" : "0" },
     success_url: `${origin}/cont?plata=succes`,
     cancel_url: `${origin}/cursuri/${course.slug}?plata=anulata`,
+    expires_at: Math.floor(Date.now() / 1000) + 2 * 3600,
   });
 
   await admin.from("orders").update({ stripe_session_id: session.id }).eq("id", order.order_id);

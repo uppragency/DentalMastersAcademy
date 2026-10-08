@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const admin = createAdminClient();
+  const { data: maintenance } = await admin.rpc("points_maintenance");
   const today = day(new Date());
   const { data: courses } = await admin.from("courses").select("id, slug, title, starts_at, ends_at, location, parking_info, bring_info").eq("status", "published").not("starts_at", "is", null);
   let sent = 0;
@@ -61,5 +62,5 @@ export async function GET(request: NextRequest) {
       sent++;
     }
   }
-  return NextResponse.json({ ok: true, sent });
+  return NextResponse.json({ ok: true, sent, maintenance });
 }

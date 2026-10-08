@@ -33,11 +33,12 @@ export function JourneyMap({ nodes }: { nodes: JourneyNode[] }) {
   );
 }
 
-export function Badges({ courses, gold }: { courses: number; gold: boolean }) {
+export function Badges({ courses, gold, platinum = false }: { courses: number; gold: boolean; platinum?: boolean }) {
   const list = [
     { label: "Cursant", on: courses >= 1, hint: "Prima înscriere la un curs" },
     { label: "Master în curs", on: courses >= 2, hint: "Cel puțin două cursuri" },
     { label: "Gold", on: gold, hint: "Membru al programului Gold" },
+    { label: "Platinum", on: platinum, hint: "Cel mai înalt nivel al programului" },
   ];
   return (
     <ul className="flex flex-wrap gap-2" aria-label="Insigne">

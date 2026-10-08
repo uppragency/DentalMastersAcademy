@@ -4,6 +4,8 @@ import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { FormState } from "@/actions/auth";
+import { tierPerks } from "@/lib/loyalty";
+import type { LoyaltySettings } from "@/lib/types";
 
 export type DiscountPreview = { ok: boolean; message: string; discountCents?: number; label?: string };
 
@@ -23,7 +25,7 @@ export async function previewDiscount(courseId: string, rawCode: string): Promis
   let goldDisc = 0;
   if (userId && settings?.is_active) {
     const { data: p } = await admin.from("profiles").select("tier").eq("id", userId).maybeSingle();
-    if (p?.tier === "gold") goldDisc = Math.round((course.price_cents * Number(settings.gold_discount_percent)) / 100);
+    goldDisc = Math.round((course.price_cents * tierPerks(p?.tier ?? "standard", settings as LoyaltySettings).discountPercent) / 100);
   }
 
   const nowIso = new Date().toISOString();
@@ -50,7 +52,7 @@ export async function previewDiscount(courseId: string, rawCode: string): Promis
     label = "Recomandare";
     if (disc <= 0) return { ok: false, message: "Codul nu este activ momentan." };
   }
-  if (disc <= goldDisc) return { ok: false, message: "Reducerea Gold din contul tău este deja mai avantajoasă. Reducerile nu se cumulează." };
+  if (disc <= goldDisc) return { ok: false, message: "Reducerea de nivel din contul tău este deja mai avantajoasă. Reducerile nu se cumulează." };
   return { ok: true, message: "Cod aplicat.", discountCents: disc, label };
 }
 
