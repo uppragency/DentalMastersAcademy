@@ -99,6 +99,25 @@ async function runOps(admin: ReturnType<typeof createAdminClient>) {
   // 2. Stripe sessions expire after 2 hours: close card orders unpaid for a day (points are released by trigger).
   const { data: stale } = await admin.from("orders").update({ status: "cancelled" }).eq("status", "pending").eq("source", "stripe").lt("created_at", dayAgo).select("id");
 
+  // 2b. Bank transfer reservations past their deadline: cancel and tell the customer (seat is released).
+  const { data: lapsed } = await admin.from("orders").update({ status: "cancelled" }).eq("status", "pending").eq("source", "transfer").lt("expires_at", new Date(now).toISOString()).select("id, user_id, order_items(courses(title, slug)), profiles(email, full_name)");
+  for (const l of (lapsed ?? []) as unknown as { id: string; user_id: string; order_items: { courses: { title: string; slug: string } | null }[]; profiles: { email: string; full_name: string | null } | null }[]) {
+    const c = l.order_items[0]?.courses;
+    if (!c || !l.profiles) continue;
+    await sendMail({
+      to: l.profiles.email,
+      subject: `Rezervarea a expirat: ${c.title}`,
+      heading: "Rezervarea locului a expirat",
+      paragraphs: [
+        `${l.profiles.full_name ? `Bună, ${l.profiles.full_name}.` : "Bună."} Nu am primit plata prin transfer pentru ${c.title} în termenul de 2 zile lucrătoare, așa că am eliberat locul.`,
+        `Dacă ai făcut deja plata, scrie-ne și rezolvăm imediat. Poți și să reiei înscrierea, dacă mai sunt locuri.`,
+      ],
+      cta: { label: "Reia înscrierea", href: `/cursuri/${c.slug}/achizitie` },
+      kind: "transfer",
+      userId: l.user_id,
+    });
+  }
+
   // 3. Waitlists: offer free seats, expire old offers.
   const { data: courses } = await admin.from("courses").select("id, title, slug, capacity, starts_at").eq("status", "published").not("capacity", "is", null).gt("starts_at", new Date(now).toISOString());
   let offers = 0;
@@ -147,5 +166,5 @@ async function runOps(admin: ReturnType<typeof createAdminClient>) {
       });
     }
   }
-  return { recovery, cancelled: stale?.length ?? 0, offers, alerts: alerts.length, problems: problems.length, digest };
+  return { recovery, cancelled: stale?.length ?? 0, transferLapsed: lapsed?.length ?? 0, offers, alerts: alerts.length, problems: problems.length, digest };
 }

@@ -13,7 +13,7 @@ export const termeni: LegalDoc = {
     { title: "3. Contul de utilizator", paragraphs: ["Pentru a te înscrie ai nevoie de un cont. Datele introduse trebuie să fie reale și actuale. Ești responsabil/ă pentru păstrarea parolei și pentru activitatea din contul tău. Ne poți cere oricând ștergerea contului din secțiunea Profil."] },
     { title: "4. Înscriere, preț și plată", paragraphs: [
       "Prețurile sunt afișate în euro. Locul este rezervat după confirmarea plății. Dacă numărul de locuri al cursului este epuizat, înscrierea se blochează, iar tu te poți adăuga pe lista de așteptare.",
-      "Poți plăti cu cardul, prin Stripe, sau prin transfer bancar, pe baza instrucțiunilor primite pe email. La transfer, locul se confirmă după ce plata este înregistrată.",
+      "Poți plăti cu cardul, prin Stripe, sau prin transfer bancar, pe baza instrucțiunilor primite pe email. La transfer, locul se rezervă 2 zile lucrătoare (sâmbăta și duminica nu se numără), iar înscrierea se activează după ce plata este înregistrată. Dacă plata nu ajunge în termen, comanda se anulează automat și locul se eliberează.",
       "Reducerile (nivelul de membru, codurile de reducere, recomandările) nu se cumulează: se aplică cea mai avantajoasă. Punctele de fidelitate se pot folosi ca parte din plată, în limitele afișate la checkout.",
     ] },
     { title: "5. Program de fidelitate", paragraphs: ["Nivelurile Standard, Gold și Platinum, punctele câștigate, valabilitatea lor și avantajele fiecărui nivel sunt afișate în contul tău, la Program Gold. Condițiile pot fi modificate pentru viitor, cu anunț în cont. Punctele câștigate nu au valoare în numerar și nu se transferă."] },

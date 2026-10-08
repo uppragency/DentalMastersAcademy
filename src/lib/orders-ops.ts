@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
 import { formatPrice } from "@/lib/format";
+import { formatDeadline } from "@/lib/transfer";
 import { contact } from "@/content/site";
 
 type PendingOrder = {
@@ -12,6 +13,7 @@ type PendingOrder = {
   currency: string;
   user_id: string;
   recovery_sent_at: string | null;
+  expires_at: string | null;
   profiles: { email: string; full_name: string | null } | null;
   order_items: { courses: { title: string; slug: string } | null }[];
 };
@@ -19,7 +21,7 @@ type PendingOrder = {
 async function loadOrder(orderId: string) {
   const { data } = await createAdminClient()
     .from("orders")
-    .select("id, status, source, total_cents, currency, user_id, recovery_sent_at, profiles(email, full_name), order_items(courses(title, slug))")
+    .select("id, status, source, total_cents, currency, user_id, recovery_sent_at, expires_at, profiles(email, full_name), order_items(courses(title, slug))")
     .eq("id", orderId)
     .maybeSingle();
   return data as unknown as PendingOrder | null;
@@ -61,6 +63,7 @@ export async function sendTransferInstructions(orderId: string): Promise<{ ok: b
     heading: "Instrucțiuni de plată prin transfer bancar",
     paragraphs: [
       `${o.profiles.full_name ? `Bună, ${o.profiles.full_name}.` : "Bună."} Pentru înscrierea la ${course.title}, te rugăm să faci plata de ${formatPrice(o.total_cents, o.currency.trim())}.`,
+      ...(o.expires_at ? [`Locul tău este rezervat până ${formatDeadline(o.expires_at)}. Dacă plata nu ajunge până atunci, comanda se anulează automat și locul se eliberează.`] : []),
       ...details.split("\n").map((l) => l.trim()).filter(Boolean),
       `Menționează la detalii: comanda ${o.id.slice(0, 8)}.`,
       `După plată, trimite dovada la ${contact.email}. Înscrierea se activează imediat ce confirmăm plata.`,

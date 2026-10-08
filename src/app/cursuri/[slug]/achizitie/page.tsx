@@ -1,3 +1,4 @@
+import { courseMethods, formatDeadline, transferDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
@@ -62,6 +63,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             next={`/cursuri/${slug}/achizitie`}
             billingProfiles={billingProfiles}
             defaultName={profile?.full_name ?? ""}
+            methods={courseMethods(course.payment_methods)}
+            deadlineLabel={formatDeadline(transferDeadline())}
           />
         </section>
         <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" aria-label="Sumar comandă">

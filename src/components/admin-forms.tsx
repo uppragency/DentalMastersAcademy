@@ -141,6 +141,13 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
           </select>
         </div>
       </div>
+      <fieldset className="rounded-2xl border border-line p-4">
+        <legend className="px-2 text-sm font-medium">Metode de plată la checkout</legend>
+        <div className="flex flex-wrap gap-6 text-sm">
+          <label className="flex items-center gap-2"><input type="checkbox" name="payment_methods" value="card" defaultChecked={!course || (course.payment_methods ?? ["card"]).includes("card")} className="size-4 accent-[#a9833d]" /> Card (Stripe)</label>
+          <label className="flex items-center gap-2"><input type="checkbox" name="payment_methods" value="transfer" defaultChecked={(course?.payment_methods ?? []).includes("transfer")} className="size-4 accent-[#a9833d]" /> Transfer bancar (locul se rezervă 2 zile lucrătoare)</label>
+        </div>
+      </fieldset>
       <div className="flex flex-wrap gap-6 text-sm">
         <label className="flex items-center gap-2"><input type="checkbox" name="is_featured" defaultChecked={course?.is_featured} className="size-4 accent-[#a9833d]" /> Recomandat pe prima pagină</label>
         <label className="flex items-center gap-2"><input type="checkbox" name="gold_free" defaultChecked={course?.gold_free} className="size-4 accent-[#a9833d]" /> Acces gratuit pentru membrii Gold</label>

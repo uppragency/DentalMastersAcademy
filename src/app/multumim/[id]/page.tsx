@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { ThankYouView, thanksCourseSelect, type ThanksCourse } from "@/components/thank-you";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Mulțumim pentru comandă", robots: { index: false } };
@@ -13,11 +14,15 @@ export default async function ThankYou({ params }: { params: Promise<{ id: strin
   const supabase = await createClient();
   const { data } = await supabase
     .from("orders")
-    .select(`id, status, total_cents, currency, order_items(courses(${thanksCourseSelect}))`)
+    .select(`id, status, source, expires_at, total_cents, currency, order_items(courses(${thanksCourseSelect}))`)
     .eq("id", id)
     .eq("user_id", profile.id)
     .maybeSingle();
-  const o = data as unknown as { id: string; status: string; total_cents: number; currency: string; order_items: { courses: ThanksCourse | null }[] } | null;
+  const o = data as unknown as { id: string; status: string; source: string; expires_at: string | null; total_cents: number; currency: string; order_items: { courses: ThanksCourse | null }[] } | null;
   if (!o) notFound();
+  if (o.status === "pending" && o.source === "transfer" && o.expires_at) {
+    const { data: bank } = await createAdminClient().from("site_content").select("value").eq("key", "private:bank").maybeSingle();
+    return <ThankYouView profile={profile} course={o.order_items[0]?.courses} order={o} status="transfer" transfer={{ deadline: o.expires_at, bank: typeof bank?.value === "string" ? bank.value : "" }} />;
+  }
   return <ThankYouView profile={profile} course={o.order_items[0]?.courses} order={o} status={o.status === "paid" ? "paid" : o.status === "pending" ? "pending" : "other"} />;
 }

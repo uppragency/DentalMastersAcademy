@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { startCheckout } from "@/actions/checkout";
 import { Button, Field } from "@/components/ui";
 import { BillingSection } from "@/components/billing-section";
 import type { BillingProfile } from "@/lib/billing";
+import type { PayMethod } from "@/lib/transfer";
 
 export function CheckoutForm({
   courseId,
@@ -15,6 +16,8 @@ export function CheckoutForm({
   next,
   billingProfiles,
   defaultName,
+  methods,
+  deadlineLabel,
 }: {
   courseId: string;
   signedIn: boolean;
@@ -23,7 +26,10 @@ export function CheckoutForm({
   next: string;
   billingProfiles: BillingProfile[];
   defaultName: string;
+  methods: PayMethod[];
+  deadlineLabel: string;
 }) {
+  const [method, setMethod] = useState<PayMethod>(methods[0]!);
   const [state, action, pending] = useActionState(startCheckout.bind(null, courseId), undefined);
   const e = state?.errors;
 
@@ -59,6 +65,31 @@ export function CheckoutForm({
         </>
       ) : null}
 
+      {!free ? (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold">Metodă de plată</legend>
+          {methods.map((m) => {
+            const on = method === m;
+            return (
+              <label key={m} className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${on ? "border-gold bg-gold-soft" : "border-line hover:border-foreground/30"}`}>
+                <input type="radio" name="payment_method" value={m} checked={on} onChange={() => setMethod(m)} className="mt-1 size-4 accent-[#a9833d]" />
+                <span>
+                  <span className="block font-medium">{m === "card" ? "Card bancar" : "Transfer bancar"}</span>
+                  <span className="mt-0.5 block text-sm text-muted">
+                    {m === "card" ? "Plată securizată prin Stripe. Locul este confirmat imediat." : "Primești datele bancare după comandă. Înscrierea se activează după ce confirmăm plata."}
+                  </span>
+                </span>
+              </label>
+            );
+          })}
+          {method === "transfer" ? (
+            <p className="rounded-xl bg-background px-4 py-3 text-sm leading-relaxed">
+              Locul tău se rezervă până <strong>{deadlineLabel}</strong>. Dacă plata nu ajunge până atunci, comanda se anulează automat, iar locul se eliberează.
+            </p>
+          ) : null}
+        </fieldset>
+      ) : null}
+
       {state?.message ? (
         <p role="status" className="rounded-xl bg-gold-soft px-4 py-3 text-sm">
           {state.message}{" "}
@@ -68,10 +99,10 @@ export function CheckoutForm({
         </p>
       ) : null}
 
-      <Button type="submit" variant="gold" disabled={pending || (!enabled && !free)} className="w-full">
-        {pending ? "Se procesează..." : free ? "Confirmă înscrierea" : "Continuă către plată"}
+      <Button type="submit" variant="gold" disabled={pending || (!free && method === "card" && !enabled)} className="w-full">
+        {pending ? "Se procesează..." : free ? "Confirmă înscrierea" : method === "transfer" ? "Plasează comanda" : "Continuă către plată"}
       </Button>
-      {!enabled && !free ? <p className="text-center text-xs text-muted">Plata online va fi activată în curând.</p> : null}
+      {!enabled && !free && method === "card" ? <p className="text-center text-xs text-muted">Plata online va fi activată în curând.</p> : null}
     </form>
   );
 }

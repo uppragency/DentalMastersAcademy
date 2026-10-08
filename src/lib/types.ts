@@ -21,6 +21,7 @@ export type Course = {
   cover_url: string | null;
   thumbnail_url?: string | null;
   gallery?: string[];
+  payment_methods?: string[];
   status: "draft" | "published" | "archived";
   is_featured: boolean;
   gold_free: boolean;

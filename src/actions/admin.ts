@@ -214,6 +214,10 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
   }
   Object.assign(row, { gallery });
 
+  const methods = formData.getAll("payment_methods").filter((m): m is string => m === "card" || m === "transfer");
+  if (methods.length === 0) return { message: "Alege cel puțin o metodă de plată (card sau transfer bancar)." };
+  Object.assign(row, { payment_methods: methods });
+
   const saved = id
     ? await supabase.from("courses").update(row).eq("id", id).select("id").maybeSingle()
     : await supabase.from("courses").insert(row).select("id").maybeSingle();

@@ -5,6 +5,7 @@ import { CourseImage } from "@/components/course-image";
 import { ButtonLink, Container } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateRange, formatLabels, formatPrice } from "@/lib/format";
+import { formatDeadline } from "@/lib/transfer";
 import { contact } from "@/content/site";
 import type { Course } from "@/lib/types";
 
@@ -12,23 +13,32 @@ export type ThanksCourse = Pick<Course, "slug" | "title" | "starts_at" | "ends_a
 export const thanksCourseSelect = "slug, title, starts_at, ends_at, format, location, cover_url, thumbnail_url, parking_info, bring_info";
 
 /** Shared thank-you screen. `order` is null for free enrollments (no payment). */
-export async function ThankYouView({ profile, course, order, status }: {
+export async function ThankYouView({ profile, course, order, status, transfer }: {
   profile: { id: string; full_name: string | null; email: string };
   course: ThanksCourse | null | undefined;
   order: { id: string; total_cents: number; currency: string } | null;
-  status: "paid" | "pending" | "free" | "other";
+  status: "paid" | "pending" | "free" | "transfer" | "other";
+  transfer?: { deadline: string; bank: string };
 }) {
   const supabase = await createClient();
   const o = order;
   const paid = status === "paid";
   const free = status === "free";
   const waiting = status === "pending";
+  const isTransfer = status === "transfer" && Boolean(transfer);
+  const bankLines = (transfer?.bank ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+  const iban = bankLines.map((l) => /^IBAN\s*:\s*(.+)$/i.exec(l)?.[1]).find(Boolean)?.replace(/\s+/g, "") ?? "";
   const first = profile.full_name?.split(" ")[0] ?? "";
   const physical = course?.format !== "online";
   const [{ data: me }] = await Promise.all([supabase.from("profiles").select("referral_code").eq("id", profile.id).single()]);
   const link = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/r/${me?.referral_code ?? ""}`;
 
-  const steps = [
+  const transferSteps = [
+    { t: "Fă plata prin transfer bancar", d: "Folosește datele din cardul de mai jos și scrie numărul comenzii la detalii, ca să o recunoaștem imediat." },
+    { t: "Trimite dovada de plată", d: `Răspunde la emailul primit sau scrie-ne la ${contact.email}, cu o captură a transferului.` },
+    { t: "Îți activăm înscrierea", d: "După ce vedem banii în cont, primești confirmarea pe email și cursul apare în contul tău. Factura se emite la confirmare." },
+  ];
+  const steps = isTransfer ? transferSteps : [
     { t: "Confirmarea ajunge pe email", d: `Am trimis detaliile la ${profile.email}. Dacă nu o găsești în câteva minute, verifică și Spam.` },
     physical
       ? { t: "Te pregătim pentru curs", d: "Cu 7 zile înainte primești un email cu programul pe zile, parcarea și ce să aduci." }
@@ -49,13 +59,15 @@ export async function ThankYouView({ profile, course, order, status }: {
             <svg viewBox="0 0 24 24" className="size-8" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
           </div>
           <p className="rise mt-8 text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright" style={{ ["--d" as string]: "80ms" }}>
-            {free ? "Înscriere confirmată" : paid ? "Plată confirmată" : waiting ? "Confirmăm plata" : "Comandă înregistrată"}
+            {isTransfer ? "Loc rezervat" : free ? "Înscriere confirmată" : paid ? "Plată confirmată" : waiting ? "Confirmăm plata" : "Comandă înregistrată"}
           </p>
           <h1 className="rise font-display mt-4 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "140ms" }}>
-            Mulțumim{first ? `, ${first}` : ""}. <span className="text-gold-sheen">Ne vedem la curs.</span>
+            Mulțumim{first ? `, ${first}` : ""}. <span className="text-gold-sheen">{isTransfer ? "Mai ai un singur pas." : "Ne vedem la curs."}</span>
           </h1>
           <p className="rise mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-white/65" style={{ ["--d" as string]: "220ms" }}>
-            {free
+            {isTransfer
+              ? `Locul tău este rezervat până ${formatDeadline(transfer!.deadline)}. Finalizează plata prin transfer bancar, iar înscrierea se activează imediat ce o confirmăm.`
+              : free
               ? "Locul tău este rezervat, fără nimic de plătit. Echipa Dental Masters Academy te așteaptă cu drag."
               : paid
               ? "Locul tău este rezervat. Ai făcut un pas important pentru practica ta, iar echipa Dental Masters Academy este alături de tine de acum înainte."
@@ -81,15 +93,32 @@ export async function ThankYouView({ profile, course, order, status }: {
                   {course.starts_at ? (<><dt className="text-muted">Data</dt><dd>{formatDateRange(course.starts_at, course.ends_at)}</dd></>) : null}
                   <dt className="text-muted">Format</dt><dd>{formatLabels[course.format]}</dd>
                   {course.location ? (<><dt className="text-muted">Locație</dt><dd>{course.location}</dd></>) : null}
-                  <dt className="text-muted">{o ? "Total plătit" : "Preț"}</dt><dd className="font-semibold">{o ? formatPrice(o.total_cents, o.currency.trim()) : "Gratuit"}</dd>
+                  <dt className="text-muted">{isTransfer ? "De plată" : o ? "Total plătit" : "Preț"}</dt><dd className="font-semibold">{o ? formatPrice(o.total_cents, o.currency.trim()) : "Gratuit"}</dd>
                 </dl>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? "Vezi detaliile cursului" : "Începe cursul"}</ButtonLink>
-                  {course.starts_at ? <a href={`/cont/cursuri/${course.slug}/calendar.ics`} className="inline-flex min-h-12 items-center rounded-full border border-line px-6 text-sm font-medium hover:border-foreground/30">Adaugă în calendar</a> : null}
-                  {o ? <ButtonLink href={`/cont/comenzi/${o.id}`} variant="ghost">Dovadă de plată</ButtonLink> : null}
+                  {isTransfer ? <ButtonLink href="/cont">Mergi în contul meu</ButtonLink> : <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? "Vezi detaliile cursului" : "Începe cursul"}</ButtonLink>}
+                  {!isTransfer && course.starts_at ? <a href={`/cont/cursuri/${course.slug}/calendar.ics`} className="inline-flex min-h-12 items-center rounded-full border border-line px-6 text-sm font-medium hover:border-foreground/30">Adaugă în calendar</a> : null}
+                  {o && !isTransfer ? <ButtonLink href={`/cont/comenzi/${o.id}`} variant="ghost">Dovadă de plată</ButtonLink> : null}
                 </div>
               </div>
             </article>
+          ) : null}
+
+          {isTransfer && o ? (
+            <section aria-labelledby="pay-h" className="rounded-[2rem] border border-gold bg-gold-soft p-7 sm:p-9">
+              <h2 id="pay-h" className="font-display text-2xl">Datele pentru transfer bancar</h2>
+              <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
+                {bankLines.map((l) => {
+                  const i = l.indexOf(":");
+                  return i > 0 ? (<div key={l} className="contents"><dt className="text-muted">{l.slice(0, i)}</dt><dd className="break-all font-medium">{l.slice(i + 1).trim()}</dd></div>) : (<div key={l} className="col-span-2 font-medium">{l}</div>);
+                })}
+                <dt className="text-muted">Sumă</dt><dd className="font-semibold">{formatPrice(o.total_cents, o.currency.trim())}</dd>
+                <dt className="text-muted">Detalii plată</dt><dd className="font-medium">Comanda {o.id.slice(0, 8).toUpperCase()}</dd>
+                <dt className="text-muted">Termen</dt><dd className="font-medium">{formatDeadline(transfer!.deadline)}</dd>
+              </dl>
+              {iban ? <div className="mt-5"><CopyButton value={iban} label="Copiază IBAN" /></div> : null}
+              <p className="mt-5 text-xs leading-relaxed text-muted">Am trimis aceste date și pe email. Dacă plata nu ajunge până la termen, comanda se anulează automat, iar locul se eliberează.</p>
+            </section>
           ) : null}
 
           <section aria-labelledby="next-h" className="rounded-[2rem] border border-line bg-card p-7 sm:p-9">

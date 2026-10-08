@@ -1,3 +1,4 @@
+import { formatDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -30,7 +31,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     .maybeSingle();
   if (!data) notFound();
   const o = data as unknown as {
-    id: string; status: string; source: string; subtotal_cents: number; discount_cents: number; total_cents: number; currency: string;
+    id: string; status: string; source: string; expires_at?: string | null; subtotal_cents: number; discount_cents: number; total_cents: number; currency: string;
     tier_at_purchase: Tier; discount_code: string | null; points_used: number; points_discount_cents: number; points_earned: number;
     stripe_session_id: string | null; stripe_payment_intent: string | null; paid_at: string | null; created_at: string; refunded_at: string | null; refunded_cents: number;
     refund_reason: string | null; manual_note: string | null; invoice_number: string | null; invoice_url: string | null; invoice_error: string | null; billing: Billing;
@@ -51,7 +52,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <Link href="/admin/comenzi" className="text-sm text-muted hover:text-foreground">← Comenzi</Link>
       <header>
         <h1 className="text-3xl font-semibold tracking-tight">Comandă {o.id.slice(0, 8)}</h1>
-        <p className="mt-1 text-sm text-muted">{statusLabel[o.status] ?? o.status} · {o.source === "manual" ? "manuală" : o.source === "transfer" ? "transfer bancar" : "Stripe"} · {formatDate(o.created_at)}</p>
+        <p className="mt-1 text-sm text-muted">{statusLabel[o.status] ?? o.status} · {o.source === "manual" ? "manuală" : o.source === "transfer" ? "transfer bancar" : "Stripe"} · {formatDate(o.created_at)}{o.status === "pending" && o.source === "transfer" && o.expires_at ? ` · rezervare până ${formatDeadline(o.expires_at)}` : ""}</p>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-2">

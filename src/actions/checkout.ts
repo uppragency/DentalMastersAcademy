@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe, paymentsEnabled } from "@/lib/stripe";
 import type { FormState } from "@/actions/auth";
+import { courseMethods, transferDeadline, type PayMethod } from "@/lib/transfer";
+import { sendTransferInstructions } from "@/lib/orders-ops";
 import { readBilling, type BillingInput } from "@/lib/billing";
 
 const guestSchema = z.object({
@@ -23,8 +25,6 @@ const guestSchema = z.object({
 });
 
 export async function startCheckout(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
-  if (!paymentsEnabled()) return { message: "Plata online nu este încă activată. Încearcă din nou în curând." };
-
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   let userId = claims?.claims?.sub ?? null;
@@ -33,11 +33,13 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
 
   const { data: course } = await admin
     .from("courses")
-    .select("id, slug, title, currency, status, starts_at, ends_at, registration_opens_at")
+    .select("id, slug, title, currency, status, starts_at, ends_at, registration_opens_at, payment_methods")
     .eq("id", courseId)
     .eq("status", "published")
     .maybeSingle();
   if (!course) return { message: "Cursul nu mai este disponibil." };
+  const method: PayMethod = formData.get("payment_method") === "transfer" ? "transfer" : "card";
+  if (!courseMethods(course.payment_methods).includes(method)) return { message: "Metoda de plată aleasă nu este disponibilă pentru acest curs." };
   const endRef = course.ends_at ?? course.starts_at;
   if (endRef && new Date(endRef).getTime() < Date.now()) return { message: "Înscrierile pentru această ediție sunt închise. Scrie-ne pentru următoarea ediție." };
   if (course.registration_opens_at && new Date(course.registration_opens_at).getTime() > Date.now()) return { message: "Înscrierile pentru această ediție nu s-au deschis încă." };
@@ -132,6 +134,17 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     });
   }
 
+  if (method === "transfer") {
+    await admin.from("orders").update({ source: "transfer", expires_at: transferDeadline().toISOString() }).eq("id", order.order_id);
+    try {
+      await sendTransferInstructions(order.order_id);
+    } catch {
+      /* the thank-you page shows the same details; the admin can resend */
+    }
+    redirect(`/multumim/${order.order_id}`);
+  }
+
+  if (!paymentsEnabled()) return { message: "Plata online nu este încă activată. Încearcă din nou în curând." };
   const stripe = getStripe()!;
   const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const { data: profile } = await admin.from("profiles").select("email").eq("id", userId).single();
