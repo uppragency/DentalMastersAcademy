@@ -66,8 +66,9 @@ export function CheckoutForm({
       ) : null}
 
       {!free ? (
-        <fieldset className="space-y-3">
-          <legend className="text-sm font-semibold">Metodă de plată</legend>
+        <fieldset>
+          <legend className="mb-3 text-sm font-semibold">Metodă de plată</legend>
+          <div className={`grid gap-3 ${methods.length > 1 ? "md:grid-cols-2" : ""}`}>
           {methods.map((m) => {
             const on = method === m;
             return (
@@ -83,10 +84,11 @@ export function CheckoutForm({
             );
           })}
           {method === "transfer" ? (
-            <p className="rounded-xl bg-background px-4 py-3 text-sm leading-relaxed">
+            <p className="rounded-xl bg-background px-4 py-3 text-sm leading-relaxed md:col-span-full">
               Locul tău se rezervă până <strong>{deadlineLabel}</strong>. Dacă plata nu ajunge până atunci, comanda se anulează automat, iar locul se eliberează.
             </p>
           ) : null}
+          </div>
         </fieldset>
       ) : null}
 
