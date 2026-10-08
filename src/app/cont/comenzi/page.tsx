@@ -26,7 +26,7 @@ export default async function MyOrders() {
         <div className="mt-8 overflow-x-auto rounded-[2rem] border border-line bg-card">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <thead className="border-b border-line text-muted">
-              <tr><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3 font-medium">Curs</th><th className="px-5 py-3 font-medium">Total</th><th className="px-5 py-3 font-medium">Status</th><th className="px-5 py-3 font-medium">Documente</th></tr>
+              <tr><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3 font-medium">Curs</th><th className="px-5 py-3 font-medium">Total</th><th className="px-5 py-3 font-medium">Status</th><th className="px-5 py-3 font-medium">Detalii</th></tr>
             </thead>
             <tbody>
               {orders.map((o) => (
@@ -35,7 +35,7 @@ export default async function MyOrders() {
                   <td className="px-5 py-4">{o.order_items.map((i) => i.courses?.title).filter(Boolean).join(", ")}</td>
                   <td className="px-5 py-4 font-medium">{formatPrice(o.total_cents, o.currency.trim())}</td>
                   <td className="px-5 py-4">{statusLabel[o.status] ?? o.status}</td>
-                  <td className="px-5 py-4">{o.status === "paid" || o.status === "refunded" ? <Link className="underline underline-offset-4" href={`/cont/comenzi/${o.id}`}>Dovadă și factură</Link> : <span className="text-muted">Indisponibil</span>}</td>
+                  <td className="px-5 py-4"><Link className="inline-flex min-h-9 items-center rounded-full border border-line px-4 font-medium transition-colors hover:bg-background" href={`/cont/comenzi/${o.id}`}>Deschide comanda</Link></td>
                 </tr>
               ))}
             </tbody>
