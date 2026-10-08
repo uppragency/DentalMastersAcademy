@@ -44,7 +44,7 @@ export default async function MyCoursePage({
   const [lessons, doneIds, { data: materials }, { count: reviewCount }] = await Promise.all([
     getLessons(course.id),
     getCompletedLessonIds(profile.id),
-    supabase.from("course_materials").select("id, title, description, url").eq("course_id", course.id).order("created_at"),
+    supabase.from("course_materials").select("id, title, description, url, file_path").eq("course_id", course.id).order("created_at"),
     supabase.from("course_feedback").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("course_id", course.id),
   ]);
   const courseOver = isEnded(course, nowMs());
@@ -192,7 +192,7 @@ export default async function MyCoursePage({
               <ul className="mt-6 divide-y divide-line rounded-3xl border border-line bg-card">
                 {materials!.map((m) => (
                   <li key={m.id}>
-                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-background">
+                    <a href={m.file_path ? `/api/materiale/${m.id}` : (m.url ?? "#")} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-background">
                       <span><span className="block font-medium">{m.title}</span>{m.description ? <span className="block text-sm text-muted">{m.description}</span> : null}</span>
                       <span className="shrink-0 text-sm font-medium text-gold">Deschide</span>
                     </a>

@@ -31,7 +31,7 @@ export function TrainerForm({ trainer }: { trainer: Trainer }) {
   );
 }
 
-export function PostForm({ post }: { post?: BlogPost }) {
+export function PostForm({ post, trainers = [] }: { post?: BlogPost; trainers?: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState(savePost.bind(null, post?.id ?? null), undefined);
   const e = state?.errors;
   return (
@@ -44,6 +44,13 @@ export function PostForm({ post }: { post?: BlogPost }) {
         <label htmlFor="body" className="mb-1.5 block text-sm font-medium">Text (paragrafe separate printr-un rând gol; un rând scurt fără punct la final devine subtitlu)</label>
         <textarea id="body" name="body" rows={16} defaultValue={post?.body ?? ""} required className={area} />
         {e?.body?.[0] ? <p className="mt-1.5 text-sm text-red-700">{e.body[0]}</p> : null}
+      </div>
+      <div>
+        <label htmlFor="trainer_id" className="mb-1.5 block text-sm font-medium">Lector (articolul apare pe pagina lectorului)</label>
+        <select id="trainer_id" name="trainer_id" defaultValue={post?.trainer_id ?? ""} className={area}>
+          <option value="">Fără lector</option>
+          {trainers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
       </div>
       <div><label htmlFor="cover" className="mb-1.5 block text-sm font-medium">Imagine (opțional)</label><input id="cover" type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/avif" className={fileCls} /></div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={post?.published} className="size-4 accent-[#a9833d]" /> Publicat (vizibil pe site)</label>

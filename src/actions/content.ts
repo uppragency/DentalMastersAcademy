@@ -62,6 +62,7 @@ export async function savePost(id: string | null, _: FormState, formData: FormDa
     excerpt: d.excerpt ?? null,
     body: d.body,
     author_name: d.author_name ?? "Echipa Dental Masters Academy",
+    trainer_id: opt(formData.get("trainer_id")) ?? null,
     published,
   };
   if (published) {

@@ -14,7 +14,11 @@ export function MaterialForm({ courseId, slug }: { courseId: string; slug: strin
   return (
     <form action={action} className="space-y-4">
       <Field label="Titlu material" name="title" required error={e?.title?.[0]} />
-      <Field label="Link (https, Drive, Dropbox sau fișier găzduit)" name="url" type="url" required error={e?.url?.[0]} />
+      <div>
+        <label htmlFor="mat_file" className="mb-1.5 block text-sm font-medium">Fișier (PDF, imagine, arhivă; maximum 4 MB, vizibil 12 luni după curs)</label>
+        <input id="mat_file" type="file" name="file" className="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-ink file:px-5 file:py-2.5 file:text-sm file:font-medium file:text-white" />
+      </div>
+      <Field label="sau link (https, pentru fișiere mari: Drive, Dropbox)" name="url" type="url" error={e?.url?.[0]} />
       <Field label="Descriere (opțional)" name="description" />
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="notify" defaultChecked className="size-4 accent-[#a9833d]" /> Notifică cursanții în cont</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="email" className="size-4 accent-[#a9833d]" /> Trimite și email</label>

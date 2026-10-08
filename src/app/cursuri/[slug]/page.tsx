@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ButtonLink, Container, Eyebrow, Arrow } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
 import { CourseCard } from "@/components/course-card";
@@ -49,6 +51,12 @@ export default async function CoursePage({ params }: Props) {
     getCourseRating(course.id),
   ]);
   const enrolled = enrolledIds.includes(course.id);
+  if (profile && !enrolled) {
+    const uid = profile.id;
+    after(async () => {
+      await createAdminClient().rpc("track_course_view", { p_user: uid, p_course: course.id });
+    });
+  }
   const now = nowMs();
   const ended = isEnded(course, now);
   const perk = tierPerks(profile?.tier ?? "standard", loyalty);

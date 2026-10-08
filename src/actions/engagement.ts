@@ -49,14 +49,24 @@ export async function announceToEnrolled(courseId: string, slug: string, _: Form
 const materialSchema = z.object({
   title: z.string().trim().min(2, { error: "Introdu titlul." }).max(200),
   description: z.string().trim().max(500).optional(),
-  url: z.string().trim().url({ error: "Link invalid." }).startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }),
+  url: z.string().trim().url({ error: "Link invalid." }).startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
 });
 
 export async function addMaterial(courseId: string, slug: string, _: FormState, formData: FormData): Promise<FormState> {
   const { supabase } = await requireAdminClient();
-  const parsed = materialSchema.safeParse({ title: formData.get("title"), description: formData.get("description") || undefined, url: formData.get("url") });
+  const parsed = materialSchema.safeParse({ title: formData.get("title"), description: formData.get("description") || undefined, url: formData.get("url") || undefined });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
-  const { error } = await supabase.from("course_materials").insert({ course_id: courseId, ...parsed.data });
+  const file = formData.get("file");
+  let file_path: string | null = null;
+  if (file instanceof File && file.size > 0) {
+    if (file.size > 4 * 1024 * 1024) return { message: "Fișierul depășește 4 MB. Folosește un link pentru fișiere mari." };
+    const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "bin";
+    file_path = `${courseId}/${crypto.randomUUID()}.${ext}`;
+    const up = await createAdminClient().storage.from("materials").upload(file_path, await file.arrayBuffer(), { contentType: file.type || "application/octet-stream" });
+    if (up.error) return { message: "Încărcarea fișierului a eșuat." };
+  }
+  if (!file_path && !parsed.data.url) return { errors: { url: ["Adaugă un fișier sau un link."] } };
+  const { error } = await supabase.from("course_materials").insert({ course_id: courseId, ...parsed.data, url: parsed.data.url ?? null, file_path });
   if (error) return { message: "Materialul nu a putut fi salvat." };
   let msg = "Material adăugat.";
   if (formData.get("notify") === "on") {

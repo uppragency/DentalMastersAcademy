@@ -20,7 +20,7 @@ export default async function EditCourse({ params }: { params: Promise<{ id: str
     getCategories(),
     getLessons(id),
     supabase.from("courses").select("id, title").order("starts_at", { ascending: false }),
-    supabase.from("course_materials").select("id, title, url").eq("course_id", id).order("created_at"),
+    supabase.from("course_materials").select("id, title, url, file_path").eq("course_id", id).order("created_at"),
   ]);
   if (!data) notFound();
   return (
@@ -51,7 +51,7 @@ export default async function EditCourse({ params }: { params: Promise<{ id: str
           <ul className="mt-6 divide-y divide-line rounded-2xl border border-line bg-card">
             {materials!.map((m) => (
               <li key={m.id} className="flex items-center justify-between gap-4 px-5 py-4 text-sm">
-                <a href={m.url} target="_blank" rel="noopener noreferrer" className="min-w-0 truncate underline underline-offset-4">{m.title}</a>
+                <a href={m.file_path ? `/api/materiale/${m.id}` : (m.url ?? "#")} target="_blank" rel="noopener noreferrer" className="min-w-0 truncate underline underline-offset-4">{m.title}</a>
                 <form action={deleteMaterial.bind(null, m.id, id)}><Button type="submit" variant="ghost" className="min-h-9 px-4 text-red-700">Șterge</Button></form>
               </li>
             ))}

@@ -4,6 +4,7 @@ import { sendMail } from "@/lib/email";
 import { contact, directions } from "@/content/site";
 import { processWaitlist } from "@/lib/waitlist";
 import { sendRecoveryEmail } from "@/lib/orders-ops";
+import { runMonthlyReport, runPostPurchase, runViewAlerts } from "@/lib/lifecycle";
 
 export const runtime = "nodejs";
 
@@ -59,7 +60,7 @@ async function runDaily(admin: ReturnType<typeof createAdminClient>) {
         paragraphs = [`Mulțumim că ai participat la ${c.title}. Evaluarea durează un minut și ne ajută să îmbunătățim următoarele ediții.`];
         href = `/cont/cursuri/${c.slug}#feedback`;
       } else {
-        title = kind === "r7" ? `Peste 7 zile: ${c.title}` : `Mâine: ${c.title}`;
+        title = kind === "r7" ? `Cum te pregătești pentru ${c.title}` : `Mâine: ${c.title}`;
         paragraphs = [
           `Data și ora: ${when}`,
           `Adresa: ${c.location || contact.address}`,
@@ -78,7 +79,10 @@ async function runDaily(admin: ReturnType<typeof createAdminClient>) {
     }
   }
   const ops = await runOps(admin);
-  return { sent, maintenance, ...ops };
+  const lifecycle = await runPostPurchase(admin);
+  const views = await runViewAlerts(admin);
+  const report = await runMonthlyReport(admin);
+  return { sent, maintenance, ...ops, ...lifecycle, ...views, ...report };
 }
 
 /** Abandoned checkouts, waitlist offers, seat alerts and the daily problem digest for administrators. */

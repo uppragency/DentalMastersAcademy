@@ -71,6 +71,8 @@ export async function sendMail(opts: {
   attachments?: { filename: string; content: string }[];
   kind?: string;
   userId?: string;
+  /** Marketing emails: adds an unsubscribe link and List-Unsubscribe header. */
+  unsubscribe?: string;
 }) {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
@@ -85,12 +87,14 @@ export async function sendMail(opts: {
     ${opts.paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
     ${opts.cta ? `<p><a href="${opts.cta.href.startsWith("http") ? opts.cta.href : siteUrl() + opts.cta.href}" style="display:inline-block;background:#0b1220;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none">${escapeHtml(opts.cta.label)}</a></p>` : ""}
     <p style="color:#5d6675;font-size:13px">Dental Masters Academy</p>
+    ${opts.unsubscribe ? `<p style="color:#8a93a3;font-size:12px">Primești acest email pentru că ești cursant. <a href="${opts.unsubscribe}" style="color:#8a93a3">Dezabonează-te de la recomandări</a></p>` : ""}
   </div>`;
   const { data, error } = await resend.emails.send({
     from,
     to: opts.to,
     subject: opts.subject,
     html,
+    ...(opts.unsubscribe ? { headers: { "List-Unsubscribe": `<${opts.unsubscribe}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } } : {}),
     attachments: opts.attachments,
   });
   await logEmail({ to: opts.to, subject: opts.subject, kind: opts.kind, userId: opts.userId, providerId: data?.id, error: error ? error.message : undefined });
