@@ -80,7 +80,41 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
         </Container>
       </section>
 
-      <Container className="grid gap-8 py-14 sm:py-20 lg:grid-cols-12">
+      {isTransfer && o ? (
+        <Container className="grid gap-8 pt-14 sm:pt-20 lg:grid-cols-2">
+          <div className="lg:order-2">
+            <section aria-labelledby="next-h" className="rounded-[2rem] border border-line bg-card p-7 sm:p-9">
+              <h2 id="next-h" className="font-display text-2xl">Ce urmează</h2>
+              <ol className="mt-6 space-y-6">
+                {steps.map((s, i) => (
+                  <li key={s.t} className="flex gap-4">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gold-soft text-sm font-semibold text-gold">{i + 1}</span>
+                    <div><h3 className="font-medium">{s.t}</h3><p className="mt-1 text-sm leading-relaxed text-muted">{s.d}</p></div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </div>
+          <div className="lg:order-1">
+            <section aria-labelledby="pay-h" className="rounded-[2rem] border border-gold bg-gold-soft p-7 sm:p-9">
+                <h2 id="pay-h" className="font-display text-2xl">Datele pentru transfer bancar</h2>
+                <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
+                  {bankLines.map((l) => {
+                    const i = l.indexOf(":");
+                    return i > 0 ? (<div key={l} className="contents"><dt className="text-muted">{l.slice(0, i)}</dt><dd className="break-all font-medium">{l.slice(i + 1).trim()}</dd></div>) : (<div key={l} className="col-span-2 font-medium">{l}</div>);
+                  })}
+                  <dt className="text-muted">Sumă</dt><dd className="font-semibold">{formatPrice(o.total_cents, o.currency.trim())}</dd>
+                  <dt className="text-muted">Detalii plată</dt><dd className="font-medium">Comanda {o.id.slice(0, 8).toUpperCase()}</dd>
+                  <dt className="text-muted">Termen</dt><dd className="font-medium">{formatDeadline(transfer!.deadline)}</dd>
+                </dl>
+                {iban ? <div className="mt-5"><CopyButton value={iban} label="Copiază IBAN" /></div> : null}
+                <p className="mt-5 text-xs leading-relaxed text-muted">Am trimis aceste date și pe email. Dacă plata nu ajunge până la termen, comanda se anulează automat, iar locul se eliberează.</p>
+              </section>
+          </div>
+        </Container>
+      ) : null}
+
+      <Container className={`grid gap-8 py-14 sm:py-20 lg:grid-cols-12 ${isTransfer ? "pt-8 sm:pt-8" : ""}`}>
         <div className="space-y-8 lg:col-span-7">
           {course ? (
             <article className="overflow-hidden rounded-[2rem] border border-line bg-card">
@@ -106,23 +140,8 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
             </article>
           ) : null}
 
-          {isTransfer && o ? (
-            <section aria-labelledby="pay-h" className="rounded-[2rem] border border-gold bg-gold-soft p-7 sm:p-9">
-              <h2 id="pay-h" className="font-display text-2xl">Datele pentru transfer bancar</h2>
-              <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
-                {bankLines.map((l) => {
-                  const i = l.indexOf(":");
-                  return i > 0 ? (<div key={l} className="contents"><dt className="text-muted">{l.slice(0, i)}</dt><dd className="break-all font-medium">{l.slice(i + 1).trim()}</dd></div>) : (<div key={l} className="col-span-2 font-medium">{l}</div>);
-                })}
-                <dt className="text-muted">Sumă</dt><dd className="font-semibold">{formatPrice(o.total_cents, o.currency.trim())}</dd>
-                <dt className="text-muted">Detalii plată</dt><dd className="font-medium">Comanda {o.id.slice(0, 8).toUpperCase()}</dd>
-                <dt className="text-muted">Termen</dt><dd className="font-medium">{formatDeadline(transfer!.deadline)}</dd>
-              </dl>
-              {iban ? <div className="mt-5"><CopyButton value={iban} label="Copiază IBAN" /></div> : null}
-              <p className="mt-5 text-xs leading-relaxed text-muted">Am trimis aceste date și pe email. Dacă plata nu ajunge până la termen, comanda se anulează automat, iar locul se eliberează.</p>
-            </section>
-          ) : null}
 
+          {!isTransfer ? (
           <section aria-labelledby="next-h" className="rounded-[2rem] border border-line bg-card p-7 sm:p-9">
             <h2 id="next-h" className="font-display text-2xl">Ce urmează</h2>
             <ol className="mt-6 space-y-6">
@@ -134,6 +153,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
               ))}
             </ol>
           </section>
+          ) : null}
         </div>
 
         <aside className="space-y-6 lg:col-span-5">
