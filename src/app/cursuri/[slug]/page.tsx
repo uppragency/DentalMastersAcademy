@@ -11,10 +11,12 @@ import { VideoPlayer } from "@/components/video-player";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { parseVideo } from "@/lib/video";
 import { Reveal } from "@/components/reveal";
-import { getCourseBySlug, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getSeatCounts, getTrainers } from "@/lib/data";
+import { getCourseBySlug, getCourseRating, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getSeatCounts, getTrainers } from "@/lib/data";
 import { tierPerks } from "@/lib/loyalty";
 import { formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
+import { JsonLd } from "@/components/json-ld";
+import { courseJsonLd, eventJsonLd, faqJsonLd } from "@/lib/structured-data";
 import { TrainerAvatar } from "@/components/trainer-avatar";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -23,7 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
   if (!course) return {};
-  return { title: course.title, description: course.summary ?? undefined };
+  return {
+    title: course.title,
+    description: course.summary ?? undefined,
+    alternates: { canonical: `/cursuri/${course.slug}` },
+    openGraph: { title: course.title, description: course.summary ?? undefined, type: "website" },
+  };
 }
 
 function paragraphsOf(c: { description: string | null }) {
@@ -34,11 +41,12 @@ export default async function CoursePage({ params }: Props) {
   const { slug } = await params;
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();
-  const [trainers, seatCounts, enrolledIds, related] = await Promise.all([
+  const [trainers, seatCounts, enrolledIds, related, rating] = await Promise.all([
     getTrainers(),
     getSeatCounts(),
     profile ? getEnrolledCourseIds(profile.id) : Promise.resolve([] as string[]),
     getCourses({ limit: 4 }),
+    getCourseRating(course.id),
   ]);
   const enrolled = enrolledIds.includes(course.id);
   const now = nowMs();
@@ -74,6 +82,7 @@ export default async function CoursePage({ params }: Props) {
 
   return (
     <>
+      <JsonLd data={[courseJsonLd(course, rating, course.trainer_name), eventJsonLd(course, soldOut), faqJsonLd(course.faqs)]} />
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
         <CourseArt seed={course.slug} className="absolute inset-0 -z-10 size-full scale-110 opacity-60" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/30" />

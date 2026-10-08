@@ -277,3 +277,10 @@ export async function getLoyaltyState(userId: string, settings: LoyaltySettings 
     history: rows.slice(0, 50),
   };
 }
+
+export async function getCourseRating(courseId: string): Promise<{ avg: number; n: number } | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("course_ratings");
+  const row = ((data ?? []) as { course_id: string; avg_rating: number; n: number }[]).find((r) => r.course_id === courseId);
+  return row ? { avg: Number(row.avg_rating), n: Number(row.n) } : null;
+}

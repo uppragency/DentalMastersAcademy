@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui";
 import { contact } from "@/content/site";
@@ -8,6 +9,7 @@ export function SiteFooter() {
       <div aria-hidden="true" className="hairline-gold" />
       <Container className="grid gap-12 py-20 md:grid-cols-12">
         <div className="md:col-span-5">
+          <Image src="/logo.png" alt="Dental Masters Academy" width={795} height={377} className="mb-8 h-24 w-auto" />
           <p className="font-display text-3xl font-medium leading-tight">
             Formare avansată <span className="text-gold-sheen">pentru medici stomatologi.</span>
           </p>
@@ -29,6 +31,7 @@ export function SiteFooter() {
           <Link className="block transition-colors hover:text-white" href="/contact">Contact</Link>
           <Link className="block transition-colors hover:text-white" href="/termeni">Termeni și condiții</Link>
           <Link className="block transition-colors hover:text-white" href="/confidentialitate">Confidențialitate</Link>
+          <Link className="block transition-colors hover:text-white" href="/rambursare">Rambursare și transfer</Link>
           <Link className="block transition-colors hover:text-white" href="/cookies">Cookies</Link>
         </nav>
         </div>

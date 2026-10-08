@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase.from("blog_posts").select("slug, published_at").eq("published", true),
     supabase.from("trainers").select("slug").eq("published", true),
   ]);
-  const fixed = ["", "/cursuri", "/categorii", "/despre", "/lectori", "/blog", "/evenimente", "/testimoniale", "/contact"].map((p) => ({ url: `${base}${p}` }));
+  const fixed = ["", "/cursuri", "/categorii", "/despre", "/lectori", "/blog", "/evenimente", "/testimoniale", "/contact", "/rambursare"].map((p) => ({ url: `${base}${p}` }));
   return [
     ...fixed,
     ...(courses.data ?? []).map((c) => ({ url: `${base}/cursuri/${c.slug}`, lastModified: c.updated_at })),

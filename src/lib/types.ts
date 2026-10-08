@@ -120,6 +120,7 @@ export type Trainer = {
   bio: string | null;
   points: string[];
   photo_url: string | null;
+  intro_video_url: string | null;
   sort_order: number;
   published: boolean;
 };

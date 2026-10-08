@@ -31,6 +31,6 @@ export const BankEditor = ({ value }: { value: string }) => (
   <TextForm action={saveBank} name="bank" label="Date bancare pentru transfer" rows={6} defaultValue={value} hint="Beneficiar, IBAN, bancă, CUI. Un rând per informație. Nu este public: apare doar în emailul de instrucțiuni de plată." />
 );
 
-export function LegalEditor({ k, label, value }: { k: "legal_termeni" | "legal_confidentialitate" | "legal_cookies"; label: string; value: string }) {
+export function LegalEditor({ k, label, value }: { k: "legal_termeni" | "legal_confidentialitate" | "legal_cookies" | "legal_rambursare"; label: string; value: string }) {
   return <TextForm action={saveLegal.bind(null, k)} name="text" label={label} rows={16} defaultValue={value} hint='Titluri: rând care începe cu "## ". Paragrafe separate printr-un rând gol. Gol = pagina revine la varianta implicită.' />;
 }

@@ -5,7 +5,7 @@ import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { CourseArt } from "@/components/course-art";
 import { Counter } from "@/components/counter";
-import { TestimonialsGrid } from "@/components/testimonials";
+import { TestimonialsCarousel } from "@/components/testimonials-carousel";
 import { getTestimonials } from "@/lib/data";
 import { advantages, facility, modules, stats } from "@/content/site";
 import { TrainerAvatar } from "@/components/trainer-avatar";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const trainers = await getTrainers();
-  const testimonials = await getTestimonials(3);
+  const testimonials = await getTestimonials();
   return (
     <>
       <PageHero
@@ -127,7 +127,7 @@ export default async function AboutPage() {
         <section className="py-16 sm:py-24 lg:py-32">
           <Container>
             <Reveal><SectionTitle eyebrow="Testimoniale" title="Ce spun participanții noștri." /></Reveal>
-            <div className="mt-14"><TestimonialsGrid items={testimonials} /></div>
+            <div className="mt-14"><TestimonialsCarousel items={testimonials} /></div>
           </Container>
         </section>
       ) : null}

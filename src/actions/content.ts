@@ -20,14 +20,15 @@ const trainerSchema = z.object({
   role: z.string().trim().max(500).optional(),
   bio: z.string().trim().max(4000).optional(),
   points: z.string().max(3000).optional(),
+  intro_video_url: z.string().trim().url().startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
 });
 
 export async function saveTrainer(id: string, _: FormState, formData: FormData): Promise<FormState> {
   const { supabase } = await requireAdminClient();
-  const parsed = trainerSchema.safeParse({ name: opt(formData.get("name")), role: opt(formData.get("role")), bio: opt(formData.get("bio")), points: opt(formData.get("points")) });
+  const parsed = trainerSchema.safeParse({ name: opt(formData.get("name")), role: opt(formData.get("role")), bio: opt(formData.get("bio")), points: opt(formData.get("points")), intro_video_url: opt(formData.get("intro_video_url")) });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   const d = parsed.data;
-  const row: Record<string, unknown> = { name: d.name, role: d.role ?? null, bio: d.bio ?? null, points: lines(d.points), published: formData.get("published") === "on" };
+  const row: Record<string, unknown> = { name: d.name, role: d.role ?? null, bio: d.bio ?? null, points: lines(d.points), intro_video_url: d.intro_video_url ?? null, published: formData.get("published") === "on" };
   const photo = fileOf(formData.get("photo"));
   if (photo) {
     const up = await uploadImage(photo, "trainers");

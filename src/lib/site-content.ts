@@ -22,7 +22,7 @@ export async function getPartners(): Promise<string[]> {
 }
 
 /** Plain text of a legal page, or null when it has not been edited in the admin. */
-export async function getLegalText(key: "legal_termeni" | "legal_confidentialitate" | "legal_cookies"): Promise<string | null> {
+export async function getLegalText(key: "legal_termeni" | "legal_confidentialitate" | "legal_cookies" | "legal_rambursare"): Promise<string | null> {
   const v = await load(key);
   return typeof v === "string" && v.trim() ? v : null;
 }

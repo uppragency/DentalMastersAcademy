@@ -224,12 +224,13 @@ export async function saveBank(_: FormState, formData: FormData): Promise<FormSt
   return { message: "Datele bancare au fost salvate. Nu sunt publice, apar doar în emailurile de transfer." };
 }
 
-export async function saveLegal(key: "legal_termeni" | "legal_confidentialitate" | "legal_cookies", _: FormState, formData: FormData): Promise<FormState> {
+export async function saveLegal(key: "legal_termeni" | "legal_confidentialitate" | "legal_cookies" | "legal_rambursare", _: FormState, formData: FormData): Promise<FormState> {
   const { profile } = await requireFullAdmin();
   const text = String(formData.get("text") ?? "").trim().slice(0, 60000);
   if (!(await saveContent(key, text, profile.id))) return { message: "Nu s-a putut salva." };
   revalidatePath("/termeni");
   revalidatePath("/confidentialitate");
   revalidatePath("/cookies");
+  revalidatePath("/rambursare");
   return { message: text ? "Textul a fost salvat și este public." : "Textul a fost golit: pagina revine la varianta implicită." };
 }

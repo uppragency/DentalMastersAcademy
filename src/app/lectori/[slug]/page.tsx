@@ -4,7 +4,12 @@ import { notFound } from "next/navigation";
 import { Container, Eyebrow } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";
 import { TrainerAvatar } from "@/components/trainer-avatar";
-import { getCourses, getTrainerBySlug } from "@/lib/data";
+import { VideoPlayer } from "@/components/video-player";
+import { JsonLd } from "@/components/json-ld";
+import { parseVideo } from "@/lib/video";
+import { personJsonLd } from "@/lib/structured-data";
+import { formatDate } from "@/lib/format";
+import { getCourses, getPosts, getTrainerBySlug } from "@/lib/data";
 import { isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 
@@ -18,12 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TrainerPage({ params }: Props) {
   const t = await getTrainerBySlug((await params).slug);
   if (!t) notFound();
-  const all = await getCourses();
+  const [all, posts] = await Promise.all([getCourses(), getPosts()]);
+  const articles = posts.filter((p) => p.trainer_id === t.id).slice(0, 6);
+  const intro = parseVideo(t.intro_video_url);
   const surname = t.name.replace("Dr. ", "").split(" ").slice(-1)[0]!;
   const courses = all.filter((c) => c.trainer_name?.includes(surname));
   const now = nowMs();
   return (
     <>
+      <JsonLd data={[personJsonLd(t)]} />
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
         <Container className="py-20 sm:py-28">
           <nav aria-label="Breadcrumb" className="text-sm text-white/55"><Link href="/lectori" className="hover:text-white">Lectori</Link></nav>
@@ -47,12 +55,37 @@ export default async function TrainerPage({ params }: Props) {
           ))}
         </ul>
       </Container>
+      {intro ? (
+        <Container className="pb-16">
+          <div className="relative aspect-video overflow-hidden rounded-[2rem] bg-ink shadow-[0_40px_80px_-40px_rgba(8,13,23,.6)]">
+            <VideoPlayer source={intro} title={`Prezentare ${t.name}`} />
+          </div>
+        </Container>
+      ) : null}
       {courses.length > 0 ? (
         <section className="border-t border-line bg-card py-16">
           <Container>
             <h2 className="font-display text-4xl">Cursuri susținute</h2>
             <ul className="mt-10 grid gap-6 md:grid-cols-3">
               {courses.map((c) => <li key={c.id}><CourseCard course={c} ended={isEnded(c, now)} /></li>)}
+            </ul>
+          </Container>
+        </section>
+      ) : null}
+      {articles.length > 0 ? (
+        <section className="border-t border-line py-16">
+          <Container>
+            <h2 className="font-display text-4xl">Articole</h2>
+            <ul className="mt-10 grid gap-6 md:grid-cols-3">
+              {articles.map((a) => (
+                <li key={a.id}>
+                  <Link href={`/blog/${a.slug}`} className="block h-full rounded-2xl border border-line p-6 transition-colors hover:bg-card">
+                    <p className="text-xs text-muted">{formatDate(a.published_at)}</p>
+                    <h3 className="mt-2 text-lg font-semibold leading-snug">{a.title}</h3>
+                    {a.excerpt ? <p className="mt-2 line-clamp-3 text-sm text-muted">{a.excerpt}</p> : null}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </Container>
         </section>

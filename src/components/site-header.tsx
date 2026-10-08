@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCategories, getCourses, getCurrentProfile, getUnreadCount } from "@/lib/data";
@@ -31,11 +32,8 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/95 text-white lg:bg-ink/85 lg:backdrop-blur-xl">
       <div className="mx-auto flex h-[72px] w-full max-w-[1680px] items-center justify-between px-5 sm:px-8 lg:px-12 2xl:px-16">
-        <Link href="/" className="flex items-center gap-3" aria-label="Dental Masters Academy, prima pagină">
-          <span aria-hidden="true" className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-gold-bright to-gold font-display text-lg font-semibold text-ink">D</span>
-          <span className="text-[15px] font-semibold leading-none tracking-tight">
-            Dental Masters<span className="block pt-1 text-[10px] font-medium uppercase tracking-[0.3em] text-gold-bright">Academy</span>
-          </span>
+        <Link href="/" className="flex items-center" aria-label="Dental Masters Academy, prima pagină">
+          <Image src="/logo.png" alt="" width={795} height={377} priority className="h-14 w-auto" />
         </Link>
 
         <MainNav data={navData} />

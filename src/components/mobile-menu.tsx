@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -46,11 +47,8 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
         className={`fixed inset-0 z-[70] overflow-y-auto overscroll-contain bg-ink transition-all duration-500 ${open ? "visible opacity-100" : "invisible opacity-0"}`}
       >
         <div className="flex h-[72px] items-center justify-between border-b border-white/10 px-5 sm:px-8">
-          <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3" aria-label="Dental Masters Academy, prima pagină">
-            <span aria-hidden="true" className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-gold-bright to-gold font-display text-lg font-semibold text-ink">D</span>
-            <span className="text-[15px] font-semibold leading-none tracking-tight text-white">
-              Dental Masters<span className="block pt-1 text-[10px] font-medium uppercase tracking-[0.3em] text-gold-bright">Academy</span>
-            </span>
+          <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label="Dental Masters Academy, prima pagină">
+          <Image src="/logo.png" alt="" width={795} height={377} priority className="h-14 w-auto" />
           </Link>
           <button type="button" aria-label="Închide meniul" onClick={() => setOpen(false)} className="flex size-11 items-center justify-center rounded-full text-white hover:bg-white/10">
             <span className="relative block size-5">

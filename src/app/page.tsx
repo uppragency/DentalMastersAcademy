@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ButtonLink, Container, Eyebrow, SectionTitle, Arrow } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";
 import { CourseArt } from "@/components/course-art";
-import { TestimonialsGrid } from "@/components/testimonials";
+import { TestimonialsCarousel } from "@/components/testimonials-carousel";
 import { Faq } from "@/components/faq";
 import { Reveal } from "@/components/reveal";
 import { Counter } from "@/components/counter";
@@ -308,7 +308,7 @@ export default async function HomePage() {
                 <ButtonLink href="/testimoniale" variant="ghost">Toate testimonialele <Arrow /></ButtonLink>
               </div>
             </Reveal>
-            <TestimonialsGrid items={testimonials} featured />
+            <TestimonialsCarousel items={testimonials} />
           </Container>
         </section>
       ) : null}

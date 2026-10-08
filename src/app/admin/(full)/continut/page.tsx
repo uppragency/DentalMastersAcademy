@@ -27,6 +27,7 @@ export default async function ContentPage() {
         <h2 className="text-2xl font-semibold tracking-tight">Texte legale</h2>
         <LegalEditor k="legal_termeni" label="Termeni și condiții" value={text("legal_termeni")} />
         <LegalEditor k="legal_confidentialitate" label="Politica de confidențialitate" value={text("legal_confidentialitate")} />
+        <LegalEditor k="legal_rambursare" label="Politica de rambursare și transfer de loc (înlocuiește pagina implicită)" value={text("legal_rambursare")} />
         <LegalEditor k="legal_cookies" label="Politica de cookies (înlocuiește pagina implicită)" value={text("legal_cookies")} />
       </section>
     </div>
