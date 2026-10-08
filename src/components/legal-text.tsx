@@ -1,13 +1,16 @@
 import type { ReactNode } from "react";
 import type { LegalDoc } from "@/content/legal";
+import { PageHero } from "@/components/page-hero";
 
 /** Full-width page shell for legal pages; the reading column stays narrow inside it. */
-export function LegalShell({ title, children }: { title: string; children: ReactNode }) {
+export function LegalShell({ title, lead, children }: { title: string; lead?: string; children: ReactNode }) {
   return (
-    <div className="mx-auto w-full max-w-[1680px] px-5 py-14 sm:px-8 sm:py-24 lg:px-12 lg:py-28 2xl:px-16">
-      <h1 className="text-4xl font-semibold tracking-tight">{title}</h1>
-      <div className="max-w-4xl">{children}</div>
-    </div>
+    <>
+      <PageHero eyebrow="Legal" title={title} lead={lead} />
+      <div className="mx-auto w-full max-w-[1680px] px-5 py-14 sm:px-8 sm:py-24 lg:px-12 lg:py-28 2xl:px-16">
+        <div className="max-w-4xl [&>*:first-child]:mt-0">{children}</div>
+      </div>
+    </>
   );
 }
 

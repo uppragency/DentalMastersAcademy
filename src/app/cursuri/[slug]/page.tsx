@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ButtonLink, Container, Eyebrow, Arrow } from "@/components/ui";
-import { CourseArt } from "@/components/course-art";
+import { CourseImage } from "@/components/course-image";
 import { CourseCard } from "@/components/course-card";
 import { Countdown } from "@/components/countdown";
 import { Seats } from "@/components/seats";
@@ -92,7 +92,7 @@ export default async function CoursePage({ params }: Props) {
     <>
       <JsonLd data={[courseJsonLd(course, rating, course.trainer_name), eventJsonLd(course, soldOut), faqJsonLd(course.faqs)]} />
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
-        <CourseArt seed={course.slug} className="absolute inset-0 -z-10 size-full scale-110 opacity-60" />
+        <CourseImage course={course} variant="cover" priority sizes="100vw" className="absolute inset-0 -z-10 size-full" artClassName="absolute inset-0 -z-10 size-full scale-110 opacity-60" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/30" />
         <Container className="pb-40 pt-16 sm:pt-24 lg:pb-48">
           <nav aria-label="Breadcrumb" className="rise text-sm text-white/55">

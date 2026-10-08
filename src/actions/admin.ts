@@ -8,6 +8,7 @@ import { getCurrentProfile } from "@/lib/data";
 import type { FormState } from "@/actions/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
+import { uploadImage } from "@/lib/media";
 import { bucharestInstant } from "@/lib/format";
 
 async function requireAdmin() {
@@ -188,6 +189,17 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     is_featured: formData.get("is_featured") === "on",
     gold_free: formData.get("gold_free") === "on",
   };
+
+  const images: { cover_url?: string | null; thumbnail_url?: string | null } = {};
+  for (const [field, col] of [["cover", "cover_url"], ["thumbnail", "thumbnail_url"]] as const) {
+    const f = formData.get(field);
+    if (f instanceof File && f.size > 0) {
+      const up = await uploadImage(f, "courses", 2);
+      if ("error" in up) return { message: `${field === "cover" ? "Cover" : "Thumbnail"}: ${up.error}` };
+      images[col] = up.url;
+    } else if (formData.get(`remove_${field}`) === "on") images[col] = null;
+  }
+  Object.assign(row, images);
 
   const saved = id
     ? await supabase.from("courses").update(row).eq("id", id).select("id").maybeSingle()

@@ -7,5 +7,5 @@ export const metadata: Metadata = { title: "Termeni și condiții", robots: { in
 
 export default async function Page() {
   const text = await getLegalText("legal_termeni");
-  return <LegalShell title="Termeni și condiții">{text ? <LegalText text={text} /> : <DefaultLegal doc={termeni} />}</LegalShell>;
+  return <LegalShell title="Termeni și condiții" lead="Regulile de utilizare a platformei și de achiziție a cursurilor.">{text ? <LegalText text={text} /> : <DefaultLegal doc={termeni} />}</LegalShell>;
 }

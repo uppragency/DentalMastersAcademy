@@ -59,7 +59,7 @@ const sections = [
 export default async function Page() {
   const custom = await getLegalText("legal_rambursare");
   return (
-    <LegalShell title="Politica de rambursare și transfer de loc">
+    <LegalShell title="Politica de rambursare și transfer de loc" lead="Condițiile de retragere, transfer și rambursare pentru cursurile noastre.">
       {custom ? (
         <LegalText text={custom} />
       ) : (

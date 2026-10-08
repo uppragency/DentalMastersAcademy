@@ -15,13 +15,13 @@ export default async function Page() {
   const custom = await getLegalText("legal_cookies");
   if (custom) {
     return (
-      <LegalShell title="Politica de cookies">
+      <LegalShell title="Politica de cookies" lead="Folosim doar ce este necesar funcționării platformei.">
         <LegalText text={custom} />
       </LegalShell>
     );
   }
   return (
-    <LegalShell title="Politica de cookies">
+    <LegalShell title="Politica de cookies" lead="Folosim doar ce este necesar funcționării platformei.">
       <p className="mt-6 leading-relaxed text-muted">
         Folosim doar cookie-uri și stocare locală necesare funcționării platformei. Nu folosim cookie-uri de marketing sau de urmărire publicitară.
       </p>

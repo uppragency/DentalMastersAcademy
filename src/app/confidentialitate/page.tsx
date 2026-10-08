@@ -7,5 +7,5 @@ export const metadata: Metadata = { title: "Politica de confidențialitate", rob
 
 export default async function Page() {
   const text = await getLegalText("legal_confidentialitate");
-  return <LegalShell title="Politica de confidențialitate">{text ? <LegalText text={text} /> : <DefaultLegal doc={confidentialitate} />}</LegalShell>;
+  return <LegalShell title="Politica de confidențialitate" lead="Ce date colectăm, de ce și cum îți exerciți drepturile.">{text ? <LegalText text={text} /> : <DefaultLegal doc={confidentialitate} />}</LegalShell>;
 }

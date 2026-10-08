@@ -30,6 +30,25 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
   return (
     <form action={action} className="space-y-5">
       <Field label="Titlu" name="title" defaultValue={course?.title} required error={e?.title?.[0]} />
+      <div className="grid gap-5 sm:grid-cols-2">
+        {([
+          { name: "cover", label: "Imagine cover (pagina cursului, pe toată lățimea)", hint: "Recomandat 1920 × 800 px, orizontal, JPG sau WebP, maximum 2 MB. Subiectul în partea dreaptă, textul stă pe stânga.", url: course?.cover_url },
+          { name: "thumbnail", label: "Imagine thumbnail (grilele de cursuri)", hint: "Recomandat 800 × 600 px (4:3), JPG sau WebP, maximum 2 MB.", url: course?.thumbnail_url },
+        ] as const).map((f) => (
+          <div key={f.name} className="rounded-2xl border border-line p-4">
+            <label htmlFor={f.name} className="mb-1.5 block text-sm font-medium">{f.label}</label>
+            {f.url ? (
+              <div className="mb-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={f.url} alt="" className={`w-full rounded-xl object-cover ${f.name === "cover" ? "aspect-[12/5]" : "aspect-[4/3]"}`} />
+                <label className="mt-2 flex items-center gap-2 text-xs text-muted"><input type="checkbox" name={`remove_${f.name}`} className="size-4" /> Șterge imaginea curentă</label>
+              </div>
+            ) : null}
+            <input id={f.name} type="file" name={f.name} accept="image/jpeg,image/png,image/webp,image/avif" className="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-ink file:px-5 file:py-2.5 file:text-sm file:font-medium file:text-white" />
+            <p className="mt-2 text-xs text-muted">{f.hint}</p>
+          </div>
+        ))}
+      </div>
       <Field label="Slug (opțional, se generează din titlu)" name="slug" defaultValue={course?.slug} error={e?.slug?.[0]} />
       <div className="grid gap-5 sm:grid-cols-2">
         <div>

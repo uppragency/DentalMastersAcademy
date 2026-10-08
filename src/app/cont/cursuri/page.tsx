@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Arrow } from "@/components/ui";
 import { EmptyState } from "@/components/empty-state";
 import { createClient } from "@/lib/supabase/server";
-import { CourseArt } from "@/components/course-art";
+import { CourseImage } from "@/components/course-image";
 import { getCompletedLessonIds, getCurrentProfile, getMyEnrollments } from "@/lib/data";
 import { formatDateRange, formatLabels, isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
@@ -80,7 +80,7 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
               <li key={e.id}>
                 <Link href={`/cont/cursuri/${c.slug}`} className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-line bg-card transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_30px_60px_-30px_rgba(8,13,23,.4)]">
                   <div className="relative aspect-[16/7] bg-ink">
-                    <CourseArt seed={c.slug} className="size-full transition-transform duration-700 group-hover:scale-105" />
+                    <CourseImage course={c} variant="thumb" sizes="(min-width: 1280px) 40vw, 100vw" className="size-full transition-transform duration-700 group-hover:scale-105" />
                     <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-ink">{sourceLabel[e.source]}</span>
                   </div>
                   <div className="flex flex-1 flex-col p-7">

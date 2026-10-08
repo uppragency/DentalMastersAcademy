@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Course } from "@/lib/types";
 import { dayNum, formatDateRange, formatPrice, monthShort } from "@/lib/format";
-import { CourseArt } from "@/components/course-art";
+import { CourseImage } from "@/components/course-image";
 import { CardSeats } from "@/components/card-seats";
 
 export function CourseCard({ course, ended = false }: { course: Course; ended?: boolean }) {
@@ -11,7 +11,7 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
       className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-line bg-card transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-30px_rgba(8,13,23,0.45)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-ink">
-        <CourseArt seed={course.slug} className="size-full transition-transform duration-700 group-hover:scale-105" />
+        <CourseImage course={course} variant="thumb" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="size-full transition-transform duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
         {course.starts_at ? (
           <div className="absolute left-4 top-4 rounded-2xl bg-white/95 px-3.5 py-2 text-center leading-none shadow-lg backdrop-blur">

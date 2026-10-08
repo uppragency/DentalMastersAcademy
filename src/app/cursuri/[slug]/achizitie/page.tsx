@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/ui";
-import { CourseArt } from "@/components/course-art";
+import { CourseImage } from "@/components/course-image";
 import { CheckoutForm } from "@/components/checkout-form";
 import { OrderSummary } from "@/components/order-summary";
 import { createClient } from "@/lib/supabase/server";
@@ -65,7 +65,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
           />
         </section>
         <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" aria-label="Sumar comandă">
-          <div className="relative aspect-[16/9] bg-ink"><CourseArt seed={course.slug} className="size-full" /></div>
+          <div className="relative aspect-[16/9] bg-ink"><CourseImage course={course} variant="thumb" sizes="(min-width: 1024px) 400px, 100vw" className="size-full" /></div>
           <div className="p-7">
             <h2 className="font-display text-2xl leading-snug">{course.title}</h2>
             <p className="mt-1 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>

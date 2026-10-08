@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { setLessonDone } from "@/actions/learning";
 import { Button, ButtonLink } from "@/components/ui";
-import { CourseArt } from "@/components/course-art";
+import { CourseImage } from "@/components/course-image";
 import { VideoPlayer } from "@/components/video-player";
 import { FeedbackForm } from "@/components/engagement-forms";
 import { TransferForm } from "@/components/transfer-form";
@@ -80,7 +80,7 @@ export default async function MyCoursePage({
         <div className="min-w-0">
           {physical ? (
             <section aria-labelledby="event-title" className="grain relative isolate overflow-hidden rounded-[2rem] bg-ink p-8 text-white sm:p-12">
-              <CourseArt seed={course.slug} className="absolute inset-0 -z-10 size-full scale-110 opacity-40" />
+              <CourseImage course={course} variant="cover" sizes="100vw" className="absolute inset-0 -z-10 size-full opacity-40" artClassName="absolute inset-0 -z-10 size-full scale-110 opacity-40" />
               <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright">{course.title}</p>
               <h1 id="event-title" className="font-display mt-3 text-balance text-4xl font-medium leading-tight sm:text-5xl">
@@ -133,7 +133,7 @@ export default async function MyCoursePage({
               <VideoPlayer source={source} title={current?.title ?? course.title} />
             ) : (
               <>
-                <CourseArt seed={course.slug} className="absolute inset-0 size-full scale-110 opacity-70" />
+                <CourseImage course={course} variant="cover" sizes="100vw" className="absolute inset-0 size-full opacity-70" artClassName="absolute inset-0 size-full scale-110 opacity-70" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-8 text-white sm:p-12">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright">
