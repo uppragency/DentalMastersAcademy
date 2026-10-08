@@ -108,7 +108,7 @@ export default async function HomePage() {
       </section>
 
       {/* COURSES */}
-      <section className="py-24 sm:py-32" aria-labelledby="courses-title">
+      <section className="py-16 sm:py-24 lg:py-32" aria-labelledby="courses-title">
         <Container>
           <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <Reveal>
@@ -131,7 +131,7 @@ export default async function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="pb-24 sm:pb-32" aria-labelledby="how-title">
+      <section className="pb-16 sm:pb-24 lg:pb-32" aria-labelledby="how-title">
         <Container>
           <Reveal><div id="how-title"><SectionTitle eyebrow="Cum funcționează" title="De la alegere la certificare, în trei pași." /></div></Reveal>
           <ol className="mt-14 grid gap-5 md:grid-cols-3">
@@ -150,7 +150,7 @@ export default async function HomePage() {
 
       {/* CATEGORIES */}
       {categories.length > 0 ? (
-        <section className="pb-24 sm:pb-32" aria-labelledby="cats-title">
+        <section className="pb-16 sm:pb-24 lg:pb-32" aria-labelledby="cats-title">
           <Container>
             <Reveal><h2 id="cats-title" className="sr-only">Categorii</h2></Reveal>
             <ul className="grid gap-px overflow-hidden rounded-[2rem] border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
@@ -198,7 +198,7 @@ export default async function HomePage() {
       </section>
 
       {/* HQ CONCEPT */}
-      <section className="py-24 sm:py-32" aria-labelledby="hq-title">
+      <section className="py-16 sm:py-24 lg:py-32" aria-labelledby="hq-title">
         <Container>
           <div className="grid gap-16 lg:grid-cols-12">
             <Reveal className="lg:col-span-5">
@@ -263,7 +263,7 @@ export default async function HomePage() {
 
       {/* GOLD */}
       {loyalty?.is_active ? (
-        <section className="py-24 sm:py-32" aria-labelledby="gold-title">
+        <section className="py-16 sm:py-24 lg:py-32" aria-labelledby="gold-title">
           <Container>
             <Reveal>
               <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#14100a] via-[#2a1f0c] to-[#14100a] p-10 text-white sm:p-16 lg:p-20">
@@ -297,7 +297,7 @@ export default async function HomePage() {
 
       {/* TESTIMONIALS */}
       {testimonials.length > 0 ? (
-        <section className="pb-24 sm:pb-32" aria-labelledby="t-title">
+        <section className="pb-16 sm:pb-24 lg:pb-32" aria-labelledby="t-title">
           <Container>
             <Reveal>
               <div id="t-title" className="mb-16 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -322,14 +322,14 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      <section className="py-24 sm:py-32" aria-labelledby="map-title">
+      <section className="py-16 sm:py-24 lg:py-32" aria-labelledby="map-title">
         <Container>
           <Reveal><div id="map-title"><SectionTitle eyebrow="Unde ne găsești" title="Dental Masters Academy, București." /></div></Reveal>
           <Reveal className="mt-12"><LocationMap /></Reveal>
         </Container>
       </section>
 
-      <section className="pb-24 sm:pb-32" aria-labelledby="faq-title">
+      <section className="pb-16 sm:pb-24 lg:pb-32" aria-labelledby="faq-title">
         <Container>
           <div className="grid gap-12 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">

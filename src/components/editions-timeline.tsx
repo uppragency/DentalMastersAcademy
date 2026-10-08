@@ -16,7 +16,7 @@ export function EditionsTimeline({ courses }: { courses: Course[] }) {
   }
   return (
     <section aria-label="Calendar ediții" className="border-b border-line bg-card">
-      <div className="mx-auto max-w-[1320px] overflow-x-auto px-5 py-8 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-[1680px] overflow-x-auto px-5 py-8 sm:px-8 lg:px-12 2xl:px-16">
         <ol className="relative flex min-w-max gap-0">
           {[...groups.values()].map((g) => (
             <li key={g.label} className="relative w-64 shrink-0 pr-6">

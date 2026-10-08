@@ -73,7 +73,7 @@ export default async function MyCoursePage({
     <div>
       <Link href="/cont/cursuri" className="text-sm text-muted transition-colors hover:text-foreground">← Cursurile mele</Link>
 
-      <div className={`mt-6 grid gap-8 ${online ? "xl:grid-cols-[1fr_22rem]" : ""}`}>
+      <div className={`mt-6 grid gap-8 ${online ? "xl:grid-cols-[minmax(0,1fr)_16rem]" : ""}`}>
         <div className="min-w-0">
           {physical ? (
             <section aria-labelledby="event-title" className="grain relative isolate overflow-hidden rounded-[2rem] bg-ink p-8 text-white sm:p-12">
@@ -206,16 +206,6 @@ export default async function MyCoursePage({
             <p className="mt-10"><a href={`/cont/cursuri/${slug}/adeverinta`} className="text-sm font-medium text-gold underline underline-offset-4">Deschide adeverința de participare</a></p>
           ) : null}
 
-          {courseOver ? (
-            <section className="mt-14 rounded-[2rem] border border-line bg-card p-8" aria-labelledby="rev">
-              <h2 id="rev" className="font-display text-3xl">Spune-ne cum a fost</h2>
-              {(reviewCount ?? 0) > 0 ? (
-                <p className="mt-3 text-sm text-muted">Ai trimis deja o recenzie. Mulțumim!</p>
-              ) : (
-                <div className="mt-5 max-w-xl"><ReviewForm courseId={course.id} /></div>
-              )}
-            </section>
-          ) : null}
 
           {course.sections.length > 0 ? (
             <section className="mt-14" aria-labelledby="prog">
@@ -231,6 +221,17 @@ export default async function MyCoursePage({
                   </article>
                 ))}
               </div>
+            </section>
+          ) : null}
+
+          {courseOver ? (
+            <section className="mt-14 rounded-[2rem] border border-line bg-card p-8" aria-labelledby="rev">
+              <h2 id="rev" className="font-display text-3xl">Spune-ne cum a fost</h2>
+              {(reviewCount ?? 0) > 0 ? (
+                <p className="mt-3 text-sm text-muted">Ai trimis deja o recenzie. Mulțumim!</p>
+              ) : (
+                <div className="mt-5 max-w-xl"><ReviewForm courseId={course.id} /></div>
+              )}
             </section>
           ) : null}
         </div>

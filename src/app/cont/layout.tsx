@@ -13,7 +13,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   return (
     <div className="min-h-[calc(100dvh-72px)] bg-background">
-      <Container className="py-8 lg:py-12">
+      <Container className="py-6 sm:py-8 lg:py-12">
         <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <div className={`relative overflow-hidden rounded-[2rem] p-6 ${profile.tier === "gold" ? "bg-gradient-to-br from-[#14100a] to-[#2e220d] text-white" : "bg-ink text-white"}`}>
