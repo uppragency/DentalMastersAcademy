@@ -30,7 +30,7 @@ export default async function Abandoned() {
   const now = nowMs();
   const { data } = await admin
     .from("orders")
-    .select("id, source, total_cents, currency, created_at, recovery_sent_at, profiles(email, full_name), order_items(courses(title))")
+    .select("id, source, total_cents, currency, created_at, recovery_sent_at, profiles!orders_user_id_fkey(email, full_name), order_items(courses(title))")
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(200);

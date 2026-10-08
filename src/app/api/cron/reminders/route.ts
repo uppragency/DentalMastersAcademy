@@ -100,7 +100,7 @@ async function runOps(admin: ReturnType<typeof createAdminClient>) {
   const { data: stale } = await admin.from("orders").update({ status: "cancelled" }).eq("status", "pending").eq("source", "stripe").lt("created_at", dayAgo).select("id");
 
   // 2b. Bank transfer reservations past their deadline: cancel and tell the customer (seat is released).
-  const { data: lapsed } = await admin.from("orders").update({ status: "cancelled" }).eq("status", "pending").eq("source", "transfer").lt("expires_at", new Date(now).toISOString()).select("id, user_id, order_items(courses(title, slug)), profiles(email, full_name)");
+  const { data: lapsed } = await admin.from("orders").update({ status: "cancelled" }).eq("status", "pending").eq("source", "transfer").lt("expires_at", new Date(now).toISOString()).select("id, user_id, order_items(courses(title, slug)), profiles!orders_user_id_fkey(email, full_name)");
   for (const l of (lapsed ?? []) as unknown as { id: string; user_id: string; order_items: { courses: { title: string; slug: string } | null }[]; profiles: { email: string; full_name: string | null } | null }[]) {
     const c = l.order_items[0]?.courses;
     if (!c || !l.profiles) continue;

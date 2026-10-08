@@ -26,7 +26,7 @@ export async function processStripeEvent(event: Stripe.Event): Promise<EventResu
     if (fulfilled) {
       const { data: order } = await admin
         .from("orders")
-        .select("total_cents, currency, profiles(email, full_name), order_items(courses(title, slug))")
+        .select("total_cents, currency, profiles!orders_user_id_fkey(email, full_name), order_items(courses(title, slug))")
         .eq("id", orderId)
         .single();
       const row = order as unknown as {

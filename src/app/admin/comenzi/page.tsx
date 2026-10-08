@@ -27,7 +27,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
   const page = Math.max(1, Number(sp.pagina) || 1);
   let q = admin
     .from("orders")
-    .select("id, status, source, total_cents, currency, created_at, invoice_number, profiles(email, full_name), order_items(courses(title))", { count: "exact" })
+    .select("id, status, source, total_cents, currency, created_at, invoice_number, profiles!orders_user_id_fkey(email, full_name), order_items(courses(title))", { count: "exact" })
     .order("created_at", { ascending: false })
     .range((page - 1) * PAGE, page * PAGE - 1);
   if (status) q = q.eq("status", status);

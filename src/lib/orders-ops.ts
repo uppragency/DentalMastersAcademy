@@ -21,7 +21,7 @@ type PendingOrder = {
 async function loadOrder(orderId: string) {
   const { data } = await createAdminClient()
     .from("orders")
-    .select("id, status, source, total_cents, currency, user_id, recovery_sent_at, expires_at, profiles(email, full_name), order_items(courses(title, slug))")
+    .select("id, status, source, total_cents, currency, user_id, recovery_sent_at, expires_at, profiles!orders_user_id_fkey(email, full_name), order_items(courses(title, slug))")
     .eq("id", orderId)
     .maybeSingle();
   return data as unknown as PendingOrder | null;

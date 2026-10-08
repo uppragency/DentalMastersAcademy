@@ -15,7 +15,7 @@ export async function issueInvoice(orderId: string) {
   const admin = createAdminClient();
   const { data } = await admin
     .from("orders")
-    .select("total_cents, currency, billing, invoice_number, profiles(email), order_items(final_price_cents, courses(title, slug))")
+    .select("total_cents, currency, billing, invoice_number, profiles!orders_user_id_fkey(email), order_items(final_price_cents, courses(title, slug))")
     .eq("id", orderId)
     .single();
   const order = data as unknown as {

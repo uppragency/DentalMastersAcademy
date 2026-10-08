@@ -15,12 +15,12 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const orderFilters = [`invoice_number.ilike.%${q}%`, `stripe_session_id.ilike.%${q}%`, `stripe_payment_intent.ilike.%${q}%`];
   const [users, orders, courses] = await Promise.all([
     admin.from("profiles").select("id, email, full_name, tier").or(`email.ilike.%${q}%,full_name.ilike.%${q}%,phone.ilike.%${q}%`).limit(20),
-    admin.from("orders").select("id, status, total_cents, currency, created_at, profiles(email)").or(orderFilters.join(",")).limit(20),
+    admin.from("orders").select("id, status, total_cents, currency, created_at, profiles!orders_user_id_fkey(email)").or(orderFilters.join(",")).limit(20),
     admin.from("courses").select("id, title").ilike("title", `%${q}%`).limit(10),
   ]);
   let byId: { id: string; status: string; total_cents: number; currency: string; created_at: string; profiles: unknown }[] = [];
   if (uuidRe.test(q) && q.length >= 8) {
-    const { data } = await admin.from("orders").select("id, status, total_cents, currency, created_at, profiles(email)").limit(500).order("created_at", { ascending: false });
+    const { data } = await admin.from("orders").select("id, status, total_cents, currency, created_at, profiles!orders_user_id_fkey(email)").limit(500).order("created_at", { ascending: false });
     byId = (data ?? []).filter((o) => o.id.startsWith(q.toLowerCase())) as typeof byId;
   }
   const allOrders = [...byId, ...((orders.data ?? []) as typeof byId)].filter((o, i, a) => a.findIndex((x) => x.id === o.id) === i);

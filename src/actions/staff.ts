@@ -260,7 +260,7 @@ export async function resendConfirmation(orderId: string) {
   const { admin } = await requireStaff();
   const { data } = await admin
     .from("orders")
-    .select("total_cents, currency, status, profiles(email, full_name), order_items(courses(title, slug))")
+    .select("total_cents, currency, status, profiles!orders_user_id_fkey(email, full_name), order_items(courses(title, slug))")
     .eq("id", orderId)
     .maybeSingle();
   const row = data as unknown as {

@@ -26,7 +26,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const { admin, isAdmin } = await requireStaff();
   const { data } = await admin
     .from("orders")
-    .select("*, profiles(id, email, full_name), order_items(unit_price_cents, discount_cents, final_price_cents, courses(title, slug))")
+    .select("*, profiles!orders_user_id_fkey(id, email, full_name), order_items(unit_price_cents, discount_cents, final_price_cents, courses(title, slug))")
     .eq("id", id)
     .maybeSingle();
   if (!data) notFound();
