@@ -106,7 +106,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
   if (orderError) {
     const m = orderError.message;
     if (m.includes("already_enrolled")) redirect(`/cont/cursuri/${course.slug}`);
-    if (m.includes("invalid_code")) return { errors: { discount_code: ["Codul nu este valid."] } };
+    if (m.includes("invalid_code")) return { message: "Codul de reducere nu este valid sau a expirat." };
     if (m.includes("sold_out")) return { message: "Locurile pentru această ediție s-au epuizat. Te putem anunța la următoarea ediție." };
     if (m.includes("registration_closed")) return { message: "Înscrierile pentru această ediție sunt închise." };
     if (m.includes("registration_not_open")) return { message: "Înscrierile pentru această ediție nu s-au deschis încă." };

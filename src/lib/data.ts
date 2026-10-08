@@ -22,11 +22,21 @@ export async function getCourses(opts: { category?: string; format?: string; fea
   if (opts.format && ["physical", "online", "hybrid"].includes(opts.format)) query = query.eq("format", opts.format);
   if (opts.featured) query = query.eq("is_featured", true);
 
-  query = query.order("starts_at", { ascending: true, nullsFirst: false });
-  if (opts.limit) query = query.limit(opts.limit);
-
   const { data } = await query;
-  return (data ?? []) as Course[];
+  const rows = (data ?? []) as Course[];
+  const counts = await getSeatCounts();
+  const now = Date.now();
+  // Open editions first (soonest first), then not yet open, then sold out, then ended (most recent first).
+  const rank = (c: Course) => {
+    const ref = c.ends_at ?? c.starts_at;
+    if (ref && new Date(ref).getTime() < now) return 3;
+    if (c.capacity && (counts[c.id] ?? 0) >= c.capacity) return 2;
+    if (c.registration_opens_at && new Date(c.registration_opens_at).getTime() > now) return 1;
+    return 0;
+  };
+  const time = (c: Course) => (c.starts_at ? new Date(c.starts_at).getTime() : Infinity);
+  rows.sort((a, b) => rank(a) - rank(b) || (rank(a) === 3 ? time(b) - time(a) : time(a) - time(b)));
+  return opts.limit ? rows.slice(0, opts.limit) : rows;
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {

@@ -19,6 +19,9 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
     iso ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Bucharest" }).format(new Date(iso)) : "";
   const date = fmtDay(course?.starts_at);
   const endDate = fmtDay(course?.ends_at);
+  const fmtTime = (iso: string | null | undefined, fallback: string) =>
+    iso ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" }).format(new Date(iso)) : fallback;
+  const scheduleText = (course?.schedule ?? []).map((d) => [d.title, ...d.items.map((i) => (i.time ? `${i.time} ${i.text}` : i.text))].join("\n")).join("\n\n");
   const opensOn = fmtDay(course?.registration_opens_at);
   const faqsText = (course?.faqs ?? []).map((f) => `${f.q}\n${f.a}`).join("\n\n");
   const sectionsText = (course?.sections ?? []).map((s) => [s.title, ...s.items.map((i) => `- ${i}`)].join("\n")).join("\n\n");
@@ -65,6 +68,10 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
         <textarea id="sections" name="sections" rows={8} defaultValue={sectionsText} className={area} />
       </div>
       <div>
+        <label htmlFor="schedule" className="mb-1.5 block text-sm font-medium">Programul pe zile, pentru cursurile fizice (titlul zilei pe primul rând, apoi „09:00 Activitate”, câte una pe rând, zilele separate printr-un rând gol)</label>
+        <textarea id="schedule" name="schedule" rows={8} defaultValue={scheduleText} placeholder={"Ziua 1, 22 mai\n09:00 Înregistrare și cafea\n09:30 Prezentare teoretică\n13:00 Pauză de masă"} className={area} />
+      </div>
+      <div>
         <label htmlFor="faqs" className="mb-1.5 block text-sm font-medium">Întrebări frecvente (întrebarea pe primul rând, răspunsul pe următoarele, blocuri separate printr-un rând gol)</label>
         <textarea id="faqs" name="faqs" rows={6} defaultValue={faqsText} className={area} />
       </div>
@@ -75,7 +82,9 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Formator" name="trainer_name" defaultValue={course?.trainer_name ?? ""} />
         <Field label="Data de început" name="starts_on" type="date" defaultValue={date} />
+        <Field label="Ora de început" name="start_time" type="time" defaultValue={fmtTime(course?.starts_at, "09:00")} />
         <Field label="Data de final (opțional)" name="ends_on" type="date" defaultValue={endDate} />
+        <Field label="Ora de final" name="end_time" type="time" defaultValue={fmtTime(course?.ends_at, "18:00")} />
         <Field label="Limba" name="language" defaultValue={course?.language ?? ""} />
         <Field label="Locație" name="location" defaultValue={course?.location ?? ""} />
         <Field label="Preț" name="price" type="number" step="0.01" min="0" defaultValue={course ? course.price_cents / 100 : ""} required error={e?.price?.[0]} />
@@ -178,6 +187,7 @@ export function LessonForm({ courseId }: { courseId: string }) {
       <Field label="Titlul lecției" name="title" required error={e?.title?.[0]} />
       <Field label="Link video (YouTube, Vimeo sau fișier .mp4, https)" name="video_url" type="url" error={e?.video_url?.[0]} />
       <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Capitol (ex. Modulul 1, lecțiile din același capitol se grupează)" name="chapter" />
         <Field label="Durată (minute)" name="duration_min" type="number" min="0" error={e?.duration_min?.[0]} />
       </div>
       <div>

@@ -26,14 +26,38 @@ function slugify(input: string) {
 }
 
 /** "YYYY-MM-DD" + hour in Europe/Bucharest to an ISO instant (handles DST). */
-function bucharestIso(date: string, hour: number) {
-  const guess = new Date(`${date}T${String(hour).padStart(2, "0")}:00:00Z`);
+function bucharestIso(date: string, hour: number, minute = 0) {
+  const guess = new Date(`${date}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00Z`);
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Bucharest", hour: "2-digit", hourCycle: "h23" }).formatToParts(guess);
   const localHour = Number(parts.find((p) => p.type === "hour")?.value ?? hour);
   let offset = localHour - hour;
   if (offset > 12) offset -= 24;
   if (offset < -12) offset += 24;
   return new Date(guess.getTime() - offset * 3_600_000).toISOString();
+}
+
+/** "HH:MM" to [hour, minute], falling back to the given default. */
+function parseTime(v: string | undefined, fallback: [number, number]): [number, number] {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(v ?? "");
+  if (!m) return fallback;
+  const h = Number(m[1]);
+  const mi = Number(m[2]);
+  return h < 24 && mi < 60 ? [h, mi] : fallback;
+}
+
+/** Blocks separated by a blank line: first line = day title, next lines = "HH:MM text". */
+function parseSchedule(v: string | undefined) {
+  return (v ?? "")
+    .split(/\n\s*\n/)
+    .map((b) => b.split("\n").map((l) => l.trim()).filter(Boolean))
+    .filter((b) => b.length > 0)
+    .map(([title, ...rest]) => ({
+      title: title!,
+      items: rest.map((l) => {
+        const m = /^(\d{1,2}[:.]\d{2})\s*[-–:]?\s*(.*)$/.exec(l);
+        return m ? { time: m[1]!.replace(".", ":"), text: m[2]! } : { time: "", text: l };
+      }),
+    }));
 }
 
 const lines = (v: string | undefined) => (v ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
@@ -68,6 +92,9 @@ const courseSchema = z.object({
   price: z.coerce.number({ error: "Preț invalid." }).min(0).max(1_000_000),
   capacity: z.coerce.number().int().positive().optional(),
   status: z.enum(["draft", "published", "archived"]),
+  start_time: z.string().optional(),
+  end_time: z.string().optional(),
+  schedule: z.string().max(10000).optional(),
   opens_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   promo_video_url: z.string().trim().url().startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
   faqs: z.string().max(10000).optional(),
@@ -110,6 +137,9 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     price: formData.get("price"),
     capacity: opt(formData.get("capacity")),
     status: formData.get("status"),
+    start_time: opt(formData.get("start_time")),
+    end_time: opt(formData.get("end_time")),
+    schedule: opt(formData.get("schedule")),
     opens_on: opt(formData.get("opens_on")),
     promo_video_url: opt(formData.get("promo_video_url")),
     faqs: opt(formData.get("faqs")),
@@ -128,8 +158,9 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     description: d.description ?? null,
     syllabus: d.syllabus ?? null,
     trainer_name: d.trainer_name ?? null,
-    starts_at: d.starts_on ? bucharestIso(d.starts_on, 9) : null,
-    ends_at: d.ends_on ? bucharestIso(d.ends_on, 18) : d.starts_on ? bucharestIso(d.starts_on, 18) : null,
+    starts_at: d.starts_on ? bucharestIso(d.starts_on, ...parseTime(d.start_time, [9, 0])) : null,
+    ends_at: d.ends_on || d.starts_on ? bucharestIso((d.ends_on ?? d.starts_on)!, ...parseTime(d.end_time, [18, 0])) : null,
+    schedule: parseSchedule(d.schedule),
     language: d.language ?? null,
     old_price_cents: d.old_price ? Math.round(d.old_price * 100) : null,
     audience: lines(d.audience),
@@ -266,6 +297,7 @@ const lessonSchema = z.object({
   description: z.string().trim().max(2000).optional(),
   video_url: z.string().trim().url({ error: "Link invalid." }).startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
   duration_min: z.coerce.number().int().min(0).max(1000).optional(),
+  chapter: z.string().trim().max(120).optional(),
 });
 
 export async function addLesson(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
@@ -275,6 +307,7 @@ export async function addLesson(courseId: string, _: FormState, formData: FormDa
     description: opt(formData.get("description")),
     video_url: opt(formData.get("video_url")),
     duration_min: opt(formData.get("duration_min")),
+    chapter: opt(formData.get("chapter")),
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
@@ -285,6 +318,7 @@ export async function addLesson(courseId: string, _: FormState, formData: FormDa
     description: parsed.data.description ?? null,
     video_url: parsed.data.video_url ?? null,
     duration_min: parsed.data.duration_min ?? null,
+    chapter: parsed.data.chapter ?? null,
     position: (last?.position ?? 0) + 1,
   });
   if (error) return { message: "Lecția nu a putut fi salvată." };

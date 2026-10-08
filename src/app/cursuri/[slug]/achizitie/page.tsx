@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
 import { CheckoutForm } from "@/components/checkout-form";
+import { OrderSummary } from "@/components/order-summary";
 import { createClient } from "@/lib/supabase/server";
 import type { BillingProfile } from "@/lib/billing";
 import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings } from "@/lib/data";
@@ -54,9 +55,6 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             next={`/cursuri/${slug}/achizitie`}
             billingProfiles={billingProfiles}
             defaultName={profile?.full_name ?? ""}
-            defaultCode={refCode}
-            priceCents={course.price_cents}
-            currency={course.currency}
           />
         </section>
         <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" aria-label="Sumar comandă">
@@ -64,15 +62,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
           <div className="p-7">
             <h2 className="font-display text-2xl leading-snug">{course.title}</h2>
             <p className="mt-1 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>
-            <dl className="mt-6 space-y-2 border-t border-line pt-5 text-sm">
-              <div className="flex justify-between"><dt className="text-muted">Preț</dt><dd>{formatPrice(course.price_cents, course.currency)}</dd></div>
-              {discount > 0 ? (
-                <div className="flex justify-between text-gold"><dt>Reducere Gold {discount}%</dt><dd>−{formatPrice(course.price_cents - total, course.currency)}</dd></div>
-              ) : null}
-              <div className="flex justify-between border-t border-line pt-3 text-lg font-semibold">
-                <dt>Total</dt><dd>{free ? "Gratuit" : formatPrice(total, course.currency)}</dd>
-              </div>
-            </dl>
+            <OrderSummary courseId={course.id} priceCents={course.price_cents} currency={course.currency} goldPercent={discount} free={free} defaultCode={refCode} />
             <p className="mt-5 text-xs leading-relaxed text-muted">Plată securizată prin Stripe. Datele cardului nu trec prin serverele noastre.</p>
           </div>
         </aside>

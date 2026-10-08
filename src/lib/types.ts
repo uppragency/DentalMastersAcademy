@@ -32,6 +32,7 @@ export type Course = {
   next_edition_of: string | null;
   promo_video_url: string | null;
   faqs: { q: string; a: string }[];
+  schedule: { title: string; items: { time: string; text: string }[] }[];
   parking_info: string | null;
   bring_info: string | null;
   categories?: { name: string; slug: string } | null;
@@ -84,6 +85,7 @@ export type Lesson = {
   video_url: string | null;
   duration_min: number | null;
   position: number;
+  chapter: string | null;
 };
 
 export type Trainer = {

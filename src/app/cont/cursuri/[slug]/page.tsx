@@ -10,6 +10,7 @@ import { nowMs } from "@/lib/time";
 import { createClient } from "@/lib/supabase/server";
 import { getCompletedLessonIds, getCurrentProfile, getLessons } from "@/lib/data";
 import { formatDateRange, formatLabels, isEnded } from "@/lib/format";
+import { contact, directions } from "@/content/site";
 import { parseVideo } from "@/lib/video";
 import type { Course } from "@/lib/types";
 
@@ -54,13 +55,76 @@ export default async function MyCoursePage({
   const completed = lessons.filter((l) => done.has(l.id)).length;
   const percent = lessons.length ? Math.round((completed / lessons.length) * 100) : 0;
   const source = parseVideo(current?.video_url ?? null);
+  const online = course.format !== "physical";
+  const physical = course.format !== "online";
+  const timeFmt = new Intl.DateTimeFormat("ro-RO", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Bucharest" });
+  const dayFmt = new Intl.DateTimeFormat("ro-RO", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Bucharest" });
+  const address = course.location || contact.address;
+  const parking = course.parking_info || directions.parking;
+  const mapQ = encodeURIComponent(address.includes("București") ? address : `${address}, București`);
+  const chapters = lessons.reduce<{ name: string | null; items: typeof lessons }[]>((acc, l) => {
+    const last = acc[acc.length - 1];
+    if (last && last.name === (l.chapter ?? null)) last.items.push(l);
+    else acc.push({ name: l.chapter ?? null, items: [l] });
+    return acc;
+  }, []);
 
   return (
     <div>
       <Link href="/cont/cursuri" className="text-sm text-muted transition-colors hover:text-foreground">← Cursurile mele</Link>
 
-      <div className="mt-6 grid gap-8 xl:grid-cols-[1fr_22rem]">
+      <div className={`mt-6 grid gap-8 ${online ? "xl:grid-cols-[1fr_22rem]" : ""}`}>
         <div className="min-w-0">
+          {physical ? (
+            <section aria-labelledby="event-title" className="grain relative isolate overflow-hidden rounded-[2rem] bg-ink p-8 text-white sm:p-12">
+              <CourseArt seed={course.slug} className="absolute inset-0 -z-10 size-full scale-110 opacity-40" />
+              <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright">{course.title}</p>
+              <h1 id="event-title" className="font-display mt-3 text-balance text-4xl font-medium leading-tight sm:text-5xl">
+                {course.starts_at ? dayFmt.format(new Date(course.starts_at)) : "Data se anunță"}
+              </h1>
+              {course.starts_at ? (
+                <p className="mt-3 text-lg text-white/75">
+                  {timeFmt.format(new Date(course.starts_at))}{course.ends_at ? ` până la ${timeFmt.format(new Date(course.ends_at))}` : ""}
+                  {course.ends_at && dayFmt.format(new Date(course.ends_at)) !== dayFmt.format(new Date(course.starts_at)) ? `, ${dayFmt.format(new Date(course.ends_at))}` : ""}
+                </p>
+              ) : null}
+              <dl className="mt-8 grid gap-6 border-t border-white/15 pt-6 text-sm sm:grid-cols-2">
+                <div><dt className="text-white/50">Adresa</dt><dd className="mt-1 font-medium">{address}</dd></div>
+                {parking ? <div><dt className="text-white/50">Parcare și acces</dt><dd className="mt-1 font-medium">{parking}</dd></div> : null}
+                {course.bring_info ? <div><dt className="text-white/50">Ce să aduci</dt><dd className="mt-1 font-medium">{course.bring_info}</dd></div> : null}
+                {course.trainer_name ? <div><dt className="text-white/50">Lectori</dt><dd className="mt-1 font-medium">{course.trainer_name}</dd></div> : null}
+              </dl>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${mapQ}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink hover:bg-gold-soft">Indicații Google Maps</a>
+                {course.starts_at ? <a href={`/cont/cursuri/${slug}/calendar.ics`} className="inline-flex min-h-11 items-center rounded-full border border-white/25 px-5 text-sm font-medium hover:bg-white/10">Adaugă în calendar</a> : null}
+              </div>
+            </section>
+          ) : null}
+
+          {physical && course.schedule.length > 0 ? (
+            <section className="mt-10" aria-labelledby="sched">
+              <h2 id="sched" className="font-display text-3xl">Programul zilelor</h2>
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                {course.schedule.map((d) => (
+                  <article key={d.title} className="rounded-3xl border border-line bg-card p-6">
+                    <h3 className="font-semibold">{d.title}</h3>
+                    <ul className="mt-4 divide-y divide-line text-sm">
+                      {d.items.map((it, i) => (
+                        <li key={i} className="flex gap-4 py-2.5">
+                          <span className="w-12 shrink-0 font-medium tabular-nums text-gold">{it.time}</span>
+                          <span className="text-muted">{it.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {online ? (
+            <div className={physical ? "mt-10" : ""}>
           <div className="relative aspect-video overflow-hidden rounded-[2rem] bg-ink shadow-[0_40px_80px_-40px_rgba(8,13,23,.6)]">
             {source ? (
               <VideoPlayer source={source} title={current?.title ?? course.title} />
@@ -98,6 +162,11 @@ export default async function MyCoursePage({
           </div>
           {current?.description ? <p className="mt-5 max-w-3xl text-lg leading-relaxed text-muted">{current.description}</p> : null}
 
+            </div>
+          ) : null}
+
+          {online && !physical ? (
+            <>
           <dl className="mt-10 grid gap-px overflow-hidden rounded-[2rem] border border-line bg-line text-sm sm:grid-cols-2 lg:grid-cols-4">
             {[
               ["Data", formatDateRange(course.starts_at, course.ends_at)],
@@ -112,6 +181,9 @@ export default async function MyCoursePage({
             <p className="mt-4">
               <a href={`/cont/cursuri/${slug}/calendar.ics`} className="text-sm font-medium text-gold underline underline-offset-4">Adaugă în calendar</a>
             </p>
+          ) : null}
+
+            </>
           ) : null}
 
           {(materials ?? []).length > 0 ? (
@@ -163,7 +235,7 @@ export default async function MyCoursePage({
           ) : null}
         </div>
 
-        <aside className="xl:sticky xl:top-28 xl:self-start" aria-label="Lecții">
+        {online ? <aside className="xl:sticky xl:top-28 xl:self-start" aria-label="Lecții">
           <div className="rounded-[2rem] border border-line bg-card p-6">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-2xl">Lecții</h2>
@@ -173,31 +245,39 @@ export default async function MyCoursePage({
               <div className="h-full rounded-full bg-gradient-to-r from-gold to-gold-bright transition-all duration-700" style={{ width: `${percent}%` }} />
             </div>
             {lessons.length > 0 ? (
-              <ol className="mt-5 space-y-1">
-                {lessons.map((l, i) => {
-                  const isCurrent = l.id === current?.id;
-                  return (
-                    <li key={l.id}>
-                      <Link
-                        href={`/cont/cursuri/${slug}?lectia=${l.id}`}
-                        aria-current={isCurrent ? "true" : undefined}
-                        className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm transition-colors ${isCurrent ? "bg-ink text-white" : "hover:bg-background"}`}
-                      >
-                        <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${done.has(l.id) ? "bg-gold text-white" : isCurrent ? "bg-white/15" : "bg-line text-muted"}`}>
-                          {done.has(l.id) ? "✓" : i + 1}
-                        </span>
-                        <span className="min-w-0 flex-1 leading-snug">{l.title}</span>
-                        {l.duration_min ? <span className={`shrink-0 text-xs ${isCurrent ? "text-white/60" : "text-muted"}`}>{l.duration_min} min</span> : null}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ol>
+              <div className="mt-5 space-y-5">
+                {chapters.map((ch, ci) => (
+                  <div key={ci}>
+                    {ch.name ? <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">{ch.name}</p> : null}
+                    <ol className="space-y-1">
+                      {ch.items.map((l) => {
+                        const isCurrent = l.id === current?.id;
+                        const i = lessons.findIndex((x) => x.id === l.id);
+                        return (
+                          <li key={l.id}>
+                            <Link
+                              href={`/cont/cursuri/${slug}?lectia=${l.id}`}
+                              aria-current={isCurrent ? "true" : undefined}
+                              className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm transition-colors ${isCurrent ? "bg-ink text-white" : "hover:bg-background"}`}
+                            >
+                              <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${done.has(l.id) ? "bg-gold text-white" : isCurrent ? "bg-white/15" : "bg-line text-muted"}`}>
+                                {done.has(l.id) ? "✓" : i + 1}
+                              </span>
+                              <span className="min-w-0 flex-1 leading-snug">{l.title}</span>
+                              {l.duration_min ? <span className={`shrink-0 text-xs ${isCurrent ? "text-white/60" : "text-muted"}`}>{l.duration_min} min</span> : null}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                ))}
+              </div>
             ) : (
               <p className="mt-5 text-sm leading-relaxed text-muted">Lecțiile și materialele vor fi adăugate aici. Vei primi o notificare când sunt disponibile.</p>
             )}
           </div>
-        </aside>
+        </aside> : null}
       </div>
     </div>
   );
