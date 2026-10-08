@@ -15,7 +15,8 @@ export function SiteFooter() {
             Dental Masters Academy. Hands-on, chirurgie live și un flux complet între clinică și laborator, în grupuri de maximum 20 de participanți.
           </p>
         </div>
-        <nav aria-label="Platformă" className="space-y-3 text-sm text-white/60 md:col-span-2">
+        <div className="grid grid-cols-2 gap-8 md:col-span-4">
+        <nav aria-label="Platformă" className="space-y-3 text-sm text-white/60">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-bright">Platformă</p>
           <Link className="block transition-colors hover:text-white" href="/cursuri">Cursuri</Link>
           <Link className="block transition-colors hover:text-white" href="/categorii">Categorii</Link>
@@ -23,12 +24,14 @@ export function SiteFooter() {
           <Link className="block transition-colors hover:text-white" href="/testimoniale">Testimoniale</Link>
           <Link className="block transition-colors hover:text-white" href="/cont">Contul meu</Link>
         </nav>
-        <nav aria-label="Legal" className="space-y-3 text-sm text-white/60 md:col-span-2">
+        <nav aria-label="Legal" className="space-y-3 text-sm text-white/60">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-bright">Informații</p>
           <Link className="block transition-colors hover:text-white" href="/contact">Contact</Link>
           <Link className="block transition-colors hover:text-white" href="/termeni">Termeni și condiții</Link>
           <Link className="block transition-colors hover:text-white" href="/confidentialitate">Confidențialitate</Link>
+          <Link className="block transition-colors hover:text-white" href="/cookies">Cookies</Link>
         </nav>
+        </div>
         <div className="space-y-3 text-sm text-white/60 md:col-span-3">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-bright">Contact</p>
           <p>{contact.address}</p>
