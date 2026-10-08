@@ -95,7 +95,7 @@ export default async function CoursePage({ params }: Props) {
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
         <CourseImage course={course} variant="cover" priority sizes="100vw" className="absolute inset-0 -z-10 size-full" artClassName="absolute inset-0 -z-10 size-full scale-110 opacity-60" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/30" />
-        <Container className="pb-40 pt-16 sm:pt-24 lg:pb-48">
+        <Container className="pb-[70px] pt-16 sm:pb-40 sm:pt-24 lg:pb-48">
           <nav aria-label="Breadcrumb" className="rise text-sm text-white/55">
             <Link href="/cursuri" className="hover:text-white">Cursuri</Link>
             {course.categories ? (<> <span aria-hidden="true">/</span> <Link href={`/categorii/${course.categories.slug}`} className="hover:text-white">{course.categories.name}</Link></>) : null}
