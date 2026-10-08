@@ -8,7 +8,7 @@ import { CheckoutForm } from "@/components/checkout-form";
 import { OrderSummary } from "@/components/order-summary";
 import { createClient } from "@/lib/supabase/server";
 import type { BillingProfile } from "@/lib/billing";
-import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings } from "@/lib/data";
+import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getPendingTransfer, getLoyaltySettings } from "@/lib/data";
 import { formatDateRange, isEnded, isNotOpen } from "@/lib/format";
 import { tierPerks } from "@/lib/loyalty";
 import { nowMs } from "@/lib/time";
@@ -34,6 +34,13 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
     billingProfiles = (data ?? []) as BillingProfile[];
   }
   if (profile && (await getEnrolledCourseIds(profile.id)).includes(course.id)) redirect(`/cont/cursuri/${slug}`);
+  // An unpaid bank transfer reservation: the buyer can only switch to card here (the transfer order is cancelled once the card payment succeeds).
+  const pendingTransfer = profile ? await getPendingTransfer(profile.id, course.id) : null;
+  let methods = courseMethods(course.payment_methods);
+  if (pendingTransfer) {
+    if (!methods.includes("card")) redirect(`/multumim/${pendingTransfer.id}`);
+    methods = ["card"];
+  }
 
   const discount = perk.discountPercent;
   const total = Math.round(course.price_cents * (1 - discount / 100));
@@ -73,7 +80,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             next={`/cursuri/${slug}/achizitie`}
             billingProfiles={billingProfiles}
             defaultName={profile?.full_name ?? ""}
-            methods={courseMethods(course.payment_methods)}
+            methods={methods}
+            pendingTransfer={pendingTransfer ? { id: pendingTransfer.id, deadlineLabel: formatDeadline(pendingTransfer.expires_at) } : null}
             deadlineLabel={formatDeadline(transferDeadline())}
             missingProfile={{ phone: Boolean(profile) && !profile?.phone, specialization: Boolean(profile) && !profile?.specialization }}
           />

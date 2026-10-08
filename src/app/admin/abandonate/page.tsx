@@ -77,7 +77,7 @@ export default async function Abandoned() {
       </section>
       <section>
         <h2 className="text-2xl font-semibold tracking-tight">În așteptarea transferului bancar</h2>
-        <p className="mt-2 text-sm text-muted">Se confirmă manual din comandă, cu „Marchează plătită”. Nu se anulează automat.</p>
+        <p className="mt-2 text-sm text-muted">Se confirmă manual din comandă, cu „Marchează plătită”. Rezervarea (2 zile lucrătoare) expiră automat, iar comanda se anulează.</p>
         {table(transfer, false)}
       </section>
     </div>

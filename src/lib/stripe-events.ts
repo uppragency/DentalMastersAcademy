@@ -7,6 +7,23 @@ import { issueInvoice } from "@/lib/invoicing";
 
 export const handledEvents = ["checkout.session.completed", "checkout.session.async_payment_succeeded", "charge.refunded"];
 
+/** After a card payment succeeds, a still-pending bank transfer order for the same course is no longer needed. */
+async function cancelOtherPendingOrders(paidOrderId: string) {
+  const admin = createAdminClient();
+  const { data: paid } = await admin.from("orders").select("user_id, order_items(course_id)").eq("id", paidOrderId).maybeSingle();
+  const courseIds = ((paid?.order_items ?? []) as { course_id: string }[]).map((i) => i.course_id);
+  if (!paid || courseIds.length === 0) return;
+  const { data: others } = await admin
+    .from("orders")
+    .select("id, order_items!inner(course_id)")
+    .eq("user_id", paid.user_id)
+    .eq("status", "pending")
+    .neq("id", paidOrderId)
+    .in("order_items.course_id", courseIds);
+  const ids = (others ?? []).map((o) => o.id);
+  if (ids.length) await admin.from("orders").update({ status: "cancelled" }).in("id", ids).eq("status", "pending");
+}
+
 export type EventResult = { status: "processed" | "ignored" | "failed"; error?: string };
 
 /** Applies one Stripe event. Idempotent: fulfill_order and the refund RPC both guard on order status. */
@@ -47,6 +64,7 @@ export async function processStripeEvent(event: Stripe.Event): Promise<EventResu
         });
       }
       await issueInvoice(orderId);
+      await cancelOtherPendingOrders(orderId);
     }
     return { status: "processed" };
   }

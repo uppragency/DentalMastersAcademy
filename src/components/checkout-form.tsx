@@ -23,6 +23,7 @@ export function CheckoutForm({
   methods,
   deadlineLabel,
   missingProfile,
+  pendingTransfer,
 }: {
   courseId: string;
   signedIn: boolean;
@@ -34,6 +35,7 @@ export function CheckoutForm({
   methods: PayMethod[];
   deadlineLabel: string;
   missingProfile: { phone: boolean; specialization: boolean };
+  pendingTransfer: { id: string; deadlineLabel: string } | null;
 }) {
   const totals = useSyncExternalStore(checkoutTotals.subscribe, checkoutTotals.get, () => null);
   const [method, setMethod] = useState<PayMethod>(methods[0]!);
@@ -64,6 +66,16 @@ export function CheckoutForm({
             {e?.accept_terms?.[0] ? <p className="mt-1.5 text-sm text-red-700">{e.accept_terms[0]}</p> : null}
           </div>
         </>
+      ) : null}
+
+      {pendingTransfer ? (
+        <div role="status" className="rounded-2xl border border-gold bg-gold-soft p-5 text-sm leading-relaxed">
+          <p className="font-semibold">Ai deja o comandă prin transfer bancar în așteptare.</p>
+          <p className="mt-1 text-muted">
+            Locul tău este rezervat până {pendingTransfer.deadlineLabel}. Dacă plătești acum cu cardul, comanda prin transfer se anulează automat după ce plata reușește.
+          </p>
+          <Link href={`/multumim/${pendingTransfer.id}`} className="mt-3 inline-block font-medium underline underline-offset-4">Vezi datele pentru transfer</Link>
+        </div>
       ) : null}
 
       {signedIn && (missingProfile.phone || missingProfile.specialization) ? (

@@ -79,6 +79,25 @@ export async function getEnrolledCourseIds(userId: string): Promise<string[]> {
   return (data ?? []).map((r: { course_id: string }) => r.course_id);
 }
 
+export type PendingTransfer = { id: string; expires_at: string; total_cents: number; currency: string };
+
+/** The signed-in user's active bank transfer reservation for a course, if any (unexpired, still unpaid). */
+export async function getPendingTransfer(userId: string, courseId: string): Promise<PendingTransfer | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("id, expires_at, total_cents, currency, order_items!inner(course_id)")
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .eq("source", "transfer")
+    .eq("order_items.course_id", courseId)
+    .gt("expires_at", new Date().toISOString())
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data ? { id: data.id, expires_at: data.expires_at as string, total_cents: data.total_cents, currency: data.currency } : null;
+}
+
 export type EnrollmentRow = {
   id: string;
   created_at: string;

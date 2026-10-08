@@ -115,6 +115,21 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     }
   }
 
+  if (method === "transfer") {
+    // One active transfer reservation per course: show the existing one instead of creating a duplicate.
+    const { data: existing } = await admin
+      .from("orders")
+      .select("id, order_items!inner(course_id)")
+      .eq("user_id", userId)
+      .eq("status", "pending")
+      .eq("source", "transfer")
+      .eq("order_items.course_id", courseId)
+      .gt("expires_at", new Date().toISOString())
+      .limit(1)
+      .maybeSingle();
+    if (existing) redirect(`/multumim/${existing.id}`);
+  }
+
   const rawCode = formData.get("discount_code");
   const code = typeof rawCode === "string" && rawCode.trim() ? rawCode.trim().slice(0, 40) : null;
   const rawPoints = Number(formData.get("points") ?? 0);

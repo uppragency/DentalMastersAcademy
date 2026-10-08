@@ -1,3 +1,4 @@
+import { courseMethods, formatDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,7 +15,7 @@ import { VideoPlayer } from "@/components/video-player";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { parseVideo } from "@/lib/video";
 import { Reveal } from "@/components/reveal";
-import { getCourseBySlug, getCourseRating, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getSeatCounts, getTrainers } from "@/lib/data";
+import { getCourseBySlug, getCourseRating, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getPendingTransfer, getSeatCounts, getTrainers } from "@/lib/data";
 import { tierPerks } from "@/lib/loyalty";
 import { formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
@@ -52,6 +53,7 @@ export default async function CoursePage({ params }: Props) {
     getCourseRating(course.id),
   ]);
   const enrolled = enrolledIds.includes(course.id);
+  const pendingTransfer = profile && !enrolled ? await getPendingTransfer(profile.id, course.id) : null;
   if (profile && !enrolled) {
     const uid = profile.id;
     after(async () => {
@@ -257,6 +259,18 @@ export default async function CoursePage({ params }: Props) {
                     <ButtonLink href={`/cont/cursuri/${course.slug}`} className="mt-8 w-full">Accesează cursul <Arrow /></ButtonLink>
                     <p className="mt-3 text-center text-xs text-muted">Ai achiziționat deja acest curs.</p>
                   </>
+                ) : pendingTransfer ? (
+                  <div className="mt-8 rounded-2xl border border-gold bg-gold-soft p-5 text-sm" id="transfer-in-asteptare">
+                    <p className="font-semibold">Ai o comandă prin transfer bancar în așteptare</p>
+                    <p className="mt-2 leading-relaxed text-muted">
+                      Locul tău este rezervat până {formatDeadline(pendingTransfer.expires_at)}. Finalizează plata prin transfer sau plătește acum cu cardul.
+                    </p>
+                    <div className="mt-4 flex flex-col gap-3">
+                      <ButtonLink href={`/multumim/${pendingTransfer.id}`} variant="gold" className="w-full">Vezi datele pentru transfer</ButtonLink>
+                      {courseMethods(course.payment_methods).includes("card") ? <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="ghost" className="w-full">Plătește cu cardul</ButtonLink> : null}
+                    </div>
+                    {courseMethods(course.payment_methods).includes("card") ? <p className="mt-3 text-xs text-muted">Dacă plata cu cardul reușește, comanda prin transfer se anulează automat.</p> : null}
+                  </div>
                 ) : ended || notOpen || soldOut ? (
                   <div className="mt-8" id="lista-asteptare">
                     {ended ? (
@@ -291,7 +305,7 @@ export default async function CoursePage({ params }: Props) {
         </div>
       </Container>
 
-      {!enrolled && !ended && !notOpen && !soldOut ? (
+      {!enrolled && !pendingTransfer && !ended && !notOpen && !soldOut ? (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-background/90 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
             <div>
