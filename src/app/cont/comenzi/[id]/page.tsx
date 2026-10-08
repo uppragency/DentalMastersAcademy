@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: "Comandă", robots: { index: false } 
 type Billing = { kind?: string; name?: string; cui?: string; reg_com?: string; address?: string; city?: string; county?: string } | null;
 type Order = {
   id: string; status: string; source: string | null; expires_at: string | null; subtotal_cents: number; discount_cents: number; points_discount_cents: number; points_used: number;
-  total_cents: number; currency: string; paid_at: string | null; created_at: string; provider: string | null; invoice_number: string | null; billing: Billing;
+  total_cents: number; currency: string; paid_at: string | null; created_at: string; provider: string | null; invoice_number: string | null; proforma_number: string | null; billing: Billing;
   refunded_cents: number | null; discount_code: string | null; tier_at_purchase: string | null;
   order_items: { unit_price_cents: number; final_price_cents: number; courses: { title: string; slug: string; payment_methods: string[] | null } | null }[];
 };
@@ -45,7 +45,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const supabase = await createClient();
   const { data } = await supabase
     .from("orders")
-    .select("id, status, source, expires_at, subtotal_cents, discount_cents, points_discount_cents, points_used, total_cents, currency, paid_at, created_at, provider, invoice_number, billing, refunded_cents, discount_code, tier_at_purchase, order_items(unit_price_cents, final_price_cents, courses(title, slug, payment_methods))")
+    .select("id, status, source, expires_at, subtotal_cents, discount_cents, points_discount_cents, points_used, total_cents, currency, paid_at, created_at, provider, invoice_number, proforma_number, billing, refunded_cents, discount_code, tier_at_purchase, order_items(unit_price_cents, final_price_cents, courses(title, slug, payment_methods))")
     .eq("id", id)
     .maybeSingle();
   const o = data as unknown as Order | null;
@@ -155,17 +155,23 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
           <Card title="Date de facturare">
             {o.billing?.name ? (
-              <address className="text-sm not-italic leading-relaxed">
-                <p className="font-medium">{o.billing.name}</p>
-                {o.billing.cui ? <p className="text-muted">CUI {o.billing.cui}{o.billing.reg_com ? `, ${o.billing.reg_com}` : ""}</p> : null}
-                <p className="text-muted">{[o.billing.address, o.billing.city, o.billing.county].filter(Boolean).join(", ")}</p>
-              </address>
+              <dl className="text-sm">
+                <Row k="Tip client" v={o.billing.kind === "company" ? "Persoană juridică" : "Persoană fizică"} />
+                <Row k={o.billing.kind === "company" ? "Denumire firmă" : "Nume și prenume"} v={o.billing.name} />
+                {o.billing.cui ? <Row k="CUI" v={o.billing.cui} /> : null}
+                {o.billing.reg_com ? <Row k="Nr. Reg. Com." v={o.billing.reg_com} /> : null}
+                {o.billing.address ? <Row k={o.billing.kind === "company" ? "Adresa sediului" : "Adresă"} v={o.billing.address} /> : null}
+                {o.billing.city ? <Row k="Localitate" v={o.billing.city} /> : null}
+                {o.billing.county ? <Row k="Județ / Sector" v={o.billing.county} /> : null}
+              </dl>
             ) : <p className="text-sm text-muted">Nu există date de facturare salvate.</p>}
           </Card>
 
           <div className="flex flex-wrap gap-3 print:hidden">
             {paid ? <PrintButton /> : null}
+            {o.proforma_number && o.status === "pending" && o.source === "transfer" ? <a href={`/api/proforme/${o.id}`} className="inline-flex h-12 items-center rounded-full bg-ink px-6 text-sm font-medium text-white">Descarcă proforma (PDF)</a> : null}
             {o.invoice_number ? <a href={`/api/facturi/${o.id}`} className="inline-flex h-12 items-center rounded-full bg-ink px-6 text-sm font-medium text-white">Descarcă factura (PDF)</a> : null}
+            {paid && !o.invoice_number ? <p className="w-full text-sm text-muted">Factura apare aici după emitere și o primești și pe email.</p> : null}
             {paid && course ? <ButtonLink href={`/cont/cursuri/${course.slug}`} variant="ghost">Mergi la curs</ButtonLink> : null}
           </div>
           {paid ? <p className="text-xs text-muted">Pagina confirmă plata și nu înlocuiește factura fiscală.</p> : null}
