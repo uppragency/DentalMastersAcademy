@@ -201,6 +201,19 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
   }
   Object.assign(row, images);
 
+  // Gallery: keep existing minus removed, append new uploads (max 20 in total).
+  const removed = new Set(formData.getAll("remove_gallery").filter((v): v is string => typeof v === "string"));
+  const { data: prevGallery } = id ? await supabase.from("courses").select("gallery").eq("id", id).maybeSingle() : { data: null };
+  const gallery = ((prevGallery?.gallery as string[] | null) ?? []).filter((u) => !removed.has(u));
+  const newFiles = formData.getAll("gallery").filter((f): f is File => f instanceof File && f.size > 0).slice(0, 10);
+  if (gallery.length + newFiles.length > 20) return { message: "Galeria poate avea cel mult 20 de fotografii." };
+  const ups = await Promise.all(newFiles.map((f) => uploadImage(f, "courses/gallery", 1)));
+  for (const up of ups) {
+    if ("error" in up) return { message: `Galerie: ${up.error}` };
+    gallery.push(up.url);
+  }
+  Object.assign(row, { gallery });
+
   const saved = id
     ? await supabase.from("courses").update(row).eq("id", id).select("id").maybeSingle()
     : await supabase.from("courses").insert(row).select("id").maybeSingle();

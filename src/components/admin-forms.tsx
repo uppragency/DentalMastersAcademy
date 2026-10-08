@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { addLesson, addTestimonial, createDiscountCode, deleteCourse, saveCourse, saveLoyalty, adjustPoints } from "@/actions/admin";
 import { Button, Field } from "@/components/ui";
+import { GalleryField } from "@/components/gallery-field";
 import { toBucharestLocal } from "@/lib/format";
 import type { Category, Course, LoyaltySettings } from "@/lib/types";
 
@@ -30,6 +31,7 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
   return (
     <form action={action} className="space-y-5">
       <Field label="Titlu" name="title" defaultValue={course?.title} required error={e?.title?.[0]} />
+      <GalleryField existing={course?.gallery ?? []} />
       <div className="grid gap-5 sm:grid-cols-2">
         {([
           { name: "cover", label: "Imagine cover (pagina cursului, pe toată lățimea)", hint: "Recomandat 1920 × 800 px, orizontal, JPG sau WebP, maximum 2 MB. Subiectul în partea dreaptă, textul stă pe stânga.", url: course?.cover_url },

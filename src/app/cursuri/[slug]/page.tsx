@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ButtonLink, Container, Eyebrow, Arrow } from "@/components/ui";
 import { CourseImage } from "@/components/course-image";
+import { GalleryCarousel } from "@/components/gallery-carousel";
 import { CourseCard } from "@/components/course-card";
 import { Countdown } from "@/components/countdown";
 import { Seats } from "@/components/seats";
@@ -141,6 +142,7 @@ export default async function CoursePage({ params }: Props) {
                       <p key={i} className={i === 0 ? "font-display text-2xl leading-snug sm:text-3xl" : "text-lg leading-relaxed text-muted"}>{p}</p>
                     ))}
                   </div>
+                  {course.gallery && course.gallery.length > 0 ? <div className="mt-10"><GalleryCarousel images={course.gallery} title={course.title} /></div> : null}
                 </section>
               </Reveal>
             ) : null}

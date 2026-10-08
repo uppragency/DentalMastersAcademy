@@ -20,6 +20,7 @@ export type Course = {
   capacity: number | null;
   cover_url: string | null;
   thumbnail_url?: string | null;
+  gallery?: string[];
   status: "draft" | "published" | "archived";
   is_featured: boolean;
   gold_free: boolean;
