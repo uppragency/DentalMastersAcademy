@@ -5,15 +5,14 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/cont", label: "Prezentare", exact: true },
-  { href: "/cont/cursuri", label: "Cursurile mele" },
-  { href: "/cont/notificari", label: "Notificări", badge: true },
-  { href: "/cont/comenzi", label: "Comenzi" },
   { href: "/cont/program", label: "Program Gold" },
+  { href: "/cont/cursuri", label: "Cursurile mele" },
+  { href: "/cont/comenzi", label: "Comenzi" },
   { href: "/cont/recomanda", label: "Recomandă un coleg" },
   { href: "/cont/profil", label: "Profil și securitate" },
 ];
 
-export function AccountNav({ unread = 0 }: { unread?: number }) {
+export function AccountNav() {
   const pathname = usePathname();
   return (
     <nav aria-label="Cont" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:flex-col lg:overflow-visible">
@@ -29,9 +28,6 @@ export function AccountNav({ unread = 0 }: { unread?: number }) {
             }`}
           >
             {item.label}
-            {item.badge && unread > 0 ? (
-              <span className="rounded-full bg-gold px-2 py-0.5 text-[11px] font-bold leading-none text-white">{unread > 9 ? "9+" : unread}</span>
-            ) : null}
           </Link>
         );
       })}

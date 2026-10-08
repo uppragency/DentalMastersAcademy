@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getCategories, getCourses, getUnreadCount } from "@/lib/data";
+import { getCategories, getCourses, getCurrentProfile, getUnreadCount } from "@/lib/data";
+import { AccountMenu } from "@/components/account-menu";
+import { tierNames } from "@/lib/loyalty";
 import { formatDateRange, formatPrice, isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { MainNav } from "@/components/main-nav";
@@ -13,7 +15,7 @@ export async function SiteHeader() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const userId = data?.claims?.sub as string | undefined;
-  const [unread, categories, courses] = await Promise.all([userId ? getUnreadCount(userId) : Promise.resolve(0), getCategories(), getCourses()]);
+  const [unread, categories, courses, profile] = await Promise.all([userId ? getUnreadCount(userId) : Promise.resolve(0), getCategories(), getCourses(), userId ? getCurrentProfile() : Promise.resolve(null)]);
   const now = nowMs();
   const navData = {
     categories: categories.map((c) => ({ name: c.name, slug: c.slug })),
@@ -42,12 +44,11 @@ export async function SiteHeader() {
           <SearchDialog />
           <ThemeToggle />
           {userId ? <NotificationBell key={unread} unread={unread} /> : null}
-          <Link
-            href={userId ? "/cont" : "/autentificare"}
-            className="hidden min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink transition-colors hover:bg-gold-soft sm:inline-flex"
-          >
-            {userId ? "Contul meu" : "Intră în cont"}
-          </Link>
+          {profile ? (
+            <AccountMenu name={profile.full_name || profile.email} tier={profile.tier} tierLabel={tierNames[profile.tier]} />
+          ) : (
+            <Link href="/autentificare" className="hidden min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink transition-colors hover:bg-gold-soft sm:inline-flex">Intră în cont</Link>
+          )}
           <MobileMenu items={mobileItems} signedIn={Boolean(userId)} />
         </div>
       </div>

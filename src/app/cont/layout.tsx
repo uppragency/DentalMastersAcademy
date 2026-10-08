@@ -3,13 +3,12 @@ import { logout } from "@/actions/auth";
 import { AccountNav } from "@/components/account-nav";
 import { Avatar, TierPill } from "@/components/member-badge";
 import { Button, ButtonLink, Container } from "@/components/ui";
-import { getCurrentProfile, getUnreadCount } from "@/lib/data";
+import { getCurrentProfile } from "@/lib/data";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/autentificare?next=/cont");
   const name = profile.full_name ?? profile.email;
-  const unread = await getUnreadCount(profile.id);
 
   return (
     <div className="min-h-[calc(100dvh-72px)] bg-background">
@@ -27,7 +26,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
               </div>
               <div className="relative mt-5"><TierPill tier={profile.tier} /></div>
             </div>
-            <div className="mt-4"><AccountNav unread={unread} /></div>
+            <div className="mt-4"><AccountNav /></div>
             <div className="mt-4 hidden gap-2 lg:flex lg:flex-col">
               {profile.role === "admin" ? <ButtonLink href="/admin" variant="ghost" className="w-full">Administrare</ButtonLink> : null}
               <form action={logout}><Button type="submit" variant="ghost" className="w-full">Ieși din cont</Button></form>
