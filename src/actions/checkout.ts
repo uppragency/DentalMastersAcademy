@@ -116,7 +116,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
   }
   const order = (rows as { order_id: string | null; total_cents: number; currency: string; is_free: boolean }[])[0];
   if (!order) return { message: "Comanda nu a putut fi creată." };
-  if (order.is_free || !order.order_id) redirect(`/cont/cursuri/${course.slug}`);
+  if (order.is_free || !order.order_id) redirect(`/multumim/gratuit/${course.slug}`);
 
   await admin.from("orders").update({ billing }).eq("id", order.order_id);
   if (formData.get("billing_save") === "on" && formData.get("billing_mode") !== "saved") {
