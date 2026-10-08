@@ -29,7 +29,7 @@ export default async function PortfolioPage() {
   const hours = rows.reduce((s, r) => s + Number(r.courses!.duration_hours ?? 0), 0);
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold print:hidden">Cont</p>
       <h1 className="font-display mt-2 text-5xl font-medium">Portofoliu de formare</h1>
       <p className="mt-3 text-muted">
