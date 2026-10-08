@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Category, Course, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
 
@@ -191,3 +192,9 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
   for (const r of data ?? []) if (r.category_id) counts[r.category_id] = (counts[r.category_id] ?? 0) + 1;
   return counts;
 }
+
+export const getSeatCounts = cache(async (): Promise<Record<string, number>> => {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("enrollment_counts");
+  return Object.fromEntries(((data ?? []) as { course_id: string; taken: number }[]).map((r) => [r.course_id, r.taken]));
+});

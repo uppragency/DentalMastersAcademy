@@ -12,16 +12,17 @@ export const metadata: Metadata = { title: "Editare curs | Administrare", robots
 export default async function EditCourse({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const [{ data }, categories, lessons] = await Promise.all([
+  const [{ data }, categories, lessons, { data: others }] = await Promise.all([
     supabase.from("courses").select("*").eq("id", id).maybeSingle<Course>(),
     getCategories(),
     getLessons(id),
+    supabase.from("courses").select("id, title").order("starts_at", { ascending: false }),
   ]);
   if (!data) notFound();
   return (
     <div className="max-w-3xl">
       <h1 className="mb-8 text-3xl font-semibold tracking-tight">Editare curs</h1>
-      <CourseForm course={data} categories={categories} />
+      <CourseForm course={data} categories={categories} otherCourses={others ?? []} />
       <section className="mt-14 border-t border-line pt-10" aria-labelledby="lessons">
         <h2 id="lessons" className="text-2xl font-semibold tracking-tight">Lecții și materiale video</h2>
         <p className="mt-2 text-sm text-muted">Lecțiile sunt vizibile doar cursanților înscriși.</p>

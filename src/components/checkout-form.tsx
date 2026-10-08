@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { startCheckout } from "@/actions/checkout";
+import { previewDiscount, type DiscountPreview } from "@/actions/commerce";
+import { formatPrice } from "@/lib/format";
 import { Button, Field } from "@/components/ui";
 import { BillingSection } from "@/components/billing-section";
 import type { BillingProfile } from "@/lib/billing";
@@ -15,6 +17,9 @@ export function CheckoutForm({
   next,
   billingProfiles,
   defaultName,
+  defaultCode = "",
+  priceCents,
+  currency,
 }: {
   courseId: string;
   signedIn: boolean;
@@ -23,7 +28,14 @@ export function CheckoutForm({
   next: string;
   billingProfiles: BillingProfile[];
   defaultName: string;
+  defaultCode?: string;
+  priceCents: number;
+  currency: string;
 }) {
+  const [code, setCode] = useState(defaultCode);
+  const [preview, setPreview] = useState<DiscountPreview | null>(null);
+  const [checking, startCheck] = useTransition();
+  const apply = () => startCheck(async () => setPreview(await previewDiscount(courseId, code)));
   const [state, action, pending] = useActionState(startCheckout.bind(null, courseId), undefined);
   const e = state?.errors;
 
@@ -57,6 +69,32 @@ export function CheckoutForm({
           <div className="border-t border-line" />
           <BillingSection key={`${signedIn}`} profiles={billingProfiles} defaultName={defaultName} errors={e} />
         </>
+      ) : null}
+
+      {!free ? (
+        <div>
+          <label htmlFor="discount_code" className="mb-1.5 block text-sm font-medium">Cod de reducere sau de recomandare</label>
+          <div className="flex gap-2">
+            <input
+              id="discount_code"
+              name="discount_code"
+              value={code}
+              onChange={(ev) => { setCode(ev.target.value); setPreview(null); }}
+              autoComplete="off"
+              spellCheck={false}
+              className="min-h-12 w-full rounded-2xl border border-line bg-background px-4 text-sm uppercase tracking-wider outline-none focus:border-gold"
+            />
+            <Button type="button" variant="ghost" onClick={apply} disabled={checking || !code.trim()} className="shrink-0">
+              {checking ? "..." : "Aplică"}
+            </Button>
+          </div>
+          {preview ? (
+            <p role="status" className={`mt-2 text-sm ${preview.ok ? "text-gold" : "text-red-700"}`}>
+              {preview.ok ? `${preview.label}: −${formatPrice(preview.discountCents!, currency)}. Total ${formatPrice(priceCents - preview.discountCents!, currency)}.` : preview.message}
+            </p>
+          ) : null}
+          {e?.discount_code?.[0] ? <p className="mt-2 text-sm text-red-700">{e.discount_code[0]}</p> : null}
+        </div>
       ) : null}
 
       {state?.message ? (

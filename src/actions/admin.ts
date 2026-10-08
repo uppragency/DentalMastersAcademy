@@ -6,6 +6,8 @@ import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data";
 import type { FormState } from "@/actions/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { sendMail } from "@/lib/email";
 
 async function requireAdmin() {
   const profile = await getCurrentProfile();
@@ -66,7 +68,20 @@ const courseSchema = z.object({
   price: z.coerce.number({ error: "Preț invalid." }).min(0).max(1_000_000),
   capacity: z.coerce.number().int().positive().optional(),
   status: z.enum(["draft", "published", "archived"]),
+  opens_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  promo_video_url: z.string().trim().url().startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
+  faqs: z.string().max(10000).optional(),
+  next_edition_of: z.string().uuid().optional(),
 });
+
+/** Blocks separated by a blank line: first line = question, rest = answer. */
+function parseFaqs(v: string | undefined) {
+  return (v ?? "")
+    .split(/\n\s*\n/)
+    .map((b) => b.split("\n").map((l) => l.trim()).filter(Boolean))
+    .filter((b) => b.length >= 2)
+    .map(([q, ...a]) => ({ q: q!, a: a.join(" ") }));
+}
 
 const opt = (v: FormDataEntryValue | null) => (typeof v === "string" && v.trim() !== "" ? v : undefined);
 
@@ -93,6 +108,10 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     price: formData.get("price"),
     capacity: opt(formData.get("capacity")),
     status: formData.get("status"),
+    opens_on: opt(formData.get("opens_on")),
+    promo_video_url: opt(formData.get("promo_video_url")),
+    faqs: opt(formData.get("faqs")),
+    next_edition_of: opt(formData.get("next_edition_of")),
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
@@ -118,18 +137,41 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     currency: d.currency,
     capacity: d.capacity ?? null,
     status: d.status,
+    registration_opens_at: d.opens_on ? bucharestIso(d.opens_on, 10) : null,
+    promo_video_url: d.promo_video_url ?? null,
+    faqs: parseFaqs(d.faqs),
+    next_edition_of: d.next_edition_of ?? null,
     is_featured: formData.get("is_featured") === "on",
     gold_free: formData.get("gold_free") === "on",
   };
 
-  const { error } = id
-    ? await supabase.from("courses").update(row).eq("id", id)
-    : await supabase.from("courses").insert(row);
-  if (error) {
-    return { message: error.code === "23505" ? "Există deja un curs cu acest slug." : "Cursul nu a putut fi salvat." };
+  const saved = id
+    ? await supabase.from("courses").update(row).eq("id", id).select("id").maybeSingle()
+    : await supabase.from("courses").insert(row).select("id").maybeSingle();
+  if (saved.error || !saved.data) {
+    return { message: saved.error?.code === "23505" ? "Există deja un curs cu acest slug." : "Cursul nu a putut fi salvat." };
+  }
+  if (row.status === "published" && row.next_edition_of) {
+    await notifyWaitlist(row.next_edition_of, { title: row.title, slug: row.slug });
   }
   revalidatePath("/", "layout");
   redirect("/admin/cursuri");
+}
+
+/** Emails everyone on the waitlist of the previous edition once the new edition is published. */
+async function notifyWaitlist(previousCourseId: string, next: { title: string; slug: string }) {
+  const admin = createAdminClient();
+  const { data: rows } = await admin.from("waitlist").select("id, email, name").eq("course_id", previousCourseId).is("notified_at", null);
+  for (const w of rows ?? []) {
+    const ok = await sendMail({
+      to: w.email,
+      subject: `S-au deschis înscrierile: ${next.title}`,
+      heading: "Următoarea ediție este disponibilă",
+      paragraphs: [`${w.name ? `Bună, ${w.name}.` : "Bună."} Ai cerut să fii anunțat. Înscrierile pentru ${next.title} sunt deschise.`],
+      cta: { label: "Vezi cursul", href: `/cursuri/${next.slug}` },
+    });
+    if (ok) await admin.from("waitlist").update({ notified_at: new Date().toISOString() }).eq("id", w.id);
+  }
 }
 
 export async function deleteCourse(id: string) {
@@ -180,6 +222,8 @@ const loyaltySchema = z.object({
   courses_threshold: z.coerce.number().int().min(0).optional(),
   window_days: z.coerce.number().int().min(0).optional(),
   gold_discount_percent: z.coerce.number().min(0).max(100),
+  referral_friend_percent: z.coerce.number().min(0).max(100),
+  referral_reward_percent: z.coerce.number().min(0).max(100),
 });
 
 export async function saveLoyalty(_: FormState, formData: FormData): Promise<FormState> {
@@ -189,6 +233,8 @@ export async function saveLoyalty(_: FormState, formData: FormData): Promise<For
     courses_threshold: opt(formData.get("courses_threshold")),
     window_days: opt(formData.get("window_days")),
     gold_discount_percent: formData.get("gold_discount_percent"),
+    referral_friend_percent: formData.get("referral_friend_percent"),
+    referral_reward_percent: formData.get("referral_reward_percent"),
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   const d = parsed.data;
@@ -200,6 +246,8 @@ export async function saveLoyalty(_: FormState, formData: FormData): Promise<For
       courses_threshold: d.courses_threshold || null,
       window_days: d.window_days || null,
       gold_discount_percent: d.gold_discount_percent,
+      referral_friend_percent: d.referral_friend_percent,
+      referral_reward_percent: d.referral_reward_percent,
     })
     .eq("id", true);
   if (error) return { message: "Setările nu au putut fi salvate." };
@@ -242,4 +290,48 @@ export async function deleteLesson(id: string, courseId: string) {
   const supabase = await requireAdmin();
   await supabase.from("course_lessons").delete().eq("id", id);
   revalidatePath(`/admin/cursuri/${courseId}`);
+}
+
+const codeSchema = z.object({
+  code: z.string().trim().toUpperCase().regex(/^[A-Z0-9_-]{3,30}$/, { error: "Cod de 3 până la 30 caractere (litere, cifre, - sau _)." }),
+  kind: z.enum(["percent", "amount"]),
+  value: z.coerce.number().positive({ error: "Introdu valoarea." }),
+  course_id: z.string().uuid().optional(),
+  max_uses: z.coerce.number().int().positive().optional(),
+  expires_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  note: z.string().trim().max(200).optional(),
+});
+
+export async function createDiscountCode(_: FormState, formData: FormData): Promise<FormState> {
+  const supabase = await requireAdmin();
+  const parsed = codeSchema.safeParse({
+    code: formData.get("code"),
+    kind: formData.get("kind"),
+    value: formData.get("value"),
+    course_id: opt(formData.get("course_id")),
+    max_uses: opt(formData.get("max_uses")),
+    expires_on: opt(formData.get("expires_on")),
+    note: opt(formData.get("note")),
+  });
+  if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
+  const d = parsed.data;
+  if (d.kind === "percent" && d.value > 100) return { errors: { value: ["Maximum 100%."] } };
+  const { error } = await supabase.from("discount_codes").insert({
+    code: d.code,
+    kind: d.kind,
+    value: d.kind === "percent" ? Math.round(d.value) : Math.round(d.value * 100),
+    course_id: d.course_id ?? null,
+    max_uses: d.max_uses ?? null,
+    expires_at: d.expires_on ? bucharestIso(d.expires_on, 23) : null,
+    note: d.note ?? null,
+  });
+  if (error) return { message: error.code === "23505" ? "Acest cod există deja." : "Codul nu a putut fi salvat." };
+  revalidatePath("/admin/coduri");
+  return { message: "Codul a fost creat." };
+}
+
+export async function toggleDiscountCode(id: string, active: boolean) {
+  const supabase = await requireAdmin();
+  await supabase.from("discount_codes").update({ active }).eq("id", id);
+  revalidatePath("/admin/coduri");
 }

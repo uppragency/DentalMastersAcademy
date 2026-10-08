@@ -4,9 +4,15 @@ import { notFound } from "next/navigation";
 import { ButtonLink, Container, Eyebrow, Arrow } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
 import { CourseCard } from "@/components/course-card";
+import { Countdown } from "@/components/countdown";
+import { Seats } from "@/components/seats";
+import { Faq } from "@/components/faq";
+import { VideoPlayer } from "@/components/video-player";
+import { WaitlistForm } from "@/components/waitlist-form";
+import { parseVideo } from "@/lib/video";
 import { Reveal } from "@/components/reveal";
-import { getCourseBySlug, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings } from "@/lib/data";
-import { formatDateRange, formatLabels, formatPrice, isEnded } from "@/lib/format";
+import { getCourseBySlug, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getSeatCounts } from "@/lib/data";
+import { formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { trainers } from "@/content/site";
 
@@ -19,24 +25,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: course.title, description: course.summary ?? undefined };
 }
 
+function paragraphsOf(c: { description: string | null }) {
+  return (c.description ?? "").split(/\n\n+/).filter(Boolean);
+}
+
 export default async function CoursePage({ params }: Props) {
   const { slug } = await params;
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();
-  const [enrolledIds, related] = await Promise.all([
+  const [seatCounts, enrolledIds, related] = await Promise.all([
+    getSeatCounts(),
     profile ? getEnrolledCourseIds(profile.id) : Promise.resolve([] as string[]),
     getCourses({ limit: 4 }),
   ]);
   const enrolled = enrolledIds.includes(course.id);
   const now = nowMs();
   const ended = isEnded(course, now);
+  const notOpen = !ended && isNotOpen(course, now);
+  const taken = seatCounts[course.id] ?? 0;
+  const soldOut = Boolean(course.capacity && taken >= course.capacity);
+  const promo = parseVideo(course.promo_video_url);
+  const navItems = [
+    ...(promo ? [["promo", "Video"]] : []),
+    ...(paragraphsOf(course).length ? [["desc", "Despre"]] : []),
+    ...(course.outcomes.length ? [["out", "Rezultate"]] : []),
+    ...(course.sections.length ? [["prog", "Programa"]] : []),
+    ...(course.audience.length ? [["aud", "Pentru cine"]] : []),
+    ["lect", "Lectori"],
+    ...(course.faqs.length ? [["faq", "Întrebări"]] : []),
+  ];
 
   const isGold = profile?.tier === "gold" && loyalty?.is_active;
   const discount = isGold ? Number(loyalty!.gold_discount_percent) : 0;
   const finalPrice = Math.round(course.price_cents * (1 - discount / 100));
   const free = Boolean(isGold && course.gold_free);
   const others = related.filter((c) => c.id !== course.id).slice(0, 3);
-  const paragraphs = (course.description ?? "").split(/\n\n+/).filter(Boolean);
+  const paragraphs = paragraphsOf(course);
 
   const facts = [
     { k: "Data", v: formatDateRange(course.starts_at, course.ends_at) },
@@ -59,6 +83,8 @@ export default async function CoursePage({ params }: Props) {
           <div className="rise mt-8 flex flex-wrap items-center gap-2 text-xs font-semibold" style={{ ["--d" as string]: "80ms" }}>
             {course.categories ? <span className="rounded-full bg-gold-bright px-3.5 py-1.5 uppercase tracking-widest text-ink">{course.categories.name}</span> : null}
             {ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Înscrieri închise</span> : null}
+            {notOpen ? <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-white backdrop-blur">Înscrieri în curând</span> : null}
+            {soldOut && !ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Locuri epuizate</span> : null}
             {course.gold_free ? <span className="rounded-full border border-gold-bright/60 px-3.5 py-1.5 text-gold-bright">Gratuit pentru membrii Gold</span> : null}
           </div>
           <h1 className="rise font-display mt-6 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "160ms" }}>{course.title}</h1>
@@ -66,14 +92,31 @@ export default async function CoursePage({ params }: Props) {
         </Container>
       </section>
 
+      <nav aria-label="Secțiuni curs" className="sticky top-[72px] z-30 hidden border-b border-line bg-background/85 backdrop-blur-xl lg:block">
+        <Container>
+          <ul className="flex gap-1 overflow-x-auto py-2 text-sm">
+            {navItems.map(([id, label]) => (
+              <li key={id}><a href={`#${id}`} className="whitespace-nowrap rounded-full px-4 py-2 text-muted transition-colors hover:bg-card hover:text-foreground">{label}</a></li>
+            ))}
+          </ul>
+        </Container>
+      </nav>
+
       <Container className="relative -mt-28 pb-24 lg:-mt-36">
         <div className="grid gap-10 lg:grid-cols-[1fr_24rem]">
-          <div className="space-y-20 pt-32 lg:pt-44">
+          <div className="space-y-20 pt-32 lg:pt-44 [&_section]:scroll-mt-32">
+            {promo ? (
+              <section id="promo" aria-label="Video de prezentare">
+                <div className="relative aspect-video overflow-hidden rounded-[2rem] bg-ink shadow-[0_40px_80px_-40px_rgba(8,13,23,.6)]">
+                  <VideoPlayer source={promo} title={`Prezentare ${course.title}`} />
+                </div>
+              </section>
+            ) : null}
             {paragraphs.length > 0 ? (
               <Reveal>
-                <section aria-labelledby="desc">
+                <section id="desc" aria-labelledby="desc-h">
                   <Eyebrow>Despre curs</Eyebrow>
-                  <h2 id="desc" className="sr-only">Despre curs</h2>
+                  <h2 id="desc-h" className="sr-only">Despre curs</h2>
                   <div className="mt-6 space-y-5">
                     {paragraphs.map((p, i) => (
                       <p key={i} className={i === 0 ? "font-display text-2xl leading-snug sm:text-3xl" : "text-lg leading-relaxed text-muted"}>{p}</p>
@@ -84,9 +127,9 @@ export default async function CoursePage({ params }: Props) {
             ) : null}
 
             {course.outcomes.length > 0 ? (
-              <section aria-labelledby="out">
+              <section id="out" aria-labelledby="out-h">
                 <Reveal><Eyebrow>Ce vei învăța</Eyebrow></Reveal>
-                <h2 id="out" className="sr-only">Ce vei învăța</h2>
+                <h2 id="out-h" className="sr-only">Ce vei învăța</h2>
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2">
                   {course.outcomes.map((o, i) => (
                     <Reveal as="li" key={o} delay={(i % 2) * 80}>
@@ -101,9 +144,9 @@ export default async function CoursePage({ params }: Props) {
             ) : null}
 
             {course.sections.length > 0 ? (
-              <section aria-labelledby="prog">
+              <section id="prog" aria-labelledby="prog-h">
                 <Reveal><Eyebrow>Programa</Eyebrow></Reveal>
-                <h2 id="prog" className="sr-only">Programa</h2>
+                <h2 id="prog-h" className="sr-only">Programa</h2>
                 <div className="mt-8 divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card">
                   {course.sections.map((s, i) => (
                     <details key={s.title} open={i === 0} className="group">
@@ -126,11 +169,11 @@ export default async function CoursePage({ params }: Props) {
             ) : null}
 
             {course.audience.length > 0 ? (
-              <section aria-labelledby="aud">
+              <section id="aud" aria-labelledby="aud-h">
                 <Reveal>
                   <div className="rounded-[2rem] bg-ink p-8 text-white sm:p-12">
                     <Eyebrow light>Pentru cine este</Eyebrow>
-                    <h2 id="aud" className="font-display mt-4 text-3xl sm:text-4xl">Pentru medicii care vor mai mult de la practica lor.</h2>
+                    <h2 id="aud-h" className="font-display mt-4 text-3xl sm:text-4xl">Pentru medicii care vor mai mult de la practica lor.</h2>
                     <ul className="mt-8 grid gap-x-10 gap-y-4 sm:grid-cols-2">
                       {course.audience.map((a) => (
                         <li key={a} className="flex gap-3 border-t border-white/10 pt-4 text-[15px] text-white/75"><span className="mt-2 size-1.5 shrink-0 rounded-full bg-gold-bright" />{a}</li>
@@ -141,9 +184,9 @@ export default async function CoursePage({ params }: Props) {
               </section>
             ) : null}
 
-            <section aria-labelledby="lect">
+            <section id="lect" aria-labelledby="lect-h">
               <Reveal><Eyebrow>Lectori</Eyebrow></Reveal>
-              <h2 id="lect" className="sr-only">Lectori</h2>
+              <h2 id="lect-h" className="sr-only">Lectori</h2>
               <ul className="mt-8 grid gap-4 sm:grid-cols-3">
                 {trainers.map((t, i) => (
                   <Reveal as="li" key={t.name} delay={i * 80}>
@@ -156,6 +199,14 @@ export default async function CoursePage({ params }: Props) {
                 ))}
               </ul>
             </section>
+
+            {course.faqs.length > 0 ? (
+              <section id="faq" aria-labelledby="faq-h">
+                <Reveal><Eyebrow>Întrebări frecvente</Eyebrow></Reveal>
+                <h2 id="faq-h" className="sr-only">Întrebări frecvente</h2>
+                <div className="mt-8"><Faq items={course.faqs} /></div>
+              </section>
+            ) : null}
           </div>
 
           <aside className="lg:sticky lg:top-28 lg:self-start" aria-label="Înscriere">
@@ -178,17 +229,30 @@ export default async function CoursePage({ params }: Props) {
                   ))}
                 </dl>
 
+                {!ended && course.capacity ? <div className="mt-6"><Seats taken={taken} capacity={course.capacity} /></div> : null}
+
                 {enrolled ? (
                   <>
                     <ButtonLink href={`/cont/cursuri/${course.slug}`} className="mt-8 w-full">Accesează cursul <Arrow /></ButtonLink>
                     <p className="mt-3 text-center text-xs text-muted">Ai achiziționat deja acest curs.</p>
                   </>
-                ) : ended ? (
-                  <>
-                    <p role="status" className="mt-8 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Înscrieri închise</p>
-                    <ButtonLink href="/contact" variant="ghost" className="mt-3 w-full">Întreabă de următoarea ediție</ButtonLink>
-                    <p className="mt-3 text-center text-xs text-muted">Ediția s-a încheiat. Scrie-ne și te anunțăm când se deschide următoarea.</p>
-                  </>
+                ) : ended || notOpen || soldOut ? (
+                  <div className="mt-8" id="lista-asteptare">
+                    {ended ? (
+                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Înscrieri închise</p>
+                    ) : notOpen ? (
+                      <div>
+                        <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-gold">Înscrierile se deschid în</p>
+                        <Countdown to={course.registration_opens_at!} />
+                      </div>
+                    ) : (
+                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Locuri epuizate</p>
+                    )}
+                    <p className="mb-4 mt-5 text-center text-xs leading-relaxed text-muted">
+                      {ended || soldOut ? "Lasă-ți datele și te anunțăm când se deschide următoarea ediție." : "Lasă-ți datele și îți scriem în momentul deschiderii."}
+                    </p>
+                    <WaitlistForm courseId={course.id} />
+                  </div>
                 ) : (
                   <>
                     <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold" className="mt-8 w-full">
@@ -205,6 +269,18 @@ export default async function CoursePage({ params }: Props) {
           </aside>
         </div>
       </Container>
+
+      {!enrolled && !ended && !notOpen && !soldOut ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-background/90 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
+          <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
+            <div>
+              <p className="text-[11px] uppercase tracking-widest text-muted">{free ? "Acces" : "Investiție"}</p>
+              <p className="text-xl font-semibold tracking-tight">{free ? "Gratuit" : formatPrice(finalPrice, course.currency)}</p>
+            </div>
+            <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold" className="px-6">Înscrie-te <Arrow /></ButtonLink>
+          </div>
+        </div>
+      ) : null}
 
       {others.length > 0 ? (
         <section className="border-t border-line bg-card py-20">

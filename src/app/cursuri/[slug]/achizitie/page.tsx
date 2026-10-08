@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
@@ -6,7 +7,7 @@ import { CheckoutForm } from "@/components/checkout-form";
 import { createClient } from "@/lib/supabase/server";
 import type { BillingProfile } from "@/lib/billing";
 import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings } from "@/lib/data";
-import { formatDateRange, formatPrice, isEnded } from "@/lib/format";
+import { formatDateRange, formatPrice, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { paymentsEnabled } from "@/lib/stripe";
 
@@ -16,7 +17,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();
-  if (isEnded(course, nowMs())) redirect(`/cursuri/${slug}`);
+  if (isEnded(course, nowMs()) || isNotOpen(course, nowMs())) redirect(`/cursuri/${slug}`);
+  const refCode = (await cookies()).get("dma_ref")?.value ?? "";
 
   let billingProfiles: BillingProfile[] = [];
   if (profile) {
@@ -52,6 +54,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             next={`/cursuri/${slug}/achizitie`}
             billingProfiles={billingProfiles}
             defaultName={profile?.full_name ?? ""}
+            defaultCode={refCode}
+            priceCents={course.price_cents}
+            currency={course.currency}
           />
         </section>
         <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" aria-label="Sumar comandă">

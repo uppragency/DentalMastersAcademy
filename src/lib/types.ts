@@ -28,6 +28,10 @@ export type Course = {
   audience: string[];
   outcomes: string[];
   sections: { title: string; items: string[] }[];
+  registration_opens_at: string | null;
+  next_edition_of: string | null;
+  promo_video_url: string | null;
+  faqs: { q: string; a: string }[];
   categories?: { name: string; slug: string } | null;
 };
 
@@ -47,6 +51,8 @@ export type LoyaltySettings = {
   courses_threshold: number | null;
   window_days: number | null;
   gold_discount_percent: number;
+  referral_friend_percent: number;
+  referral_reward_percent: number;
 };
 
 export type Testimonial = {

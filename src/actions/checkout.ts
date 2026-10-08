@@ -33,13 +33,14 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
 
   const { data: course } = await admin
     .from("courses")
-    .select("id, slug, title, currency, status, starts_at, ends_at")
+    .select("id, slug, title, currency, status, starts_at, ends_at, registration_opens_at")
     .eq("id", courseId)
     .eq("status", "published")
     .maybeSingle();
   if (!course) return { message: "Cursul nu mai este disponibil." };
   const endRef = course.ends_at ?? course.starts_at;
   if (endRef && new Date(endRef).getTime() < Date.now()) return { message: "Înscrierile pentru această ediție sunt închise. Scrie-ne pentru următoarea ediție." };
+  if (course.registration_opens_at && new Date(course.registration_opens_at).getTime() > Date.now()) return { message: "Înscrierile pentru această ediție nu s-au deschis încă." };
 
   // Billing details: a saved profile (owned by the signed-in user) or the submitted fields.
   const savedId = formData.get("billing_profile_id");
@@ -99,9 +100,16 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
 
   if (!billing) return { errors: billingFieldErrors };
 
-  const { data: rows, error: orderError } = await admin.rpc("create_order_for_course", { p_user: userId, p_course: courseId });
+  const rawCode = formData.get("discount_code");
+  const code = typeof rawCode === "string" && rawCode.trim() ? rawCode.trim().slice(0, 40) : null;
+  const { data: rows, error: orderError } = await admin.rpc("create_order_with_code", { p_user: userId, p_course: courseId, p_code: code });
   if (orderError) {
-    if (orderError.message.includes("already_enrolled")) redirect(`/cont/cursuri/${course.slug}`);
+    const m = orderError.message;
+    if (m.includes("already_enrolled")) redirect(`/cont/cursuri/${course.slug}`);
+    if (m.includes("invalid_code")) return { errors: { discount_code: ["Codul nu este valid."] } };
+    if (m.includes("sold_out")) return { message: "Locurile pentru această ediție s-au epuizat. Te putem anunța la următoarea ediție." };
+    if (m.includes("registration_closed")) return { message: "Înscrierile pentru această ediție sunt închise." };
+    if (m.includes("registration_not_open")) return { message: "Înscrierile pentru această ediție nu s-au deschis încă." };
     return { message: "Comanda nu a putut fi creată. Încearcă din nou." };
   }
   const order = (rows as { order_id: string | null; total_cents: number; currency: string; is_free: boolean }[])[0];

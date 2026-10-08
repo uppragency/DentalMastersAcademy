@@ -8,7 +8,10 @@ const items = [
   { href: "/admin/cursuri", label: "Cursuri" },
   { href: "/admin/comenzi", label: "Comenzi" },
   { href: "/admin/testimoniale", label: "Testimoniale" },
-  { href: "/admin/gold", label: "Program Gold" },
+  { href: "/admin/coduri", label: "Coduri reducere" },
+  { href: "/admin/asteptare", label: "Listă de așteptare" },
+  { href: "/admin/gold", label: "Program Gold și recomandări" },
+  { href: "/admin/jurnal", label: "Jurnal modificări" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

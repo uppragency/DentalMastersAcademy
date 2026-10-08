@@ -42,3 +42,39 @@ export async function sendPurchaseEmail(opts: {
 function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
+
+/** Generic branded transactional email. Returns false when email is not configured or sending fails. */
+export async function sendMail(opts: {
+  to: string | string[];
+  subject: string;
+  heading: string;
+  paragraphs: string[];
+  cta?: { label: string; href: string };
+  attachments?: { filename: string; content: string }[];
+}) {
+  const key = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM;
+  if (!key || !from) {
+    console.warn("Email skipped: RESEND_API_KEY or RESEND_FROM missing");
+    return false;
+  }
+  const resend = new Resend(key);
+  const html = `<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;max-width:520px;margin:0 auto;color:#0f1623;line-height:1.6">
+    <h1 style="font-size:22px;margin:0 0 16px">${escapeHtml(opts.heading)}</h1>
+    ${opts.paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
+    ${opts.cta ? `<p><a href="${opts.cta.href.startsWith("http") ? opts.cta.href : siteUrl() + opts.cta.href}" style="display:inline-block;background:#0b1220;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none">${escapeHtml(opts.cta.label)}</a></p>` : ""}
+    <p style="color:#5d6675;font-size:13px">Dental Masters Academy</p>
+  </div>`;
+  const { error } = await resend.emails.send({
+    from,
+    to: opts.to,
+    subject: opts.subject,
+    html,
+    attachments: opts.attachments,
+  });
+  if (error) {
+    console.error("Resend error", error);
+    return false;
+  }
+  return true;
+}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Course } from "@/lib/types";
 import { dayNum, formatDateRange, formatPrice, monthShort } from "@/lib/format";
 import { CourseArt } from "@/components/course-art";
+import { CardSeats } from "@/components/card-seats";
 
 export function CourseCard({ course, ended = false }: { course: Course; ended?: boolean }) {
   return (
@@ -35,6 +36,7 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
         <h3 className="font-display mt-3 text-balance text-2xl font-medium leading-tight">{course.title}</h3>
         {course.summary ? <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-muted">{course.summary}</p> : null}
         <p className="mt-auto pt-6 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>
+        {!ended && course.capacity ? <div className="mt-3"><CardSeats courseId={course.id} capacity={course.capacity} /></div> : null}
         <div className="mt-4 flex items-end justify-between border-t border-line pt-5">
           <div>
             {course.old_price_cents ? (
