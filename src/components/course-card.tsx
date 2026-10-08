@@ -19,7 +19,7 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
           </div>
         ) : null}
         <div className="absolute right-4 top-4 flex flex-col items-end gap-2 text-[11px] font-semibold">
-          {ended ? <span className="rounded-full bg-black/60 px-3 py-1 text-white backdrop-blur">Ediție încheiată</span> : null}
+          {ended ? <span className="rounded-full bg-red-600/90 px-3 py-1 text-white backdrop-blur">Înscrieri închise</span> : null}
           {course.gold_free ? <span className="rounded-full bg-gold px-3 py-1 text-white">Gratuit Gold</span> : null}
         </div>
         {course.language ? (
@@ -42,6 +42,7 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
             ) : null}
             <span className="text-xl font-semibold tracking-tight">{formatPrice(course.price_cents, course.currency)}</span>
           </div>
+          {ended ? <span className="sr-only">Înscrierile sunt închise</span> : null}
           <span className="inline-flex size-10 items-center justify-center rounded-full bg-ink text-white transition-all duration-300 group-hover:bg-gold group-hover:pl-0.5">
             <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 15L15 5M7 5h8v8" /></svg>
           </span>

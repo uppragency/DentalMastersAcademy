@@ -58,7 +58,7 @@ export default async function CoursesPage({ searchParams }: Props) {
               <nav aria-label="Filtrare după perioadă" className="flex flex-wrap gap-2">
                 <Link href={href({ ...cur, p: undefined })} className={chip(!when)}>Toate</Link>
                 <Link href={href({ ...cur, p: "viitoare" })} className={chip(when === "viitoare")}>Înscrieri deschise</Link>
-                <Link href={href({ ...cur, p: "incheiate" })} className={chip(when === "incheiate")}>Ediții încheiate</Link>
+                <Link href={href({ ...cur, p: "incheiate" })} className={chip(when === "incheiate")}>Înscrieri închise</Link>
               </nav>
               <nav aria-label="Filtrare după format" className="flex flex-wrap gap-2">
                 <Link href={href({ ...cur, f: undefined })} className={chip(!format)}>Orice format</Link>

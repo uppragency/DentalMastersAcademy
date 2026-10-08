@@ -58,7 +58,7 @@ export default async function CoursePage({ params }: Props) {
           </nav>
           <div className="rise mt-8 flex flex-wrap items-center gap-2 text-xs font-semibold" style={{ ["--d" as string]: "80ms" }}>
             {course.categories ? <span className="rounded-full bg-gold-bright px-3.5 py-1.5 uppercase tracking-widest text-ink">{course.categories.name}</span> : null}
-            {ended ? <span className="rounded-full border border-white/30 px-3.5 py-1.5 text-white/80">Ediție încheiată</span> : null}
+            {ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Înscrieri închise</span> : null}
             {course.gold_free ? <span className="rounded-full border border-gold-bright/60 px-3.5 py-1.5 text-gold-bright">Gratuit pentru membrii Gold</span> : null}
           </div>
           <h1 className="rise font-display mt-6 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "160ms" }}>{course.title}</h1>
@@ -161,7 +161,7 @@ export default async function CoursePage({ params }: Props) {
           <aside className="lg:sticky lg:top-28 lg:self-start" aria-label="Înscriere">
             <div className="overflow-hidden rounded-[2rem] border border-line bg-card shadow-[0_40px_80px_-40px_rgba(8,13,23,.5)]">
               <div className="p-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{enrolled ? "Status" : "Investiție"}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{enrolled ? "Status" : ended ? "Preț ediție" : "Investiție"}</p>
                 <p className="font-display mt-2 text-5xl font-medium tracking-tight">
                   {enrolled ? "Achiziționat" : free ? "Gratuit" : formatPrice(finalPrice, course.currency)}
                 </p>
@@ -185,8 +185,9 @@ export default async function CoursePage({ params }: Props) {
                   </>
                 ) : ended ? (
                   <>
-                    <ButtonLink href="/contact" variant="ghost" className="mt-8 w-full">Întreabă de următoarea ediție</ButtonLink>
-                    <p className="mt-3 text-center text-xs text-muted">Această ediție s-a încheiat.</p>
+                    <p role="status" className="mt-8 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Înscrieri închise</p>
+                    <ButtonLink href="/contact" variant="ghost" className="mt-3 w-full">Întreabă de următoarea ediție</ButtonLink>
+                    <p className="mt-3 text-center text-xs text-muted">Ediția s-a încheiat. Scrie-ne și te anunțăm când se deschide următoarea.</p>
                   </>
                 ) : (
                   <>

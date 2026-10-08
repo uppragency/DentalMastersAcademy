@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/ui";
 import { CourseArt } from "@/components/course-art";
 import { CheckoutForm } from "@/components/checkout-form";
+import { createClient } from "@/lib/supabase/server";
+import type { BillingProfile } from "@/lib/billing";
 import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings } from "@/lib/data";
 import { formatDateRange, formatPrice, isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
@@ -15,6 +17,16 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();
   if (isEnded(course, nowMs())) redirect(`/cursuri/${slug}`);
+
+  let billingProfiles: BillingProfile[] = [];
+  if (profile) {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("billing_profiles")
+      .select("id, kind, name, cui, reg_com, address, city, county, country")
+      .order("created_at", { ascending: false });
+    billingProfiles = (data ?? []) as BillingProfile[];
+  }
   if (profile && (await getEnrolledCourseIds(profile.id)).includes(course.id)) redirect(`/cont/cursuri/${slug}`);
 
   const isGold = profile?.tier === "gold" && loyalty?.is_active;
@@ -38,6 +50,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             enabled={paymentsEnabled()}
             free={free}
             next={`/cursuri/${slug}/achizitie`}
+            billingProfiles={billingProfiles}
+            defaultName={profile?.full_name ?? ""}
           />
         </section>
         <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" aria-label="Sumar comandă">

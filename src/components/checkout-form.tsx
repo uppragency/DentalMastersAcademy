@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { startCheckout } from "@/actions/checkout";
 import { Button, Field } from "@/components/ui";
+import { BillingSection } from "@/components/billing-section";
+import type { BillingProfile } from "@/lib/billing";
 
 export function CheckoutForm({
   courseId,
@@ -11,12 +13,16 @@ export function CheckoutForm({
   enabled,
   free,
   next,
+  billingProfiles,
+  defaultName,
 }: {
   courseId: string;
   signedIn: boolean;
   enabled: boolean;
   free: boolean;
   next: string;
+  billingProfiles: BillingProfile[];
+  defaultName: string;
 }) {
   const [state, action, pending] = useActionState(startCheckout.bind(null, courseId), undefined);
   const e = state?.errors;
@@ -43,6 +49,13 @@ export function CheckoutForm({
             </label>
             {e?.accept_terms?.[0] ? <p className="mt-1.5 text-sm text-red-700">{e.accept_terms[0]}</p> : null}
           </div>
+        </>
+      ) : null}
+
+      {!free ? (
+        <>
+          <div className="border-t border-line" />
+          <BillingSection key={`${signedIn}`} profiles={billingProfiles} defaultName={defaultName} errors={e} />
         </>
       ) : null}
 

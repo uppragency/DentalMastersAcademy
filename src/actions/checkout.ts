@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe, paymentsEnabled } from "@/lib/stripe";
 import type { FormState } from "@/actions/auth";
+import { readBilling, type BillingInput } from "@/lib/billing";
 
 const guestSchema = z.object({
   full_name: z.string().trim().min(2, { error: "Introdu numele complet." }).max(120),
@@ -38,7 +39,28 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     .maybeSingle();
   if (!course) return { message: "Cursul nu mai este disponibil." };
   const endRef = course.ends_at ?? course.starts_at;
-  if (endRef && new Date(endRef).getTime() < Date.now()) return { message: "Această ediție s-a încheiat. Scrie-ne pentru următoarea ediție." };
+  if (endRef && new Date(endRef).getTime() < Date.now()) return { message: "Înscrierile pentru această ediție sunt închise. Scrie-ne pentru următoarea ediție." };
+
+  // Billing details: a saved profile (owned by the signed-in user) or the submitted fields.
+  const savedId = formData.get("billing_profile_id");
+  let billing: BillingInput | null = null;
+  let billingFieldErrors: Record<string, string[]> | undefined;
+  if (userId && typeof savedId === "string" && savedId && formData.get("billing_mode") === "saved") {
+    const { data: saved } = await admin
+      .from("billing_profiles")
+      .select("kind, name, cui, reg_com, address, city, county")
+      .eq("id", savedId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!saved) return { message: "Profilul de facturare selectat nu a fost găsit." };
+    billing = { ...saved, cui: saved.cui ?? "", reg_com: saved.reg_com ?? undefined } as BillingInput;
+  } else {
+    const parsedBilling = readBilling(formData);
+    if (!parsedBilling.success) {
+      const fe = z.flattenError(parsedBilling.error).fieldErrors as Record<string, string[]>;
+      billingFieldErrors = Object.fromEntries(Object.entries(fe).map(([k, v]) => [`billing_${k}`, v]));
+    } else billing = parsedBilling.data;
+  }
 
   if (!userId) {
     const parsed = guestSchema.safeParse({
@@ -49,7 +71,9 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
       password: formData.get("password"),
       accept_terms: formData.get("accept_terms"),
     });
-    if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
+    if (!parsed.success || billingFieldErrors) {
+      return { errors: { ...(parsed.success ? {} : z.flattenError(parsed.error).fieldErrors), ...billingFieldErrors } };
+    }
 
     const { email, password, accept_terms: _t, ...meta } = parsed.data;
     void _t;
@@ -73,6 +97,8 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     newAccount = true;
   }
 
+  if (!billing) return { errors: billingFieldErrors };
+
   const { data: rows, error: orderError } = await admin.rpc("create_order_for_course", { p_user: userId, p_course: courseId });
   if (orderError) {
     if (orderError.message.includes("already_enrolled")) redirect(`/cont/cursuri/${course.slug}`);
@@ -81,6 +107,20 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
   const order = (rows as { order_id: string | null; total_cents: number; currency: string; is_free: boolean }[])[0];
   if (!order) return { message: "Comanda nu a putut fi creată." };
   if (order.is_free || !order.order_id) redirect(`/cont/cursuri/${course.slug}`);
+
+  await admin.from("orders").update({ billing }).eq("id", order.order_id);
+  if (formData.get("billing_save") === "on" && formData.get("billing_mode") !== "saved") {
+    await admin.from("billing_profiles").insert({
+      user_id: userId,
+      kind: billing.kind,
+      name: billing.name,
+      cui: billing.kind === "company" ? billing.cui : null,
+      reg_com: billing.kind === "company" ? (billing.reg_com ?? null) : null,
+      address: billing.address,
+      city: billing.city,
+      county: billing.county,
+    });
+  }
 
   const stripe = getStripe()!;
   const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";

@@ -57,3 +57,10 @@ export async function changePassword(_: FormState, formData: FormData): Promise<
   if (error) return { message: "Parola nu a putut fi schimbată. Încearcă din nou." };
   return { message: "Parola a fost schimbată." };
 }
+
+export async function deleteBillingProfile(id: string) {
+  const supabase = await createClient();
+  // RLS restricts deletion to the owner's rows
+  await supabase.from("billing_profiles").delete().eq("id", id);
+  revalidatePath("/cont/profil");
+}
