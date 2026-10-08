@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AutoRefresh } from "@/components/auto-refresh";
+import { ClearCheckoutDraft } from "@/components/checkout-draft";
 import { CopyButton } from "@/components/copy-button";
 import { CourseImage } from "@/components/course-image";
 import { ButtonLink, Container } from "@/components/ui";
@@ -50,6 +51,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
 
   return (
     <>
+      <ClearCheckoutDraft />
       {waiting ? <AutoRefresh /> : null}
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
         <div aria-hidden="true" className="grid-lines absolute inset-0 -z-10" />

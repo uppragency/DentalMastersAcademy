@@ -8,6 +8,7 @@ export const metadata: Metadata = { title: "Politica de cookies", robots: { inde
 const rows = [
   { name: "sb-*-auth-token", purpose: "Menține sesiunea ta autentificată în cont.", duration: "Sesiune, reînnoit la autentificare", kind: "Strict necesar" },
   { name: "dma_ref", purpose: "Reține codul de recomandare din linkul primit, pentru a aplica reducerea la prima achiziție.", duration: "30 de zile", kind: "Funcțional" },
+  { name: "dma-checkout:* (localStorage)", purpose: "Păstrează datele completate în formularul de comandă (fără parolă), ca să nu le pierzi dacă ieși din pagină. Se șterge după comandă.", duration: "Maximum 7 zile", kind: "Funcțional" },
   { name: "dma-theme (localStorage)", purpose: "Reține preferința pentru tema luminoasă sau întunecată.", duration: "Până la ștergere", kind: "Preferințe" },
 ];
 

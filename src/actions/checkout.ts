@@ -102,6 +102,19 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
 
   if (!billing) return { errors: billingFieldErrors };
 
+  // Signed-in buyers can add a missing phone or specialization; never overwrite what the profile already has.
+  if (!newAccount) {
+    const phone = String(formData.get("phone") ?? "").trim().slice(0, 40);
+    const spec = String(formData.get("specialization") ?? "").trim().slice(0, 120);
+    if (phone || spec) {
+      const { data: cur } = await admin.from("profiles").select("phone, specialization").eq("id", userId).maybeSingle();
+      const patch: { phone?: string; specialization?: string } = {};
+      if (phone && !cur?.phone) patch.phone = phone;
+      if (spec && !cur?.specialization) patch.specialization = spec;
+      if (Object.keys(patch).length) await admin.from("profiles").update(patch).eq("id", userId);
+    }
+  }
+
   const rawCode = formData.get("discount_code");
   const code = typeof rawCode === "string" && rawCode.trim() ? rawCode.trim().slice(0, 40) : null;
   const rawPoints = Number(formData.get("points") ?? 0);

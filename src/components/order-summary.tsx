@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { previewDiscount, type DiscountPreview } from "@/actions/commerce";
 import { formatPrice } from "@/lib/format";
+import { checkoutTotals } from "@/lib/checkout-store";
 
 /** Price breakdown with the discount code field. The input belongs to the checkout form via the form attribute. */
 export function OrderSummary({
@@ -32,6 +33,9 @@ export function OrderSummary({
   const [preview, setPreview] = useState<DiscountPreview | null>(null);
   const [checking, start] = useTransition();
   const [wantPoints, setWantPoints] = useState(0);
+  const [codeOpen, setCodeOpen] = useState(defaultCode.length > 0);
+  const [summaryVisible, setSummaryVisible] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
   const tierDisc = Math.round((priceCents * tierPercent) / 100);
   const codeOk = preview?.ok ? preview.discountCents! : 0;
   const discount = Math.max(tierDisc, codeOk);
@@ -41,10 +45,38 @@ export function OrderSummary({
   const pointsDisc = Math.round(points * pointValueCents);
   const total = net - pointsDisc;
   const apply = () => start(async () => setPreview(await previewDiscount(courseId, code)));
+  const savings = free ? 0 : priceCents - total;
+
+  // Live check: validates the code shortly after typing stops (and once for a code coming from a referral link).
+  useEffect(() => {
+    const c = code.trim();
+    if (!c || free) return;
+    const t = setTimeout(() => {
+      start(async () => setPreview(await previewDiscount(courseId, c)));
+    }, 600);
+    return () => clearTimeout(t);
+  }, [code, courseId, free]);
+
+  useEffect(() => {
+    checkoutTotals.publish({ total, savings, currency, free });
+  }, [total, savings, currency, free]);
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setSummaryVisible(Boolean(e?.isIntersecting)), { threshold: 0.15 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <>
-      {!free ? (
+      {!free && !codeOpen ? (
+        <div className="mt-5 border-t border-line pt-4">
+          <button type="button" onClick={() => setCodeOpen(true)} className="min-h-10 text-sm font-medium underline underline-offset-4 hover:text-gold">Ai un cod de reducere?</button>
+        </div>
+      ) : null}
+      {!free && codeOpen ? (
         <div className="mt-5 border-t border-line pt-5">
           <label htmlFor="discount_code" className="mb-1.5 block text-sm font-medium">Cod de reducere sau de recomandare</label>
           <div className="flex gap-2">
@@ -63,6 +95,7 @@ export function OrderSummary({
               {checking ? "..." : "Aplică"}
             </button>
           </div>
+          {checking && !preview ? <p className="mt-2 text-sm text-muted">Se verifică codul...</p> : null}
           {preview ? <p role="status" className={`mt-2 text-sm ${preview.ok ? "text-gold" : "text-red-700"}`}>{preview.ok ? "Cod aplicat." : preview.message}</p> : null}
         </div>
       ) : null}
@@ -110,7 +143,24 @@ export function OrderSummary({
         <div className="flex justify-between border-t border-line pt-3 text-lg font-semibold">
           <dt>Total</dt><dd>{free ? "Gratuit" : formatPrice(total, currency)}</dd>
         </div>
+        {savings > 0 ? (
+          <div className="flex justify-end"><span className="rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-gold">Economisești {formatPrice(savings, currency)}</span></div>
+        ) : null}
       </dl>
+      <div ref={box} aria-hidden="true" className="h-px" />
+
+      <div className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 px-5 py-3 backdrop-blur transition-transform duration-300 lg:hidden ${summaryVisible ? "translate-y-full" : "translate-y-0"}`}>
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
+          <div>
+            <p className="text-xs text-muted">Total comandă</p>
+            <p className="flex items-center gap-2 text-lg font-semibold">
+              {free ? "Gratuit" : formatPrice(total, currency)}
+              {savings > 0 ? <span className="rounded-full bg-gold-soft px-2 py-0.5 text-[11px] font-semibold text-gold">−{formatPrice(savings, currency)}</span> : null}
+            </p>
+          </div>
+          <a href="#sumar-comanda" className="inline-flex min-h-11 items-center rounded-full border border-line px-5 text-sm font-medium">Vezi detaliile</a>
+        </div>
+      </div>
     </>
   );
 }

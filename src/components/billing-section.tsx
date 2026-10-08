@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { lookupCui } from "@/actions/anaf";
 import { Field } from "@/components/ui";
 import type { BillingProfile } from "@/lib/billing";
 
@@ -64,6 +65,15 @@ export function BillingSection({
 
   const [kind, setKind] = useState<Kind>("individual");
   const [values, setValues] = useState<Values>(empty(defaultName));
+  const [lookingUp, startLookup] = useTransition();
+  const [cuiNote, setCuiNote] = useState<{ ok: boolean; text: string } | null>(null);
+  const fetchCui = () =>
+    startLookup(async () => {
+      const r = await lookupCui(values.cui);
+      if (!r.ok) return setCuiNote({ ok: false, text: r.message });
+      setValues((v) => ({ ...v, name: r.name || v.name, reg_com: r.reg_com || v.reg_com, address: r.address || v.address, city: r.city || v.city, county: r.county || v.county }));
+      setCuiNote({ ok: true, text: "Datele firmei au fost completate. Verifică-le înainte de plată." });
+    });
 
   const isSaved = mode === "saved" && selected;
   const current: Values = isSaved ? fromProfile(selected) : values;
@@ -128,6 +138,14 @@ export function BillingSection({
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="CUI / CIF" name="billing_cui" placeholder="RO12345678" value={current.cui} onChange={set("cui")} readOnly={readOnly} required error={err("cui")} />
           <Field label="Nr. Reg. Com. (opțional)" name="billing_reg_com" placeholder="J40/123/2020" value={current.reg_com} onChange={set("reg_com")} readOnly={readOnly} error={err("reg_com")} />
+          {!readOnly ? (
+            <div className="sm:col-span-2">
+              <button type="button" onClick={fetchCui} disabled={lookingUp || values.cui.replace(/\D/g, "").length < 2} className="min-h-11 rounded-full border border-line px-5 text-sm font-medium transition-colors hover:border-foreground/30 disabled:opacity-50">
+                {lookingUp ? "Se caută..." : "Completează automat după CUI"}
+              </button>
+              {cuiNote ? <p role="status" className={`mt-2 text-sm ${cuiNote.ok ? "text-gold" : "text-red-700"}`}>{cuiNote.text}</p> : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
       <Field label="Adresă" name="billing_address" autoComplete="street-address" value={current.address} onChange={set("address")} readOnly={readOnly} required error={err("address")} />

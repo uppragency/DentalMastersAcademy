@@ -48,12 +48,22 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   return (
     <div className="bg-background">
       <div className="grain relative overflow-hidden bg-ink text-white">
-        <Container className="py-14">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright">Finalizare comandă</p>
-          <h1 className="font-display mt-4 text-5xl font-medium">Înscriere la curs</h1>
+        <Container className="py-6 sm:py-8">
+          <h1 className="sr-only">Finalizare comandă: {course.title}</h1>
+          <ol aria-label="Pașii comenzii" className="flex items-center gap-3 text-sm sm:gap-5">
+            {["Date", "Plată", "Confirmare"].map((label, i) => (
+              <li key={label} className="flex items-center gap-3 sm:gap-5" aria-current={i === 0 ? "step" : undefined}>
+                <span className={`flex items-center gap-2.5 ${i === 0 ? "text-white" : "text-white/45"}`}>
+                  <span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${i === 0 ? "bg-gold-bright text-ink" : "border border-white/25"}`}>{i + 1}</span>
+                  <span className="font-medium">{label}</span>
+                </span>
+                {i < 2 ? <span aria-hidden="true" className="h-px w-6 bg-white/25 sm:w-12" /> : null}
+              </li>
+            ))}
+          </ol>
         </Container>
       </div>
-      <Container className="grid gap-8 py-12 lg:grid-cols-[1fr_26rem] lg:py-16">
+      <Container className="grid gap-8 py-10 pb-28 lg:grid-cols-[1fr_26rem] lg:py-16 lg:pb-16">
         <section className="rounded-[2rem] border border-line bg-card p-8 sm:p-10" aria-label="Date comandă">
           <CheckoutForm
             courseId={course.id}
@@ -65,13 +75,22 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             defaultName={profile?.full_name ?? ""}
             methods={courseMethods(course.payment_methods)}
             deadlineLabel={formatDeadline(transferDeadline())}
+            missingProfile={{ phone: Boolean(profile) && !profile?.phone, specialization: Boolean(profile) && !profile?.specialization }}
           />
         </section>
-        <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" aria-label="Sumar comandă">
+        <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" id="sumar-comanda" aria-label="Sumar comandă">
           <div className="relative aspect-[16/9] bg-ink"><CourseImage course={course} variant="thumb" sizes="(min-width: 1024px) 400px, 100vw" className="size-full" /></div>
           <div className="p-7">
             <h2 className="font-display text-2xl leading-snug">{course.title}</h2>
             <p className="mt-1 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>
+            <ul aria-label="Ce primești" className="mt-4 space-y-2 text-sm">
+              {(course.format === "online"
+                ? ["Acces la lecții în contul tău", "Progresul tău se salvează automat"]
+                : ["Adeverință de participare cu număr unic verificabil", "Materiale disponibile 12 luni după curs", ...(course.capacity ? [`Grup de maximum ${course.capacity} participanți`] : [])]
+              ).map((t) => (
+                <li key={t} className="flex gap-2.5"><span aria-hidden="true" className="text-gold">✓</span><span>{t}</span></li>
+              ))}
+            </ul>
             <OrderSummary
               courseId={course.id}
               priceCents={course.price_cents}
