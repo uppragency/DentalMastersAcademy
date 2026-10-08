@@ -32,11 +32,13 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
 
   const { data: course } = await admin
     .from("courses")
-    .select("id, slug, title, currency, status")
+    .select("id, slug, title, currency, status, starts_at, ends_at")
     .eq("id", courseId)
     .eq("status", "published")
     .maybeSingle();
   if (!course) return { message: "Cursul nu mai este disponibil." };
+  const endRef = course.ends_at ?? course.starts_at;
+  if (endRef && new Date(endRef).getTime() < Date.now()) return { message: "Această ediție s-a încheiat. Scrie-ne pentru următoarea ediție." };
 
   if (!userId) {
     const parsed = guestSchema.safeParse({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { addTestimonial, deleteCourse, saveCourse, saveLoyalty } from "@/actions/admin";
+import { addLesson, addTestimonial, deleteCourse, saveCourse, saveLoyalty } from "@/actions/admin";
 import { Button, Field } from "@/components/ui";
 import type { Category, Course, LoyaltySettings } from "@/lib/types";
 
@@ -15,7 +15,11 @@ function Status({ message }: { message?: string }) {
 export function CourseForm({ course, categories }: { course?: Course; categories: Category[] }) {
   const [state, action, pending] = useActionState(saveCourse.bind(null, course?.id ?? null), undefined);
   const e = state?.errors;
-  const date = course?.starts_at ? course.starts_at.slice(0, 10) : "";
+  const fmtDay = (iso: string | null | undefined) =>
+    iso ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Bucharest" }).format(new Date(iso)) : "";
+  const date = fmtDay(course?.starts_at);
+  const endDate = fmtDay(course?.ends_at);
+  const sectionsText = (course?.sections ?? []).map((s) => [s.title, ...s.items.map((i) => `- ${i}`)].join("\n")).join("\n\n");
 
   return (
     <form action={action} className="space-y-5">
@@ -47,14 +51,36 @@ export function CourseForm({ course, categories }: { course?: Course; categories
         <textarea id="description" name="description" rows={6} defaultValue={course?.description ?? ""} className={area} />
       </div>
       <div>
+        <label htmlFor="outcomes" className="mb-1.5 block text-sm font-medium">Ce vei învăța (câte un punct pe rând)</label>
+        <textarea id="outcomes" name="outcomes" rows={5} defaultValue={(course?.outcomes ?? []).join("\n")} className={area} />
+      </div>
+      <div>
+        <label htmlFor="audience" className="mb-1.5 block text-sm font-medium">Pentru cine este (câte un punct pe rând)</label>
+        <textarea id="audience" name="audience" rows={4} defaultValue={(course?.audience ?? []).join("\n")} className={area} />
+      </div>
+      <div>
+        <label htmlFor="sections" className="mb-1.5 block text-sm font-medium">Programa structurată (titlu pe primul rând, puncte cu „-”, blocuri separate printr-un rând gol)</label>
+        <textarea id="sections" name="sections" rows={8} defaultValue={sectionsText} className={area} />
+      </div>
+      <div>
         <label htmlFor="syllabus" className="mb-1.5 block text-sm font-medium">Programa</label>
         <textarea id="syllabus" name="syllabus" rows={6} defaultValue={course?.syllabus ?? ""} className={area} />
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Formator" name="trainer_name" defaultValue={course?.trainer_name ?? ""} />
-        <Field label="Data" name="starts_on" type="date" defaultValue={date} />
+        <Field label="Data de început" name="starts_on" type="date" defaultValue={date} />
+        <Field label="Data de final (opțional)" name="ends_on" type="date" defaultValue={endDate} />
+        <Field label="Limba" name="language" defaultValue={course?.language ?? ""} />
         <Field label="Locație" name="location" defaultValue={course?.location ?? ""} />
-        <Field label="Preț (RON)" name="price_ron" type="number" step="0.01" min="0" defaultValue={course ? course.price_cents / 100 : ""} required error={e?.price_ron?.[0]} />
+        <Field label="Preț" name="price" type="number" step="0.01" min="0" defaultValue={course ? course.price_cents / 100 : ""} required error={e?.price?.[0]} />
+        <Field label="Preț vechi, tăiat (opțional)" name="old_price" type="number" step="0.01" min="0" defaultValue={course?.old_price_cents ? course.old_price_cents / 100 : ""} />
+        <div>
+          <label htmlFor="currency" className="mb-1.5 block text-sm font-medium">Moneda</label>
+          <select id="currency" name="currency" defaultValue={(course?.currency ?? "RON").trim()} className="min-h-12 w-full rounded-xl border border-line bg-card px-4 text-base">
+            <option value="RON">RON</option>
+            <option value="EUR">EUR</option>
+          </select>
+        </div>
         <Field label="Locuri (opțional)" name="capacity" type="number" min="1" defaultValue={course?.capacity ?? ""} />
         <div>
           <label htmlFor="status" className="mb-1.5 block text-sm font-medium">Status</label>
@@ -111,13 +137,33 @@ export function LoyaltyForm({ settings }: { settings: LoyaltySettings }) {
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={settings.is_active} className="size-4 accent-[#a9833d]" /> Program Gold activ</label>
       <p className="text-sm text-muted">Un medic devine Gold dacă îndeplinește oricare dintre praguri. Lasă gol sau 0 pentru a dezactiva un prag.</p>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Prag valoare achiziții (RON)" name="spend_ron" type="number" min="0" step="1" defaultValue={settings.spend_threshold_cents ? settings.spend_threshold_cents / 100 : ""} error={e?.spend_ron?.[0]} />
+        <Field label="Prag valoare achiziții (în moneda cursurilor)" name="spend_ron" type="number" min="0" step="1" defaultValue={settings.spend_threshold_cents ? settings.spend_threshold_cents / 100 : ""} error={e?.spend_ron?.[0]} />
         <Field label="Prag număr cursuri" name="courses_threshold" type="number" min="0" defaultValue={settings.courses_threshold ?? ""} error={e?.courses_threshold?.[0]} />
         <Field label="Perioadă de calcul (zile, gol = tot istoricul)" name="window_days" type="number" min="0" defaultValue={settings.window_days ?? ""} error={e?.window_days?.[0]} />
         <Field label="Reducere Gold (%)" name="gold_discount_percent" type="number" min="0" max="100" step="0.5" defaultValue={Number(settings.gold_discount_percent)} required error={e?.gold_discount_percent?.[0]} />
       </div>
       <Status message={state?.message} />
       <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează setările"}</Button>
+    </form>
+  );
+}
+
+export function LessonForm({ courseId }: { courseId: string }) {
+  const [state, action, pending] = useActionState(addLesson.bind(null, courseId), undefined);
+  const e = state?.errors;
+  return (
+    <form action={action} className="space-y-5">
+      <Field label="Titlul lecției" name="title" required error={e?.title?.[0]} />
+      <Field label="Link video (YouTube, Vimeo sau fișier .mp4, https)" name="video_url" type="url" error={e?.video_url?.[0]} />
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Durată (minute)" name="duration_min" type="number" min="0" error={e?.duration_min?.[0]} />
+      </div>
+      <div>
+        <label htmlFor="lesson_description" className="mb-1.5 block text-sm font-medium">Descriere (opțional)</label>
+        <textarea id="lesson_description" name="description" rows={3} className={area} />
+      </div>
+      <Status message={state?.message} />
+      <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Adaugă lecția"}</Button>
     </form>
   );
 }

@@ -11,9 +11,9 @@ export default async function MyOrders() {
   const orders = await getMyOrders(profile.id);
   return (
     <div>
-      <h1 className="text-3xl font-semibold tracking-tight">Istoric achiziții</h1>
+      <h1 className="font-display text-5xl font-medium">Istoric achiziții</h1>
       {orders.length > 0 ? (
-        <div className="mt-8 overflow-x-auto rounded-3xl border border-line bg-card">
+        <div className="mt-8 overflow-x-auto rounded-[2rem] border border-line bg-card">
           <table className="w-full min-w-[32rem] text-left text-sm">
             <thead className="border-b border-line text-muted">
               <tr><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3 font-medium">Curs</th><th className="px-5 py-3 font-medium">Total</th><th className="px-5 py-3 font-medium">Status</th></tr>

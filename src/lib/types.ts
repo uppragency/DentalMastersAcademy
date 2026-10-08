@@ -22,6 +22,12 @@ export type Course = {
   status: "draft" | "published" | "archived";
   is_featured: boolean;
   gold_free: boolean;
+  language: string | null;
+  ends_at: string | null;
+  old_price_cents: number | null;
+  audience: string[];
+  outcomes: string[];
+  sections: { title: string; items: string[] }[];
   categories?: { name: string; slug: string } | null;
 };
 
@@ -49,4 +55,24 @@ export type Testimonial = {
   author_title: string | null;
   quote: string;
   photo_url: string | null;
+};
+
+export type Notification = {
+  id: string;
+  kind: string;
+  title: string;
+  body: string | null;
+  href: string | null;
+  read_at: string | null;
+  created_at: string;
+};
+
+export type Lesson = {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string | null;
+  video_url: string | null;
+  duration_min: number | null;
+  position: number;
 };

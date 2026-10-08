@@ -9,7 +9,7 @@ export default async function ProfilePage() {
   return (
     <div className="max-w-xl space-y-12">
       <section aria-labelledby="data-title">
-        <h1 id="data-title" className="text-3xl font-semibold tracking-tight">Date personale</h1>
+        <h1 id="data-title" className="font-display text-4xl font-medium">Date personale</h1>
         <div className="mt-6 rounded-3xl border border-line bg-card p-7"><ProfileForm profile={profile} /></div>
       </section>
       <section aria-labelledby="pass-title">

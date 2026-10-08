@@ -30,8 +30,8 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
 
   const stats = [
     { label: "Cursuri achiziționate", value: String(courses.length) },
-    { label: "Total investit", value: formatPrice(gold.spentCents, "RON") },
-    { label: "Economisit cu Gold", value: formatPrice(gold.savedCents, "RON") },
+    { label: "Total investit", value: formatPrice(gold.spentCents, "EUR") },
+    { label: "Economisit cu Gold", value: formatPrice(gold.savedCents, "EUR") },
   ];
 
   return (
@@ -44,21 +44,21 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
 
       <header>
         <Eyebrow>Contul meu</Eyebrow>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight">Bună{firstName ? `, ${firstName}` : ""}.</h1>
+        <h1 className="font-display mt-4 text-5xl font-medium sm:text-6xl">Bună{firstName ? `, ${firstName}` : ""}.</h1>
       </header>
 
       <dl className="grid gap-4 sm:grid-cols-3">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-3xl border border-line bg-card p-6">
+          <div key={s.label} className="rounded-[2rem] border border-line bg-card p-7">
             <dt className="text-sm text-muted">{s.label}</dt>
-            <dd className="mt-2 text-3xl font-semibold tracking-tight">{s.value}</dd>
+            <dd className="font-display mt-3 text-5xl">{s.value}</dd>
           </div>
         ))}
       </dl>
 
-      <section aria-labelledby="gold-title" className={`rounded-3xl p-7 sm:p-9 ${isGold ? "bg-ink text-white" : "border border-line bg-card"}`}>
+      <section aria-labelledby="gold-title" className={`rounded-[2rem] p-8 sm:p-10 ${isGold ? "bg-gradient-to-br from-[#14100a] to-[#2e220d] text-white" : "border border-line bg-card"}`}>
         <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isGold ? "text-[#d9b873]" : "text-gold"}`}>Program Gold</p>
-        <h2 id="gold-title" className="mt-2 text-2xl font-semibold tracking-tight">
+        <h2 id="gold-title" className="mt-2 font-display text-3xl">
           {isGold ? "Ești membru Gold" : "Drumul tău spre Gold"}
         </h2>
         {isGold ? (
@@ -80,7 +80,7 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
             <p className="mt-3 text-sm text-muted">
               {gold.percent}% completat.{" "}
               {[
-                gold.remainingCents !== null ? `Mai ai ${formatPrice(gold.remainingCents, "RON")} în achiziții` : null,
+                gold.remainingCents !== null ? `Mai ai ${formatPrice(gold.remainingCents, "EUR")} în achiziții` : null,
                 gold.remainingCourses !== null ? `${gold.remainingCourses} ${gold.remainingCourses === 1 ? "curs" : "cursuri"}` : null,
               ]
                 .filter(Boolean)
@@ -95,8 +95,8 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
 
       {next ? (
         <section aria-labelledby="next-title">
-          <h2 id="next-title" className="text-2xl font-semibold tracking-tight">Următorul curs</h2>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-5 rounded-3xl border border-line bg-card p-6">
+          <h2 id="next-title" className="font-display text-3xl">Următorul curs</h2>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-5 rounded-[2rem] border border-line bg-card p-7">
             <div>
               <p className="text-lg font-semibold">{next.title}</p>
               <p className="mt-1 text-sm text-muted">
@@ -120,7 +120,7 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
 
       {suggestions.length > 0 ? (
         <section aria-labelledby="rec-title">
-          <h2 id="rec-title" className="text-2xl font-semibold tracking-tight">Recomandate pentru tine</h2>
+          <h2 id="rec-title" className="font-display text-3xl">Recomandate pentru tine</h2>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             {suggestions.map((c) => <CourseCard key={c.id} course={c} />)}
           </div>

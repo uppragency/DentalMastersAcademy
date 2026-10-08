@@ -23,6 +23,28 @@ function slugify(input: string) {
     .slice(0, 80);
 }
 
+/** "YYYY-MM-DD" + hour in Europe/Bucharest to an ISO instant (handles DST). */
+function bucharestIso(date: string, hour: number) {
+  const guess = new Date(`${date}T${String(hour).padStart(2, "0")}:00:00Z`);
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Bucharest", hour: "2-digit", hourCycle: "h23" }).formatToParts(guess);
+  const localHour = Number(parts.find((p) => p.type === "hour")?.value ?? hour);
+  let offset = localHour - hour;
+  if (offset > 12) offset -= 24;
+  if (offset < -12) offset += 24;
+  return new Date(guess.getTime() - offset * 3_600_000).toISOString();
+}
+
+const lines = (v: string | undefined) => (v ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+
+/** Blocks separated by a blank line: first line = title, next lines = items. */
+function parseSections(v: string | undefined) {
+  return (v ?? "")
+    .split(/\n\s*\n/)
+    .map((b) => b.split("\n").map((l) => l.replace(/^[-•]\s*/, "").trim()).filter(Boolean))
+    .filter((b) => b.length > 0)
+    .map(([title, ...items]) => ({ title: title!, items }));
+}
+
 const courseSchema = z.object({
   title: z.string().trim().min(3, { error: "Titlul este obligatoriu." }).max(200),
   slug: z.string().trim().max(80).optional(),
@@ -32,9 +54,16 @@ const courseSchema = z.object({
   syllabus: z.string().trim().max(20000).optional(),
   trainer_name: z.string().trim().max(160).optional(),
   starts_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  ends_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  language: z.string().trim().max(60).optional(),
+  currency: z.enum(["RON", "EUR"]),
+  old_price: z.coerce.number().min(0).max(1_000_000).optional(),
+  audience: z.string().max(5000).optional(),
+  outcomes: z.string().max(5000).optional(),
+  sections: z.string().max(20000).optional(),
   format: z.enum(["physical", "online", "hybrid"]),
   location: z.string().trim().max(200).optional(),
-  price_ron: z.coerce.number({ error: "Preț invalid." }).min(0).max(1_000_000),
+  price: z.coerce.number({ error: "Preț invalid." }).min(0).max(1_000_000),
   capacity: z.coerce.number().int().positive().optional(),
   status: z.enum(["draft", "published", "archived"]),
 });
@@ -52,9 +81,16 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     syllabus: opt(formData.get("syllabus")),
     trainer_name: opt(formData.get("trainer_name")),
     starts_on: opt(formData.get("starts_on")),
+    ends_on: opt(formData.get("ends_on")),
+    language: opt(formData.get("language")),
+    currency: formData.get("currency"),
+    old_price: opt(formData.get("old_price")),
+    audience: opt(formData.get("audience")),
+    outcomes: opt(formData.get("outcomes")),
+    sections: opt(formData.get("sections")),
     format: formData.get("format"),
     location: opt(formData.get("location")),
-    price_ron: formData.get("price_ron"),
+    price: formData.get("price"),
     capacity: opt(formData.get("capacity")),
     status: formData.get("status"),
   });
@@ -69,11 +105,17 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     description: d.description ?? null,
     syllabus: d.syllabus ?? null,
     trainer_name: d.trainer_name ?? null,
-    starts_at: d.starts_on ? `${d.starts_on}T09:00:00+03:00` : null,
+    starts_at: d.starts_on ? bucharestIso(d.starts_on, 9) : null,
+    ends_at: d.ends_on ? bucharestIso(d.ends_on, 18) : d.starts_on ? bucharestIso(d.starts_on, 18) : null,
+    language: d.language ?? null,
+    old_price_cents: d.old_price ? Math.round(d.old_price * 100) : null,
+    audience: lines(d.audience),
+    outcomes: lines(d.outcomes),
+    sections: parseSections(d.sections),
     format: d.format,
     location: d.location ?? null,
-    price_cents: Math.round(d.price_ron * 100),
-    currency: "RON",
+    price_cents: Math.round(d.price * 100),
+    currency: d.currency,
     capacity: d.capacity ?? null,
     status: d.status,
     is_featured: formData.get("is_featured") === "on",
@@ -163,4 +205,41 @@ export async function saveLoyalty(_: FormState, formData: FormData): Promise<For
   if (error) return { message: "Setările nu au putut fi salvate." };
   revalidatePath("/", "layout");
   return { message: "Setările Gold au fost salvate. Se aplică la următoarea comandă plătită." };
+}
+
+const lessonSchema = z.object({
+  title: z.string().trim().min(2, { error: "Introdu titlul lecției." }).max(200),
+  description: z.string().trim().max(2000).optional(),
+  video_url: z.string().trim().url({ error: "Link invalid." }).startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
+  duration_min: z.coerce.number().int().min(0).max(1000).optional(),
+});
+
+export async function addLesson(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
+  const supabase = await requireAdmin();
+  const parsed = lessonSchema.safeParse({
+    title: formData.get("title"),
+    description: opt(formData.get("description")),
+    video_url: opt(formData.get("video_url")),
+    duration_min: opt(formData.get("duration_min")),
+  });
+  if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
+
+  const { data: last } = await supabase.from("course_lessons").select("position").eq("course_id", courseId).order("position", { ascending: false }).limit(1).maybeSingle();
+  const { error } = await supabase.from("course_lessons").insert({
+    course_id: courseId,
+    title: parsed.data.title,
+    description: parsed.data.description ?? null,
+    video_url: parsed.data.video_url ?? null,
+    duration_min: parsed.data.duration_min ?? null,
+    position: (last?.position ?? 0) + 1,
+  });
+  if (error) return { message: "Lecția nu a putut fi salvată." };
+  revalidatePath(`/admin/cursuri/${courseId}`);
+  return { message: "Lecție adăugată." };
+}
+
+export async function deleteLesson(id: string, courseId: string) {
+  const supabase = await requireAdmin();
+  await supabase.from("course_lessons").delete().eq("id", id);
+  revalidatePath(`/admin/cursuri/${courseId}`);
 }

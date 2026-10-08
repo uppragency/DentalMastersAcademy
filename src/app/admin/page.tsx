@@ -10,14 +10,19 @@ export default async function AdminHome() {
     supabase.from("courses").select("id", { count: "exact", head: true }).eq("status", "published"),
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
     supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "paid"),
-    supabase.from("orders").select("total_cents").eq("status", "paid"),
+    supabase.from("orders").select("total_cents, currency").eq("status", "paid"),
   ]);
-  const total = (revenue.data ?? []).reduce((sum, o) => sum + o.total_cents, 0);
+  const byCurrency = new Map<string, number>();
+  for (const o of revenue.data ?? []) {
+    const cur = String(o.currency).trim();
+    byCurrency.set(cur, (byCurrency.get(cur) ?? 0) + o.total_cents);
+  }
+  const revenueLabel = byCurrency.size ? [...byCurrency].map(([cur, sum]) => formatPrice(sum, cur)).join(" + ") : formatPrice(0, "EUR");
   const stats = [
     { label: "Cursuri publicate", value: String(courses.count ?? 0) },
     { label: "Medici înregistrați", value: String(students.count ?? 0) },
     { label: "Comenzi plătite", value: String(paid.count ?? 0) },
-    { label: "Încasări", value: formatPrice(total, "RON") },
+    { label: "Încasări", value: revenueLabel },
   ];
   return (
     <>
