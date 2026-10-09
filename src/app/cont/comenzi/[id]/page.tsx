@@ -10,6 +10,7 @@ import { contact } from "@/content/site";
 import { ButtonLink } from "@/components/ui";
 import { CopyButton } from "@/components/copy-button";
 import { PrintButton } from "@/components/print-button";
+import { OrderStepper } from "@/components/order-stepper";
 import { nowMs } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Comandă", robots: { index: false } };
@@ -80,7 +81,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       </div>
       <p className="mt-2 text-sm text-muted">Plasată pe {formatDate(o.created_at)}{paid && o.paid_at ? `, plătită pe ${formatDate(o.paid_at)}` : ""}.</p>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_22rem]">
+      <OrderStepper status={o.status} source={o.source} createdAt={o.created_at} paidAt={o.paid_at} expiresAt={o.expires_at} invoiceNumber={o.invoice_number} />
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           {activeTransfer ? (
             <section className="rounded-[2rem] border border-gold bg-gold-soft p-6 sm:p-8">
