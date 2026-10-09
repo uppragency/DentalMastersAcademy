@@ -3,7 +3,7 @@ import { DefaultLegal, LegalShell, LegalText } from "@/components/legal-text";
 import { termeni } from "@/content/legal";
 import { getLegalText } from "@/lib/site-content";
 
-export const metadata: Metadata = { title: "Termeni și condiții", robots: { index: false } };
+export const metadata: Metadata = { title: "Termeni și condiții", description: "Termenii și condițiile de utilizare a platformei Dental Masters Academy: înscriere, plată, rambursare și transfer de loc.", robots: { index: false } };
 
 export default async function Page() {
   const text = await getLegalText("legal_termeni");

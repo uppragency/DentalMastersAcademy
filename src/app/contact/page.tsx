@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/contact-form";
 import { PageHero } from "@/components/page-hero";
 import { contact } from "@/content/site";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = { title: "Contact", description: "Contactează Dental Masters Academy: telefon, email, adresa din București și program. Răspundem la întrebări despre cursuri, înscriere și plată." };
 
 export default function ContactPage() {
   const items = [

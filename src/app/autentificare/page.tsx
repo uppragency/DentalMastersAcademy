@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AuthShell } from "@/components/auth-shell";
 import { LoginForm } from "@/components/auth-forms";
 
-export const metadata: Metadata = { title: "Autentificare" };
+export const metadata: Metadata = { title: "Autentificare", description: "Intră în contul tău Dental Masters Academy pentru a accesa cursurile, comenzile și programul tău." };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const { next, error } = await searchParams;

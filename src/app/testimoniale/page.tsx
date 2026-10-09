@@ -4,7 +4,7 @@ import { PageHero } from "@/components/page-hero";
 import { TestimonialsGrid } from "@/components/testimonials";
 import { getTestimonials } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Testimoniale" };
+export const metadata: Metadata = { title: "Testimoniale", description: "Ce spun medicii stomatologi care au participat la cursurile Dental Masters Academy: experiențe verificate din ediții reale." };
 
 export default async function TestimonialsPage() {
   const items = await getTestimonials();
