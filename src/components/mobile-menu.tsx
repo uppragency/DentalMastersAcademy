@@ -65,7 +65,7 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
               {item.children ? (
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {item.children.map((c) => (
-                    <li key={c.href + c.label}><Link href={c.href} onClick={() => setOpen(false)} className="inline-flex min-h-10 items-center rounded-full border border-white/15 px-4 text-sm text-white/75 hover:border-gold-bright hover:text-white">{c.label}</Link></li>
+                    <li key={c.href + c.label}><Link href={c.href} onClick={() => setOpen(false)} className="inline-flex min-h-10 items-center rounded-2xl border border-white/15 px-4 py-2 text-left text-sm text-white/75 hover:border-gold-bright hover:text-white">{c.label}</Link></li>
                   ))}
                 </ul>
               ) : null}

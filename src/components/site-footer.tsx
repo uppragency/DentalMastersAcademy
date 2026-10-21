@@ -24,6 +24,7 @@ export function SiteFooter() {
           <Link className="block transition-colors hover:text-white" href="/lectori">Lectorii noștri</Link>
           <Link className="block transition-colors hover:text-white" href="/parteneri">Partenerii noștri</Link>
           <Link className="block transition-colors hover:text-white" href="/mentorat">Mentorat clinic</Link>
+          <Link className="block transition-colors hover:text-white" href="/evenimente">Evenimente</Link>
           <Link className="block transition-colors hover:text-white" href="/testimoniale">Testimoniale</Link>
           <Link className="block transition-colors hover:text-white" href="/cont">Contul meu</Link>
         </nav>

@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getCategories, getCourses, getCurrentProfile, getTrainers, getUnreadCount } from "@/lib/data";
+import { getCourses, getCurrentProfile, getTrainers, getUnreadCount } from "@/lib/data";
 import { AccountMenu } from "@/components/account-menu";
 import { tierNames } from "@/lib/loyalty";
-import { formatDateRange, formatPrice, isEnded } from "@/lib/format";
+import { formatDateRange, isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { MainNav } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
@@ -16,19 +16,24 @@ export async function SiteHeader() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const userId = data?.claims?.sub as string | undefined;
-  const [unread, categories, courses, profile, trainers] = await Promise.all([userId ? getUnreadCount(userId) : Promise.resolve(0), getCategories(), getCourses(), userId ? getCurrentProfile() : Promise.resolve(null), getTrainers()]);
+  const [unread, courses, profile, trainers] = await Promise.all([userId ? getUnreadCount(userId) : Promise.resolve(0), getCourses(), userId ? getCurrentProfile() : Promise.resolve(null), getTrainers()]);
   const now = nowMs();
+  const line = (c: (typeof courses)[number]) => (c.starts_at ? formatDateRange(c.starts_at, c.ends_at) : "Data va fi anunțată");
+  const hostedLine = (c: (typeof courses)[number]) => [c.trainer_name, c.powered_by ? `powered by ${c.powered_by}` : null].filter(Boolean).join(" · ");
+  const open = courses.filter((c) => !isEnded(c, now));
   const navData = {
-    categories: categories.map((c) => ({ name: c.name, slug: c.slug })),
     founders: trainers.filter((t) => t.is_founder).map((t) => ({ name: t.name, slug: t.slug })),
-    courses: courses.filter((c) => !isEnded(c, now)).slice(0, 4).map((c) => ({ title: c.title, slug: c.slug, date: formatDateRange(c.starts_at, c.ends_at), price: formatPrice(c.price_cents, c.currency) })),
+    faculty: trainers.filter((t) => !t.is_founder).map((t) => ({ name: t.name, slug: t.slug })),
+    dma: open.filter((c) => c.kind !== "hosted").map((c) => ({ title: c.title, slug: c.slug, line: line(c) })),
+    hosted: open.filter((c) => c.kind === "hosted").map((c) => ({ title: c.title, slug: c.slug, line: hostedLine(c) || line(c) })),
   };
+  const faculty = trainers.filter((t) => !t.is_founder);
   const mobileItems = [
-    { href: "/cursuri", label: "Cursuri și workshopuri", children: [{ href: "/cursuri", label: "Toate cursurile" }, { href: "/cursuri#dma", label: "Cursuri DMA" }, { href: "/cursuri#hosted", label: "Cursuri găzduite" }, { href: "/mentorat", label: "Mentorat clinic" }, ...categories.map((c) => ({ href: `/cursuri?categorie=${c.slug}`, label: c.name }))] },
-    { href: "/cine-suntem", label: "Cine suntem", children: [{ href: "/cine-suntem", label: "Conceptul DMA" }, ...trainers.filter((t) => t.is_founder).map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/lectori", label: "Lectorii noștri" }, { href: "/parteneri", label: "Partenerii noștri" }] },
-    { href: "/testimoniale", label: "Testimoniale" },
+    { href: "/cine-suntem", label: "Cine suntem", children: [{ href: "/cine-suntem", label: "Conceptul DMA" }, ...trainers.filter((t) => t.is_founder).map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/lectori", label: "Lectorii noștri" }, ...faculty.map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/parteneri", label: "Partenerii noștri" }] },
+    { href: "/cursuri", label: "Cursuri și workshopuri", children: [...navData.dma.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), ...navData.hosted.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), { href: "/mentorat", label: "Mentorat clinic" }] },
+    { href: "/testimoniale", label: "Testimoniale", children: [{ href: "/testimoniale#t-foto", label: "Galerii foto" }, { href: "/testimoniale#t-text", label: "Testimoniale text" }, { href: "/testimoniale#t-video", label: "Testimoniale video" }] },
+    { href: "/contact", label: "Contact", children: [{ href: "/contact#medici", label: "Pentru medici" }, { href: "/contact#pacienti", label: "Pentru pacienți" }] },
     { href: "/blog", label: "Blog" },
-    { href: "/contact", label: "Contact" },
   ];
 
   return (
@@ -41,6 +46,7 @@ export async function SiteHeader() {
         <MainNav data={navData} />
 
         <div className="flex items-center gap-2">
+          <Link href="/contact#medici" className="hidden min-h-11 items-center rounded-full border border-white/25 px-5 text-sm text-white/85 transition-colors hover:border-gold-bright hover:text-white 2xl:inline-flex">Trimite un caz</Link>
           <SearchDialog />
           <ThemeToggle />
           {userId ? <NotificationBell key={unread} unread={unread} /> : null}
