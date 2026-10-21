@@ -152,3 +152,12 @@ export async function deleteTestimonialVideo(id: string) {
   await supabase.from("testimonial_videos").delete().eq("id", id);
   refresh();
 }
+
+/* Solicitări de caz */
+export async function updateCaseRequest(id: string, formData: FormData) {
+  const { supabase } = await requireAdminClient();
+  const status = text(formData, "status");
+  if (!["nou", "in_analiza", "preluat", "inchis"].includes(status)) return;
+  await supabase.from("case_requests").update({ status, admin_note: orNull(text(formData, "admin_note")) }).eq("id", id);
+  revalidatePath("/admin/solicitari");
+}

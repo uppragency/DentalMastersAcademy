@@ -42,11 +42,11 @@ export const topics = [
 ];
 
 export const modules = [
-  { n: "01", title: "The Dark Side of Implantology", when: "7 martie 2026", text: "Riscuri, complicații și prevenție. Fundația gândirii clinice." },
-  { n: "02", title: "Aesthetic Zone + Posterior Implants", when: "22–23 mai 2026", text: "Flux complet, de la planificare la coroana finală, pe modele." },
-  { n: "03", title: "Bone Grafting", when: "25–26 septembrie 2026", text: "Recoltare autologă, sinus lift, augmentări verticale și laterale." },
-  { n: "04", title: "Pink Side of Implantology", when: "11–12 decembrie 2026", text: "Țesuturi moi, peri-implantită și regenerare parodontală." },
-  { n: "05", title: "ProArch Guided Surgery", when: "17–19 sept. și 15–17 oct. 2026", text: "Chirurgie ghidată pentru reabilitări complexe All-on-X." },
+  { n: "01", title: "Dark Side of Implantology", when: "Modulul 1", text: "Riscuri, complicații și prevenție. Fundația gândirii clinice." },
+  { n: "02", title: "Aesthetic Zone and Posterior Implants", when: "Modulul 2", text: "Flux complet, de la planificare la coroana finală, pe modele." },
+  { n: "03", title: "Bone Grafting", when: "Modulul 3", text: "Recoltare autologă, sinus lift, augmentări verticale și laterale." },
+  { n: "04", title: "Pink Side", when: "Modulul 4", text: "Țesuturi moi, peri-implantită și regenerare parodontală." },
+  { n: "05", title: "Full Arch Guided Surgery", when: "Modulul 5", text: "Chirurgie ghidată pentru reabilitări complexe All-on-X." },
 ];
 
 export const facility = [
@@ -67,8 +67,8 @@ export const advantages = [
 
 export const trainers = [
   {
-    name: "Dr. Gabriel Mușetescu",
-    role: "Medic dentist, CEO Dr. Mușetescu Dental Clinic și iDentical Lab, competență în implantologie orală, co-fondator Dental Masters Academy",
+    name: "Dr. Gabriel Mușețescu",
+    role: "Medic dentist, CEO Dr. Mușețescu Dental Clinic și iDentical Lab, competență în implantologie orală, co-fondator Dental Masters Academy",
     points: ["Flux integrat clinică, laborator", "Tehnologie digitală, ghiduri chirurgicale, reabilitări protetice complexe", "Management operațional în echipe multidisciplinare"],
     bio: "Unul dintre clinicienii care au integrat tehnologia digitală în practică într-un mod complet, controlat și predictibil. Prin iDentical Lab a construit un sistem în care decizia clinică, designul protetic și execuția tehnică formează un flux unitar medic, clinică, laborator.",
   },

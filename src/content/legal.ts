@@ -47,6 +47,7 @@ export const confidentialitate: LegalDoc = {
       "Date despre comenzi și participare: cursurile cumpărate, plăți, prezența la curs, adeverințe, progresul în lecții, evaluări și testimoniale, puncte de fidelitate, cereri de transfer.",
       "Date tehnice și de utilizare: pagini de curs vizitate de utilizatorii autentificați (număr de vizite), sesiunea de autentificare, tema aleasă.",
       "Nu stocăm datele cardului tău. Plata cu cardul este procesată de Stripe.",
+      "Solicitări de caz și de evaluare: datele de contact, descrierea cazului și fișierele atașate (scanări, radiografii, CBCT). Pentru pacienți, acestea pot include date despre sănătate. Le primești și le folosim doar pentru a analiza solicitarea și a te contacta, pe baza consimțământului tău explicit (art. 6 alin. 1 lit. a și art. 9 alin. 2 lit. a GDPR), retractabil oricând. Fișierele sunt stocate într-un spațiu privat, accesibil doar echipei autorizate, și se păstrează cel mult 24 de luni de la ultima comunicare, dacă nu se încheie o colaborare. Medicii care ne trimit investigații confirmă că acestea sunt anonimizate sau că au acordul pacientului.",
     ] },
     { title: "3. De ce le folosim și pe ce bază legală", paragraphs: [
       "Executarea contractului: crearea contului, înscrierea la curs, procesarea plății, accesul la materiale, emiterea adeverinței (art. 6 alin. 1 lit. b).",
