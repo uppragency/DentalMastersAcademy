@@ -52,7 +52,7 @@ export default async function HomePage() {
               <span className="text-gold-sheen">într-un singur loc.</span>
             </h1>
             <p className="rise mt-8 max-w-xl text-pretty text-lg leading-relaxed text-white/65" style={{ ["--d" as string]: "260ms" }}>
-              Cursuri hands-on, chirurgie live și planificare digitală, de la cazuri simple la reabilitări All-on-X. Grupe de maximum 20 de participanți, lectori cu peste 15 ani de practică.
+              Cursuri hands-on, chirurgie live și planificare digitală, de la cazuri simple la reabilitări All-on-X. Grupe restrânse, lectori cu peste 15 ani de practică.
             </p>
             <div className="rise mt-10 flex flex-col gap-3 sm:flex-row" style={{ ["--d" as string]: "380ms" }}>
               <ButtonLink href="/cursuri" variant="light">Explorează cursurile <Arrow /></ButtonLink>
@@ -348,8 +348,8 @@ export default async function HomePage() {
         <div aria-hidden="true" className="grid-lines absolute inset-0" />
         <Container className="relative text-center">
           <Reveal>
-            <h2 className="font-display mx-auto max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl">Locurile sunt limitate. <span className="text-gold-sheen">Rezervă-l pe al tău.</span></h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-white/60">Cel mult 20 de participanți per curs. Te înscrii și plătești online, în câteva minute.</p>
+            <h2 className="font-display mx-auto max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl">Grupe restrânse. <span className="text-gold-sheen">Rezervă-ți locul.</span></h2>
+            <p className="mx-auto mt-6 max-w-xl text-lg text-white/60">Te înscrii și plătești online, în câteva minute.</p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <ButtonLink href="/cursuri" variant="gold">Vezi cursurile <Arrow /></ButtonLink>
               <ButtonLink href="/contact" variant="outline">Vorbește cu noi</ButtonLink>

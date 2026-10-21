@@ -10,7 +10,6 @@ import { GalleryCarousel } from "@/components/gallery-carousel";
 import { CourseCard } from "@/components/course-card";
 import { Countdown } from "@/components/countdown";
 import { earlyActive } from "@/lib/pricing";
-import { Seats } from "@/components/seats";
 import { Faq } from "@/components/faq";
 import { VideoPlayer } from "@/components/video-player";
 import { WaitlistForm } from "@/components/waitlist-form";
@@ -90,7 +89,6 @@ export default async function CoursePage({ params }: Props) {
     { k: "Format", v: formatLabels[course.format] },
     ...(course.location ? [{ k: "Locație", v: course.location }] : []),
     ...(course.language ? [{ k: "Limba", v: course.language }] : []),
-    ...(course.capacity ? [{ k: "Locuri", v: `maximum ${course.capacity}` }] : []),
   ];
 
   return (
@@ -108,7 +106,7 @@ export default async function CoursePage({ params }: Props) {
             {course.categories ? <span className="rounded-full bg-gold-bright px-3.5 py-1.5 uppercase tracking-widest text-ink">{course.categories.name}</span> : null}
             {ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Înscrieri închise</span> : null}
             {notOpen ? <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-white backdrop-blur">Înscrieri în curând</span> : null}
-            {soldOut && !ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Locuri epuizate</span> : null}
+            {soldOut && !ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Ediție completă</span> : null}
             {course.gold_free ? <span className="rounded-full border border-gold-bright/60 px-3.5 py-1.5 text-gold-bright">Gratuit pentru membrii Gold</span> : null}
           </div>
           <h1 className="rise font-display mt-6 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "160ms" }}>{course.title}</h1>
@@ -260,8 +258,6 @@ export default async function CoursePage({ params }: Props) {
                   ))}
                 </dl>
 
-                {!ended && course.capacity ? <div className="mt-6"><Seats taken={taken} capacity={course.capacity} /></div> : null}
-
                 {enrolled ? (
                   <>
                     <ButtonLink href={`/cont/cursuri/${course.slug}`} className="mt-8 w-full">Accesează cursul <Arrow /></ButtonLink>
@@ -289,7 +285,7 @@ export default async function CoursePage({ params }: Props) {
                         <Countdown to={course.registration_opens_at!} />
                       </div>
                     ) : (
-                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Locuri epuizate</p>
+                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Ediție completă</p>
                     )}
                     <p className="mb-4 mt-5 text-center text-xs leading-relaxed text-muted">
                       {ended || soldOut ? "Lasă-ți datele și te anunțăm când se deschide următoarea ediție." : "Lasă-ți datele și îți scriem în momentul deschiderii."}
@@ -306,7 +302,7 @@ export default async function CoursePage({ params }: Props) {
                 )}
               </div>
               <div className="border-t border-line bg-gold-soft/60 px-8 py-5 text-xs leading-relaxed text-muted">
-                Locuri limitate. Confirmarea și datele contului ajung pe email imediat după plată.
+                Confirmarea și datele contului ajung pe email imediat după plată.
               </div>
             </div>
           </aside>

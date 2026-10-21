@@ -23,7 +23,7 @@ export const company = {
 
 export const stats = [
   { value: 3, suffix: "", label: "lectori cu competență în implantologie orală" },
-  { value: 20, suffix: "", label: "participanți per curs, grup restrâns" },
+  { value: 50, suffix: "+", label: "evenimente organizate împreună din 2020" },
   { value: 5, suffix: "", label: "module în Master Course" },
   { value: 15, suffix: "+", label: "ani de experiență clinică ai lectorilor" },
 ];
@@ -59,7 +59,7 @@ export const facility = [
 export const advantages = [
   "Ambianță modernă, curată și profesională",
   "Vizibilitate optimă și confort de învățare",
-  "Experiență de grup mic, maximum 20 de participanți",
+  "Experiență de grup mic, cu atenție individuală",
   "Cadru confortabil și concentrat",
   "Ideal pentru training de nivel avansat",
   "Integrare completă între teorie și practică",
@@ -90,7 +90,7 @@ export const faqs = [
   { q: "Cum mă înscriu și plătesc?", a: "Alegi cursul, completezi emailul și parola pe pagina de achiziție și plătești cu cardul. Contul se creează automat, iar cursul apare în contul tău imediat după confirmarea plății." },
   { q: "Primesc confirmare după plată?", a: "Da. Primești pe email confirmarea achiziției și datele contului. Cursul rămâne vizibil în contul tău, la secțiunea Cursurile mele." },
   { q: "Ce este statusul Gold?", a: "Un program de loialitate. Medicii cu istoric de participare primesc automat reducere la cursurile viitoare și acces gratuit la activități selectate. Progresul tău se vede în contul tău." },
-  { q: "Cât de mari sunt grupele?", a: "Maximum 20 de participanți per curs, pentru lucru hands-on real și atenție individuală din partea lectorilor." },
+  { q: "Cât de mari sunt grupele?", a: "Grupe restrânse, pentru lucru hands-on real și atenție individuală din partea lectorilor." },
   { q: "Unde au loc cursurile?", a: "La Dental Masters Academy, București, într-un spațiu cu sală de curs, sală de chirurgie live și CBCT." },
   { q: "În ce limbă se țin cursurile?", a: "Majoritatea în limba română. Cursul Bone Grafting este predat în engleză, cu suport în română. Limba apare pe pagina fiecărui curs." },
 ];

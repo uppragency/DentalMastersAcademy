@@ -94,7 +94,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             <ul aria-label="Ce primești" className="mt-4 space-y-2 text-sm">
               {(course.format === "online"
                 ? ["Acces la lecții în contul tău", "Progresul tău se salvează automat"]
-                : ["Adeverință de participare cu număr unic verificabil", "Materiale disponibile 12 luni după curs", ...(course.capacity ? [`Grup de maximum ${course.capacity} participanți`] : [])]
+                : ["Adeverință de participare cu număr unic verificabil", "Materiale disponibile 12 luni după curs", "Grup restrâns, cu atenție individuală"]
               ).map((t) => (
                 <li key={t} className="flex gap-2.5"><span aria-hidden="true" className="text-gold">✓</span><span>{t}</span></li>
               ))}

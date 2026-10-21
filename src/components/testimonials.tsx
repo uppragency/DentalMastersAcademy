@@ -1,5 +1,6 @@
 import type { Testimonial } from "@/lib/types";
 import { Reveal } from "@/components/reveal";
+import { drName, initials } from "@/lib/names";
 
 function Quote({ t, big = false }: { t: Testimonial; big?: boolean }) {
   return (
@@ -10,10 +11,10 @@ function Quote({ t, big = false }: { t: Testimonial; big?: boolean }) {
       </div>
       <figcaption className={`mt-8 flex items-center gap-3 border-t pt-5 text-sm ${big ? "border-white/10" : "border-line"}`}>
         <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-gold-soft text-sm font-semibold text-gold">
-          {t.author_name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+          {initials(t.author_name)}
         </span>
         <span>
-          <span className="block font-semibold">{t.author_name}</span>
+          <span className="block font-semibold">{drName(t.author_name)}</span>
           {t.author_title ? <span className={big ? "text-white/55" : "text-muted"}>{t.author_title}</span> : null}
           {t.verified ? <span className="mt-1 block text-[11px] font-semibold uppercase tracking-widest text-gold">Cursant verificat</span> : null}
         </span>

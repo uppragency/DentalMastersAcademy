@@ -38,7 +38,7 @@ export async function sendRecoveryEmail(orderId: string): Promise<boolean> {
     heading: "Comanda ta nu a fost finalizată",
     paragraphs: [
       `${o.profiles.full_name ? `Bună, ${o.profiles.full_name}.` : "Bună."} Ai început înscrierea la ${course.title}, dar plata nu s-a finalizat.`,
-      `Poți relua oricând de unde ai rămas. Locurile sunt limitate, iar la noi grupele au maximum 20 de participanți.`,
+      `Poți relua oricând de unde ai rămas. Grupele sunt restrânse, iar locurile se ocupă în ordinea înscrierilor.`,
     ],
     cta: { label: "Finalizează înscrierea", href: `/cursuri/${course.slug}/achizitie` },
     kind: "recovery",

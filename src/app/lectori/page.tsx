@@ -12,7 +12,7 @@ export default async function TrainersPage() {
   const trainers = await getTrainers();
   return (
     <>
-      <PageHero eyebrow="Lectori" title="Clinicieni care practică ceea ce predau." lead="Toți lectorii Dental Masters Academy lucrează zilnic în clinică și predau în grupuri de maximum 20 de participanți." />
+      <PageHero eyebrow="Lectori" title="Clinicieni care practică ceea ce predau." lead="Toți lectorii Dental Masters Academy lucrează zilnic în clinică și predau în grupuri restrânse." />
       <section className="py-20">
         <Container>
           <ul className="grid gap-6 lg:grid-cols-3">

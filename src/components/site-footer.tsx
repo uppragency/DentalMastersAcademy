@@ -12,7 +12,7 @@ export function SiteFooter() {
             Formare avansată <span className="text-gold-sheen">pentru medici stomatologi.</span>
           </p>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">
-            Dental Masters Academy. Hands-on, chirurgie live și un flux complet între clinică și laborator, în grupuri de maximum 20 de participanți.
+            Dental Masters Academy. Hands-on, chirurgie live și un flux complet între clinică și laborator, în grupuri restrânse.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-8 md:col-span-4">

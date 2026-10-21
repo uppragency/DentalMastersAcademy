@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Testimonial } from "@/lib/types";
+import { drName, initials } from "@/lib/names";
 
 function Card({ t }: { t: Testimonial }) {
   return (
@@ -12,10 +13,10 @@ function Card({ t }: { t: Testimonial }) {
       </div>
       <figcaption className="mt-5 flex items-center gap-2.5 border-t border-line pt-4 text-sm sm:mt-8 sm:gap-3 sm:pt-5">
         <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gold-soft text-xs font-semibold text-gold sm:size-10 sm:text-sm">
-          {t.author_name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+          {initials(t.author_name)}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-[13px] font-semibold sm:text-sm">{t.author_name}</span>
+          <span className="block truncate text-[13px] font-semibold sm:text-sm">{drName(t.author_name)}</span>
           {t.author_title ? <span className="block text-xs text-muted sm:text-sm">{t.author_title}</span> : null}
           {t.verified ? <span className="mt-1 block text-[10px] font-semibold uppercase tracking-widest text-gold">Cursant verificat</span> : null}
         </span>

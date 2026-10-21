@@ -120,7 +120,7 @@ export async function runViewAlerts(admin: Admin) {
       hello(v.profiles),
       `Ai vizitat de mai multe ori ${c.title}. Iată răspunsurile la întrebările frecvente.`,
       ...faqs,
-      "Grupurile sunt de maximum 20 de participanți, iar locurile se ocupă în ordinea înscrierilor. Dacă nu mai poți participa, îți poți transfera locul sau muta înscrierea, conform politicii de rambursare.",
+      "Grupurile sunt restrânse, iar locurile se ocupă în ordinea înscrierilor. Dacă nu mai poți participa, îți poți transfera locul sau muta înscrierea, conform politicii de rambursare.",
       "Ai o întrebare? Răspunde la acest email sau sună-ne.",
     ];
     const ok = await sendMail({ to: v.profiles.email, subject: `Întrebări despre ${c.title}`, heading: c.title, paragraphs, cta: { label: "Vezi cursul", href: `/cursuri/${c.slug}` }, kind: "view_alert", userId: v.user_id, unsubscribe: unsubUrl(v.user_id) });
