@@ -1,6 +1,7 @@
 import "server-only";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { mailFrom } from "@/content/mailboxes";
 
 const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.dentalmasters.ro";
 
@@ -13,8 +14,8 @@ export async function sendPurchaseEmail(opts: {
   newAccount: boolean;
 }) {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM;
-  if (!key || !from) {
+  const sender = mailFrom("purchase");
+  if (!key || !sender) {
     console.warn("Purchase email skipped: RESEND_API_KEY or RESEND_FROM missing");
     await logEmail({ to: opts.to, subject: "Achiziția ta la Dental Masters Academy", kind: "purchase", error: "Email neconfigurat (RESEND_API_KEY / RESEND_FROM)" });
     return;
@@ -33,7 +34,8 @@ export async function sendPurchaseEmail(opts: {
     <p style="color:#5d6675;font-size:13px">Dental Masters Academy</p>
   </div>`;
   const { data, error } = await resend.emails.send({
-    from,
+    from: sender.from,
+    replyTo: sender.replyTo,
     to: opts.to,
     subject: "Achiziția ta la Dental Masters Academy",
     html,
@@ -71,12 +73,14 @@ export async function sendMail(opts: {
   attachments?: { filename: string; content: string }[];
   kind?: string;
   userId?: string;
+  /** Suprascrie adresa de răspuns (de exemplu emailul persoanei care a scris prin formular). */
+  replyTo?: string;
   /** Marketing emails: adds an unsubscribe link and List-Unsubscribe header. */
   unsubscribe?: string;
 }) {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM;
-  if (!key || !from) {
+  const sender = mailFrom(opts.kind);
+  if (!key || !sender) {
     console.warn("Email skipped: RESEND_API_KEY or RESEND_FROM missing");
     await logEmail({ to: opts.to, subject: opts.subject, kind: opts.kind, userId: opts.userId, error: "Email neconfigurat (RESEND_API_KEY / RESEND_FROM)" });
     return false;
@@ -90,7 +94,8 @@ export async function sendMail(opts: {
     ${opts.unsubscribe ? `<p style="color:#8a93a3;font-size:12px">Primești acest email pentru că ești cursant. <a href="${opts.unsubscribe}" style="color:#8a93a3">Dezabonează-te de la recomandări</a></p>` : ""}
   </div>`;
   const { data, error } = await resend.emails.send({
-    from,
+    from: sender.from,
+    replyTo: opts.replyTo ?? sender.replyTo,
     to: opts.to,
     subject: opts.subject,
     html,

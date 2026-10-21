@@ -36,7 +36,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
 
   const transferSteps = [
     { t: "Fă plata prin transfer bancar", d: "Folosește datele din cardul de mai jos și scrie numărul comenzii la detalii, ca să o recunoaștem imediat." },
-    { t: "Trimite dovada de plată", d: `Răspunde la emailul primit sau scrie-ne la ${contact.email}, cu o captură a transferului.` },
+    { t: "Trimite dovada de plată", d: `Răspunde la emailul primit sau scrie-ne la ${contact.ordersEmail}, cu o captură a transferului.` },
     { t: "Îți activăm înscrierea", d: "După ce vedem banii în cont, primești confirmarea pe email și cursul apare în contul tău. Factura se emite la confirmare." },
   ];
   const steps = isTransfer ? transferSteps : [

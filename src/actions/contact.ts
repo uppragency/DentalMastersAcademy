@@ -3,6 +3,8 @@
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/actions/auth";
+import { sendMail } from "@/lib/email";
+import { inbox } from "@/content/mailboxes";
 
 const schema = z.object({
   name: z.string().trim().min(2, { error: "Introdu numele." }).max(120),
@@ -28,5 +30,14 @@ export async function sendContact(_: FormState, formData: FormData): Promise<For
   const supabase = await createClient();
   const { error } = await supabase.from("contact_messages").insert(row);
   if (error) return { message: "Mesajul nu a putut fi trimis. Încearcă din nou." };
+  // Notificare către echipă; răspunsul din căsuța poștală ajunge direct la persoana care a scris.
+  await sendMail({
+    to: inbox("contact"),
+    subject: `Mesaj nou de la ${row.name}`,
+    heading: "Mesaj nou din formularul de contact",
+    paragraphs: [`Nume: ${row.name}`, `Email: ${row.email}`, ...(row.phone ? [`Telefon: ${row.phone}`] : []), `Mesaj: ${row.message}`],
+    kind: "alert",
+    replyTo: row.email,
+  });
   return { message: "Mulțumim! Am primit mesajul și revenim în cel mai scurt timp." };
 }

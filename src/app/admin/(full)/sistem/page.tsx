@@ -13,6 +13,7 @@ const env: { name: string; label: string; required: boolean }[] = [
   { name: "STRIPE_WEBHOOK_SECRET", label: "Stripe, secret webhook", required: true },
   { name: "RESEND_API_KEY", label: "Email, cheie Resend", required: true },
   { name: "RESEND_FROM", label: "Email, adresă expeditor", required: true },
+  { name: "NEXT_PUBLIC_MAIL_ALIASES_READY", label: "Email, aliasuri create (true după ce există contact@, comenzi@, medici@, pacienti@)", required: false },
   { name: "RESEND_WEBHOOK_SECRET", label: "Email, secret webhook (status livrare)", required: false },
   { name: "CRON_SECRET", label: "Sarcini zilnice, secret", required: true },
   { name: "SMARTBILL_EMAIL", label: "SmartBill, email", required: false },

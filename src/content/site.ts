@@ -1,8 +1,11 @@
+import { inbox } from "@/content/mailboxes";
+
 export const contact = {
   address: "Str. Fabricii 46, București",
   phone: "+40 724 065 767",
   phoneHref: "tel:+40724065767",
-  email: "dentalmastersa@gmail.com",
+  email: inbox("contact"),
+  ordersEmail: inbox("comenzi"),
   social: "@dentalmastersacademy",
   socialHref: "https://www.instagram.com/dentalmastersacademy/",
 };
