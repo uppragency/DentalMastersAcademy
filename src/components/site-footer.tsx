@@ -20,7 +20,10 @@ export function SiteFooter() {
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-bright">Platformă</p>
           <Link className="block transition-colors hover:text-white" href="/cursuri">Cursuri</Link>
           <Link className="block transition-colors hover:text-white" href="/categorii">Categorii</Link>
-          <Link className="block transition-colors hover:text-white" href="/despre">Despre noi</Link>
+          <Link className="block transition-colors hover:text-white" href="/cine-suntem">Cine suntem</Link>
+          <Link className="block transition-colors hover:text-white" href="/lectori">Lectorii noștri</Link>
+          <Link className="block transition-colors hover:text-white" href="/parteneri">Partenerii noștri</Link>
+          <Link className="block transition-colors hover:text-white" href="/mentorat">Mentorat clinic</Link>
           <Link className="block transition-colors hover:text-white" href="/testimoniale">Testimoniale</Link>
           <Link className="block transition-colors hover:text-white" href="/cont">Contul meu</Link>
         </nav>

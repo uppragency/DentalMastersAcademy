@@ -17,7 +17,7 @@ import { parseVideo } from "@/lib/video";
 import { Reveal } from "@/components/reveal";
 import { getCourseBySlug, getCourseRating, getCourses, getCurrentProfile, getEnrolledCourseIds, getLoyaltySettings, getPendingTransfer, getSeatCounts, getTrainers } from "@/lib/data";
 import { tierPerks } from "@/lib/loyalty";
-import { formatDate, formatDateRange, formatLabels, formatPrice, isEnded, isNotOpen } from "@/lib/format";
+import { formatDate, formatDateRange, formatLabels, formatPrice, isDateTbd, isEnded, isNotOpen } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { JsonLd } from "@/components/json-ld";
 import { courseJsonLd, eventJsonLd, faqJsonLd } from "@/lib/structured-data";
@@ -63,7 +63,8 @@ export default async function CoursePage({ params }: Props) {
   const now = nowMs();
   const ended = isEnded(course, now);
   const perk = tierPerks(profile?.tier ?? "standard", loyalty);
-  const notOpen = !ended && isNotOpen(course, now, perk.earlyMs);
+  const dateTbd = !ended && isDateTbd(course);
+  const notOpen = !ended && (dateTbd || isNotOpen(course, now, perk.earlyMs));
   const taken = seatCounts[course.id] ?? 0;
   const soldOut = Boolean(course.capacity && taken >= course.capacity);
   const promo = parseVideo(course.promo_video_url);
@@ -85,7 +86,8 @@ export default async function CoursePage({ params }: Props) {
   const paragraphs = paragraphsOf(course);
 
   const facts = [
-    { k: "Data", v: formatDateRange(course.starts_at, course.ends_at) },
+    { k: "Data", v: course.starts_at ? formatDateRange(course.starts_at, course.ends_at) : "Va fi anunțată" },
+    ...(course.trainer_name ? [{ k: "Lectori", v: course.trainer_name }] : []),
     { k: "Format", v: formatLabels[course.format] },
     ...(course.location ? [{ k: "Locație", v: course.location }] : []),
     ...(course.language ? [{ k: "Limba", v: course.language }] : []),
@@ -107,9 +109,11 @@ export default async function CoursePage({ params }: Props) {
             {ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Înscrieri închise</span> : null}
             {notOpen ? <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-white backdrop-blur">Înscrieri în curând</span> : null}
             {soldOut && !ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Ediție completă</span> : null}
+            {course.kind === "hosted" ? <span className="rounded-full border border-white/30 px-3.5 py-1.5 text-white/85">Curs găzduit</span> : null}
             {course.gold_free ? <span className="rounded-full border border-gold-bright/60 px-3.5 py-1.5 text-gold-bright">Gratuit pentru membrii Gold</span> : null}
           </div>
           <h1 className="rise font-display mt-6 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "160ms" }}>{course.title}</h1>
+          {course.powered_by ? <p className="rise mt-4 text-sm font-medium text-gold-bright">{course.powered_by_url ? <>Powered by <a href={course.powered_by_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{course.powered_by}</a></> : <>Powered by {course.powered_by}</>}</p> : null}
           {course.summary ? <p className="rise mt-6 max-w-2xl text-lg leading-relaxed text-white/65" style={{ ["--d" as string]: "240ms" }}>{course.summary}</p> : null}
         </Container>
       </section>
@@ -237,7 +241,7 @@ export default async function CoursePage({ params }: Props) {
               <div className="p-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{enrolled ? "Status" : ended ? "Preț ediție" : "Investiție"}</p>
                 <p className="font-display mt-2 text-5xl font-medium tracking-tight">
-                  {enrolled ? "Achiziționat" : free ? "Gratuit" : formatPrice(finalPrice, course.currency)}
+                  {enrolled ? "Achiziționat" : free ? "Gratuit" : dateTbd && course.price_cents === 0 ? "Preț în curând" : formatPrice(finalPrice, course.currency)}
                 </p>
                 {!enrolled && !free && (discount > 0 || course.old_price_cents) ? (
                   <p className="mt-2 text-sm text-muted">
@@ -281,8 +285,14 @@ export default async function CoursePage({ params }: Props) {
                       <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Înscrieri închise</p>
                     ) : notOpen ? (
                       <div>
-                        <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-gold">Înscrierile se deschid în</p>
-                        <Countdown to={course.registration_opens_at!} />
+                        {dateTbd || !course.registration_opens_at ? (
+                          <p role="status" className="rounded-2xl border border-gold bg-gold-soft px-4 py-3 text-center text-sm font-semibold">Data ediției va fi anunțată</p>
+                        ) : (
+                          <>
+                            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-gold">Înscrierile se deschid în</p>
+                            <Countdown to={course.registration_opens_at} />
+                          </>
+                        )}
                       </div>
                     ) : (
                       <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Ediție completă</p>
@@ -314,7 +324,7 @@ export default async function CoursePage({ params }: Props) {
           <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
             <div>
               <p className="text-[11px] uppercase tracking-widest text-muted">{free ? "Acces" : "Investiție"}</p>
-              <p className="text-xl font-semibold tracking-tight">{free ? "Gratuit" : formatPrice(finalPrice, course.currency)}</p>
+              <p className="text-xl font-semibold tracking-tight">{free ? "Gratuit" : dateTbd && course.price_cents === 0 ? "Preț în curând" : formatPrice(finalPrice, course.currency)}</p>
             </div>
             <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold" className="px-6">Înscrie-te <Arrow /></ButtonLink>
           </div>

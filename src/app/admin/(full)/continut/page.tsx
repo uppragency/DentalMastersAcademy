@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BankEditor, FaqEditor, LegalEditor, PartnersEditor } from "@/components/content-editor-forms";
+import { BankEditor, FaqEditor, LegalEditor } from "@/components/content-editor-forms";
 import { requireFullAdmin } from "@/lib/staff";
 import { faqs as defaultFaqs } from "@/content/site";
 
@@ -11,7 +11,6 @@ export default async function ContentPage() {
   const v = new Map((data ?? []).map((r) => [r.key, r.value]));
   const faqs = (Array.isArray(v.get("faqs")) && (v.get("faqs") as unknown[]).length ? v.get("faqs") : defaultFaqs) as { q: string; a: string }[];
   const faqText = faqs.map((f) => `${f.q}\n${f.a}`).join("\n\n");
-  const partners = (Array.isArray(v.get("partners")) ? (v.get("partners") as string[]) : []).join("\n");
   const text = (k: string) => (typeof v.get(k) === "string" ? (v.get(k) as string) : "");
 
   return (
@@ -21,7 +20,6 @@ export default async function ContentPage() {
         <p className="mt-2 text-sm text-muted">Modificările apar imediat pe site, fără publicare nouă. Fiecare salvare este înregistrată în Jurnal modificări.</p>
       </div>
       <FaqEditor value={faqText} />
-      <PartnersEditor value={partners} />
       <BankEditor value={text("private:bank")} />
       <section className="space-y-10 border-t border-line pt-10">
         <h2 className="text-2xl font-semibold tracking-tight">Texte legale</h2>

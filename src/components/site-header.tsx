@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getCategories, getCourses, getCurrentProfile, getUnreadCount } from "@/lib/data";
+import { getCategories, getCourses, getCurrentProfile, getTrainers, getUnreadCount } from "@/lib/data";
 import { AccountMenu } from "@/components/account-menu";
 import { tierNames } from "@/lib/loyalty";
 import { formatDateRange, formatPrice, isEnded } from "@/lib/format";
@@ -16,15 +16,17 @@ export async function SiteHeader() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const userId = data?.claims?.sub as string | undefined;
-  const [unread, categories, courses, profile] = await Promise.all([userId ? getUnreadCount(userId) : Promise.resolve(0), getCategories(), getCourses(), userId ? getCurrentProfile() : Promise.resolve(null)]);
+  const [unread, categories, courses, profile, trainers] = await Promise.all([userId ? getUnreadCount(userId) : Promise.resolve(0), getCategories(), getCourses(), userId ? getCurrentProfile() : Promise.resolve(null), getTrainers()]);
   const now = nowMs();
   const navData = {
     categories: categories.map((c) => ({ name: c.name, slug: c.slug })),
+    founders: trainers.filter((t) => t.is_founder).map((t) => ({ name: t.name, slug: t.slug })),
     courses: courses.filter((c) => !isEnded(c, now)).slice(0, 4).map((c) => ({ title: c.title, slug: c.slug, date: formatDateRange(c.starts_at, c.ends_at), price: formatPrice(c.price_cents, c.currency) })),
   };
   const mobileItems = [
-    { href: "/cursuri", label: "Cursuri", children: [{ href: "/cursuri", label: "Toate cursurile" }, ...categories.map((c) => ({ href: `/cursuri?categorie=${c.slug}`, label: c.name }))] },
-    { href: "/despre", label: "Despre noi", children: [{ href: "/lectori", label: "Lectori" }, { href: "/despre#concept", label: "Concept" }, { href: "/testimoniale", label: "Testimoniale" }] },
+    { href: "/cursuri", label: "Cursuri și workshopuri", children: [{ href: "/cursuri", label: "Toate cursurile" }, { href: "/cursuri#dma", label: "Cursuri DMA" }, { href: "/cursuri#hosted", label: "Cursuri găzduite" }, { href: "/mentorat", label: "Mentorat clinic" }, ...categories.map((c) => ({ href: `/cursuri?categorie=${c.slug}`, label: c.name }))] },
+    { href: "/cine-suntem", label: "Cine suntem", children: [{ href: "/cine-suntem", label: "Conceptul DMA" }, ...trainers.filter((t) => t.is_founder).map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/lectori", label: "Lectorii noștri" }, { href: "/parteneri", label: "Partenerii noștri" }] },
+    { href: "/testimoniale", label: "Testimoniale" },
     { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
   ];

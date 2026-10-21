@@ -12,17 +12,17 @@ import { TrainerAvatar } from "@/components/trainer-avatar";
 import { getTrainers } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Despre noi",
-  description: "Dental Masters Academy: Master Course in Implanto-Prosthetics, hands-on, chirurgie live și flux complet clinică, laborator.",
+  title: "Cine suntem",
+  description: "Dental Masters Academy: un ecosistem de educație clinică care reunește sala de curs, radiologia, cabinetul și laboratorul dentar într-un singur loc.",
 };
 
 export default async function AboutPage() {
-  const trainers = await getTrainers();
+  const founders = (await getTrainers()).filter((t) => t.is_founder);
   const testimonials = await getTestimonials();
   return (
     <>
       <PageHero
-        eyebrow="Despre noi"
+        eyebrow="Cine suntem"
         title={<>Fluxul complet este <span className="text-gold-sheen">chiar aici.</span></>}
         lead="Pe o piață mondială a implantologiei în continuă evoluție, nevoia de educație structurată, aplicată și de înaltă calitate este mai mare ca oricând."
       />
@@ -30,14 +30,14 @@ export default async function AboutPage() {
       <section id="concept" className="scroll-mt-24 py-16 sm:py-24 lg:py-32">
         <Container className="grid gap-16 lg:grid-cols-12">
           <Reveal className="lg:col-span-6">
-            <SectionTitle eyebrow="Misiunea noastră" title="Masterul care te duce de la cazuri simple la reabilitări complexe." />
+            <SectionTitle eyebrow="Conceptul DMA" title="Un ecosistem de educație clinică, într-un singur loc." />
           </Reveal>
           <Reveal className="space-y-6 text-lg leading-relaxed text-muted lg:col-span-6" delay={120}>
             <p>
-              Master Course in Implant Surgery and Prosthetics este un program intensiv, structurat în cinci module progresive, conceput să ofere medicilor toate competențele necesare, de la cazuri simple până la reabilitări complexe All-on-X.
+              Dental Masters Academy reunește într-un singur spațiu sala de curs, radiologia, cabinetul stomatologic și laboratorul dentar.
             </p>
             <p>
-              Prin abordarea practică și accentul pe rezultate clinice predictibile, cursul aduce educație de nivel internațional în implanto-protetică.
+              De la teorie și planificare digitală, la intervenții live și lucrări protetice, participanții urmăresc etapele tratamentului și legăturile dintre ele, de la primul examen până la restaurarea finală.
             </p>
             <dl className="grid grid-cols-2 gap-6 pt-6">
               {stats.map((s) => (
@@ -80,28 +80,37 @@ export default async function AboutPage() {
 
       <section className="py-16 sm:py-24 lg:py-32">
         <Container>
-          <Reveal><SectionTitle eyebrow="Experții noștri" title="Lectori care practică zilnic ceea ce predau." /></Reveal>
-          <div className="mt-16 space-y-6">
-            {trainers.map((t) => (
-              <Reveal key={t.id}>
-                <article className="grid gap-8 rounded-[2rem] border border-line bg-card p-8 sm:p-12 lg:grid-cols-12">
-                  <div className="lg:col-span-4">
-                    <TrainerAvatar name={t.name} photo={t.photo_url} size={96} />
-                    <h3 className="font-display mt-6 text-3xl leading-tight"><Link href={`/lectori/${t.slug}`} className="hover:text-gold">{t.name}</Link></h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">{t.role}</p>
-                  </div>
-                  <div className="lg:col-span-8">
-                    <p className="font-display text-2xl leading-snug sm:text-[1.7rem]">{t.bio}</p>
-                    <ul className="mt-8 grid gap-3 sm:grid-cols-1">
-                      {t.points.map((p) => (
-                        <li key={p} className="flex gap-3 border-t border-line pt-3 text-[15px] text-muted"><span className="mt-2.5 size-1 shrink-0 rotate-45 bg-gold" />{p}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
+          <Reveal><SectionTitle eyebrow="Echipa" title="Lectori care practică zilnic ceea ce predau." /></Reveal>
+          <ul className="mt-14 grid gap-6 lg:grid-cols-3">
+            {founders.map((t) => (
+              <Reveal as="li" key={t.id}>
+                <Link href={`/lectori/${t.slug}`} className="flex h-full flex-col rounded-[2rem] border border-line bg-card p-8 transition-all duration-500 hover:-translate-y-1.5">
+                  <TrainerAvatar name={t.name} photo={t.photo_url} size={96} />
+                  <h3 className="font-display mt-6 text-2xl leading-tight">{t.name}</h3>
+                  <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-muted">{t.role}</p>
+                  <span className="mt-auto pt-6 text-sm font-medium text-gold">Profil și cazuri clinice</span>
+                </Link>
               </Reveal>
             ))}
-          </div>
+            <Reveal as="li">
+              <Link href="/lectori" className="flex h-full flex-col justify-between rounded-[2rem] border border-line bg-card p-8 transition-all duration-500 hover:-translate-y-1.5">
+                <div>
+                  <h3 className="font-display text-2xl leading-tight">Lectorii noștri</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">Echipa de lectori care completează programul academiei.</p>
+                </div>
+                <span className="pt-6 text-sm font-medium text-gold">Vezi lectorii</span>
+              </Link>
+            </Reveal>
+          </ul>
+          <Reveal>
+            <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-[2rem] bg-ink p-8 text-white sm:flex-row sm:items-center">
+              <div>
+                <h3 className="font-display text-2xl">Partenerii noștri</h3>
+                <p className="mt-2 text-sm text-white/65">Companiile și laboratorul care susțin educația clinică din academie.</p>
+              </div>
+              <ButtonLink href="/parteneri" variant="outline">Vezi partenerii</ButtonLink>
+            </div>
+          </Reveal>
         </Container>
       </section>
 

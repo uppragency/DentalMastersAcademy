@@ -108,6 +108,9 @@ const courseSchema = z.object({
   next_edition_of: z.string().uuid().optional(),
   parking_info: z.string().trim().max(500).optional(),
   bring_info: z.string().trim().max(500).optional(),
+  kind: z.enum(["dma", "hosted"]),
+  powered_by: z.string().trim().max(120).optional(),
+  powered_by_url: z.string().trim().url().startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
 });
 
 /** Blocks separated by a blank line: first line = question, rest = answer. */
@@ -157,6 +160,9 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     next_edition_of: opt(formData.get("next_edition_of")),
     parking_info: opt(formData.get("parking_info")),
     bring_info: opt(formData.get("bring_info")),
+    kind: formData.get("kind") === "hosted" ? "hosted" : "dma",
+    powered_by: opt(formData.get("powered_by")),
+    powered_by_url: opt(formData.get("powered_by_url")),
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
@@ -195,6 +201,9 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
     next_edition_of: d.next_edition_of ?? null,
     parking_info: d.parking_info ?? null,
     bring_info: d.bring_info ?? null,
+    kind: d.kind,
+    powered_by: d.powered_by ?? null,
+    powered_by_url: d.powered_by_url ?? null,
     is_featured: formData.get("is_featured") === "on",
     gold_free: formData.get("gold_free") === "on",
   };

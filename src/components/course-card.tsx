@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Course } from "@/lib/types";
-import { dayNum, formatDateRange, formatPrice, monthShort } from "@/lib/format";
+import { dayNum, formatDateRange, formatPrice, isDateTbd, monthShort } from "@/lib/format";
 import { CourseImage } from "@/components/course-image";
 
 export function CourseCard({ course, ended = false }: { course: Course; ended?: boolean }) {
@@ -20,6 +20,7 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
         ) : null}
         <div className="absolute right-4 top-4 flex flex-col items-end gap-2 text-[11px] font-semibold">
           {ended ? <span className="rounded-full bg-red-600/90 px-3 py-1 text-white backdrop-blur">Înscrieri închise</span> : null}
+          {course.kind === "hosted" ? <span className="rounded-full bg-white/90 px-3 py-1 text-ink backdrop-blur">Curs găzduit</span> : null}
           {course.gold_free ? <span className="rounded-full bg-gold px-3 py-1 text-white">Gratuit Gold</span> : null}
         </div>
         {course.language ? (
@@ -33,14 +34,15 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">{course.categories.name}</p>
         ) : null}
         <h3 className="font-display mt-3 text-balance text-2xl font-medium leading-tight">{course.title}</h3>
+        {course.powered_by ? <p className="mt-1 text-xs font-medium text-gold">Powered by {course.powered_by}</p> : null}
         {course.summary ? <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-muted">{course.summary}</p> : null}
-        <p className="mt-auto pt-6 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>
+        <p className="mt-auto pt-6 text-sm text-muted">{course.starts_at ? formatDateRange(course.starts_at, course.ends_at) : "Data va fi anunțată"}</p>
         <div className="mt-4 flex items-end justify-between border-t border-line pt-5">
           <div>
             {course.old_price_cents ? (
               <span className="mr-2 text-sm text-muted line-through">{formatPrice(course.old_price_cents, course.currency)}</span>
             ) : null}
-            <span className="text-xl font-semibold tracking-tight">{formatPrice(course.price_cents, course.currency)}</span>
+            <span className="text-xl font-semibold tracking-tight">{isDateTbd(course) && course.price_cents === 0 ? "Preț în curând" : formatPrice(course.price_cents, course.currency)}</span>
           </div>
           {ended ? <span className="sr-only">Înscrierile sunt închise</span> : null}
           <span className="inline-flex size-10 items-center justify-center rounded-full bg-ink text-white transition-all duration-300 group-hover:bg-gold group-hover:pl-0.5">

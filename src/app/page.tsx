@@ -6,11 +6,11 @@ import { TestimonialsCarousel } from "@/components/testimonials-carousel";
 import { Faq } from "@/components/faq";
 import { Reveal } from "@/components/reveal";
 import { Counter } from "@/components/counter";
-import { getCategories, getCategoryCounts, getCourses, getLoyaltySettings, getTestimonials, getTrainers } from "@/lib/data";
+import { getCategories, getCategoryCounts, getCourses, getLoyaltySettings, getPartnerRows, getTestimonials, getTrainers } from "@/lib/data";
 import { dayNum, formatPrice, isEnded, monthShort } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { advantages, facility, heroVideoUrl, howItWorks, modules, stats, topics } from "@/content/site";
-import { getFaqs, getPartners } from "@/lib/site-content";
+import { getFaqs } from "@/lib/site-content";
 import { LocationMap } from "@/components/location-map";
 import { TrainerAvatar } from "@/components/trainer-avatar";
 
@@ -23,7 +23,7 @@ export default async function HomePage() {
     getCategories(),
     getCategoryCounts(),
     getFaqs(),
-    getPartners(),
+    getPartnerRows(),
   ]);
   const now = nowMs();
   const upcoming = courses.filter((c) => !isEnded(c, now));
@@ -56,7 +56,7 @@ export default async function HomePage() {
             </p>
             <div className="rise mt-10 flex flex-col gap-3 sm:flex-row" style={{ ["--d" as string]: "380ms" }}>
               <ButtonLink href="/cursuri" variant="light">Explorează cursurile <Arrow /></ButtonLink>
-              <ButtonLink href="/despre" variant="outline">Despre academie</ButtonLink>
+              <ButtonLink href="/cine-suntem" variant="outline">Despre academie</ButtonLink>
             </div>
           </div>
 
@@ -243,7 +243,7 @@ export default async function HomePage() {
             <div id="exp-title"><SectionTitle light eyebrow="Experții noștri" title="Învață de la clinicieni care practică zilnic." /></div>
           </Reveal>
           <ul className="mt-16 grid gap-5 lg:grid-cols-3">
-            {trainers.map((t, i) => (
+            {trainers.slice(0, 3).map((t, i) => (
               <Reveal as="li" key={t.id} delay={i * 100}>
                 <article className="group flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/[0.03] p-8 transition-colors hover:border-gold-bright/40 hover:bg-white/[0.06]">
                   <div className="flex items-center gap-4">
@@ -315,11 +315,20 @@ export default async function HomePage() {
 
       {/* FAQ */}
       {partners.length > 0 ? (
-        <section aria-label="Materiale și sisteme folosite" className="border-y border-line bg-card py-10">
+        <section aria-label="Parteneri" className="border-y border-line bg-card py-10">
           <Container>
-            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-muted">Materiale și sisteme folosite în curriculum</p>
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-muted">Partenerii noștri</p>
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 font-display text-2xl text-foreground/70">
-              {partners.map((p) => <li key={p}>{p}</li>)}
+              {partners.map((p) => (
+                <li key={p.id}>
+                  <Link href="/parteneri" className="transition-colors hover:text-foreground">
+                    {p.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.logo_url} alt={p.name} className="h-9 w-auto max-w-[160px] object-contain" />
+                    ) : p.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </Container>
         </section>

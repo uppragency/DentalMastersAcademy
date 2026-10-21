@@ -39,6 +39,11 @@ export function isEnded(c: { starts_at: string | null; ends_at: string | null },
   return Boolean(ref && new Date(ref).getTime() < now);
 }
 
+/** Fizic sau hibrid, fără dată stabilită: ediția nu poate fi cumpărată încă. */
+export function isDateTbd(c: { starts_at: string | null; format: string }) {
+  return !c.starts_at && c.format !== "online";
+}
+
 export function isNotOpen(c: { registration_opens_at: string | null }, now: number, earlyMs = 0) {
   return Boolean(c.registration_opens_at && new Date(c.registration_opens_at).getTime() > now + earlyMs);
 }

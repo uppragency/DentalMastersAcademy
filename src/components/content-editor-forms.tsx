@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { saveBank, saveFaqs, saveLegal, savePartners } from "@/actions/ops";
+import { saveBank, saveFaqs, saveLegal } from "@/actions/ops";
 import { Button } from "@/components/ui";
 import type { FormState } from "@/actions/auth";
 
@@ -23,9 +23,6 @@ function TextForm({ action, name, label, rows, defaultValue, hint }: { action: A
 
 export const FaqEditor = ({ value }: { value: string }) => (
   <TextForm action={saveFaqs} name="faqs" label="Întrebări frecvente (pagina principală)" rows={14} defaultValue={value} hint="Întrebarea pe primul rând, răspunsul pe următoarele, blocuri separate printr-un rând gol. Gol = întrebările implicite." />
-);
-export const PartnersEditor = ({ value }: { value: string }) => (
-  <TextForm action={savePartners} name="partners" label="Parteneri și materiale folosite" rows={6} defaultValue={value} hint="Un nume pe rând. Adaugă doar mărci cu acord scris. Gol = secțiune ascunsă." />
 );
 export const BankEditor = ({ value }: { value: string }) => (
   <TextForm action={saveBank} name="bank" label="Date bancare pentru transfer" rows={6} defaultValue={value} hint="Beneficiar, IBAN, bancă, CUI. Un rând per informație. Nu este public: apare doar în emailul de instrucțiuni de plată." />

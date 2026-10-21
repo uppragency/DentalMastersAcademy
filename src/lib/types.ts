@@ -30,6 +30,9 @@ export type Course = {
   old_price_cents: number | null;
   early_price_cents?: number | null;
   early_until?: string | null;
+  kind?: "dma" | "hosted";
+  powered_by?: string | null;
+  powered_by_url?: string | null;
   audience: string[];
   outcomes: string[];
   sections: { title: string; items: string[] }[];
@@ -133,6 +136,9 @@ export type Trainer = {
   intro_video_url: string | null;
   sort_order: number;
   published: boolean;
+  is_founder: boolean;
+  expertise: string[];
+  dma_role: string | null;
 };
 
 export type BlogPost = {
@@ -158,4 +164,23 @@ export type EventRow = {
   description: string | null;
   photos: string[];
   published: boolean;
+};
+
+export type Partner = { id: string; name: string; description: string | null; logo_url: string | null; url: string | null; sort_order: number; published: boolean };
+export type ClinicalCase = { id: string; trainer_id: string; title: string; description: string | null; image_urls: string[]; sort_order: number; published: boolean };
+export type GalleryPhoto = { id: string; album_id: string; url: string; caption: string | null; sort_order: number };
+export type GalleryAlbum = { id: string; course_id: string | null; title: string; edition_label: string | null; sort_order: number; published: boolean; gallery_photos: GalleryPhoto[]; courses?: { title: string } | null };
+export type TestimonialVideo = { id: string; author_name: string; course_id: string | null; title: string | null; video_url: string; sort_order: number; is_published: boolean; courses?: { title: string } | null };
+export type CaseRequest = {
+  id: string;
+  kind: "doctor" | "patient";
+  name: string;
+  email: string;
+  phone: string | null;
+  message: string;
+  files: { path: string; name: string; size: number }[];
+  consent_at: string;
+  status: "nou" | "in_analiza" | "preluat" | "inchis";
+  admin_note: string | null;
+  created_at: string;
 };

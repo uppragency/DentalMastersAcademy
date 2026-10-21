@@ -9,7 +9,7 @@ import { JsonLd } from "@/components/json-ld";
 import { parseVideo } from "@/lib/video";
 import { personJsonLd } from "@/lib/structured-data";
 import { formatDate } from "@/lib/format";
-import { getCourses, getPosts, getTrainerBySlug } from "@/lib/data";
+import { getClinicalCases, getCourses, getPosts, getTrainerBySlug } from "@/lib/data";
 import { isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TrainerPage({ params }: Props) {
   const t = await getTrainerBySlug((await params).slug);
   if (!t) notFound();
-  const [all, posts] = await Promise.all([getCourses(), getPosts()]);
+  const [all, posts, cases] = await Promise.all([getCourses(), getPosts(), getClinicalCases(t.id)]);
   const articles = posts.filter((p) => p.trainer_id === t.id).slice(0, 6);
   const intro = parseVideo(t.intro_video_url);
   const surname = t.name.replace("Dr. ", "").split(" ").slice(-1)[0]!;
@@ -34,7 +34,7 @@ export default async function TrainerPage({ params }: Props) {
       <JsonLd data={[personJsonLd(t)]} />
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
         <Container className="py-20 sm:py-28">
-          <nav aria-label="Breadcrumb" className="text-sm text-white/55"><Link href="/lectori" className="hover:text-white">Lectori</Link></nav>
+          <nav aria-label="Breadcrumb" className="text-sm text-white/55"><Link href={t.is_founder ? "/cine-suntem" : "/lectori"} className="hover:text-white">{t.is_founder ? "Cine suntem" : "Lectorii noștri"}</Link></nav>
           <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-center">
             <TrainerAvatar name={t.name} photo={t.photo_url} size={140} />
             <div>
@@ -55,12 +55,57 @@ export default async function TrainerPage({ params }: Props) {
           ))}
         </ul>
       </Container>
+      {t.expertise.length > 0 || t.dma_role ? (
+        <section className="border-t border-line py-16">
+          <Container className="grid gap-12 lg:grid-cols-12">
+            {t.expertise.length > 0 ? (
+              <div className="lg:col-span-6">
+                <Eyebrow>Arii de expertiză</Eyebrow>
+                <ul className="mt-6 space-y-3">
+                  {t.expertise.map((x) => (
+                    <li key={x} className="flex gap-3 border-t border-line pt-3 text-[15px]"><span className="mt-2.5 size-1 shrink-0 rotate-45 bg-gold" />{x}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {t.dma_role ? (
+              <div className="lg:col-span-6">
+                <Eyebrow>Rolul în Dental Masters Academy</Eyebrow>
+                <p className="font-display mt-6 text-2xl leading-snug">{t.dma_role}</p>
+              </div>
+            ) : null}
+          </Container>
+        </section>
+      ) : null}
       {intro ? (
         <Container className="pb-16">
           <div className="relative aspect-video overflow-hidden rounded-[2rem] bg-ink shadow-[0_40px_80px_-40px_rgba(8,13,23,.6)]">
             <VideoPlayer source={intro} title={`Prezentare ${t.name}`} />
           </div>
         </Container>
+      ) : null}
+      {cases.length > 0 ? (
+        <section className="border-t border-line py-16">
+          <Container>
+            <h2 className="font-display text-4xl">Cazuri clinice documentate</h2>
+            <ul className="mt-10 grid gap-6 md:grid-cols-2">
+              {cases.map((c) => (
+                <li key={c.id} className="rounded-[2rem] border border-line bg-card p-6 sm:p-8">
+                  {c.image_urls.length > 0 ? (
+                    <div className="mb-6 grid grid-cols-2 gap-2">
+                      {c.image_urls.map((u) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img key={u} src={u} alt={c.title} loading="lazy" className="aspect-[4/3] w-full rounded-2xl object-cover" />
+                      ))}
+                    </div>
+                  ) : null}
+                  <h3 className="font-display text-2xl leading-snug">{c.title}</h3>
+                  {c.description ? <p className="mt-3 whitespace-pre-line leading-relaxed text-muted">{c.description}</p> : null}
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </section>
       ) : null}
       {courses.length > 0 ? (
         <section className="border-t border-line bg-card py-16">

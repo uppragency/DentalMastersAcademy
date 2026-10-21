@@ -23,6 +23,7 @@ const adminGroups: NavGroup[] = [
       { href: "/admin/coduri", label: "Coduri reducere" },
       { href: "/admin/gold", label: "Program Gold" },
       { href: "/admin/asteptare", label: "Listă de așteptare" },
+      { href: "/admin/solicitari", label: "Solicitări cazuri" },
     ],
   },
   {
@@ -42,7 +43,9 @@ const adminGroups: NavGroup[] = [
       { href: "/admin/testimoniale", label: "Testimoniale" },
       { href: "/admin/feedback", label: "Feedback" },
       { href: "/admin/continut", label: "Conținut site" },
-      { href: "/admin/lectori", label: "Lectori" },
+      { href: "/admin/lectori", label: "Lectori și cazuri" },
+      { href: "/admin/parteneri", label: "Parteneri" },
+      { href: "/admin/galerii", label: "Galerii și video" },
       { href: "/admin/blog", label: "Blog" },
       { href: "/admin/evenimente", label: "Evenimente" },
     ],

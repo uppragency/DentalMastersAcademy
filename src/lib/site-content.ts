@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { faqs as defaultFaqs, partners as defaultPartners } from "@/content/site";
+import { faqs as defaultFaqs } from "@/content/site";
 
 export type Faq = { q: string; a: string };
 
@@ -14,11 +14,6 @@ const load = cache(async (key: string): Promise<unknown | null> => {
 export async function getFaqs(): Promise<Faq[]> {
   const v = await load("faqs");
   return Array.isArray(v) && v.length > 0 ? (v as Faq[]) : defaultFaqs;
-}
-
-export async function getPartners(): Promise<string[]> {
-  const v = await load("partners");
-  return Array.isArray(v) ? (v as string[]) : defaultPartners;
 }
 
 /** Plain text of a legal page, or null when it has not been edited in the admin. */

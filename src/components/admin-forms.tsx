@@ -102,7 +102,16 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
         <textarea id="syllabus" name="syllabus" rows={6} defaultValue={course?.syllabus ?? ""} className={area} />
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Formator" name="trainer_name" defaultValue={course?.trainer_name ?? ""} />
+        <div>
+          <label htmlFor="kind" className="mb-1.5 block text-sm font-medium">Tip curs</label>
+          <select id="kind" name="kind" defaultValue={course?.kind ?? "dma"} className="min-h-12 w-full rounded-xl border border-line bg-card px-4 text-base">
+            <option value="dma">Curs DMA</option>
+            <option value="hosted">Curs găzduit</option>
+          </select>
+        </div>
+        <Field label="Formatori (separați prin virgulă)" name="trainer_name" defaultValue={course?.trainer_name ?? ""} />
+        <Field label="Powered by (opțional, ex. DÜRR Dental)" name="powered_by" defaultValue={course?.powered_by ?? ""} />
+        <Field label="Link partener (opțional, https://)" name="powered_by_url" defaultValue={course?.powered_by_url ?? ""} error={e?.powered_by_url?.[0]} />
         <Field label="Data de început" name="starts_on" type="date" defaultValue={date} />
         <Field label="Ora de început" name="start_time" type="time" defaultValue={fmtTime(course?.starts_at, "09:00")} />
         <Field label="Data de final (opțional)" name="ends_on" type="date" defaultValue={endDate} />

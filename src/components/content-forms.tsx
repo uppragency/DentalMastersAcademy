@@ -22,8 +22,11 @@ export function TrainerForm({ trainer }: { trainer: Trainer }) {
       <div><label htmlFor={`role-${trainer.id}`} className="mb-1.5 block text-sm font-medium">Titulatură</label><textarea id={`role-${trainer.id}`} name="role" rows={2} defaultValue={trainer.role ?? ""} className={area} /></div>
       <div><label htmlFor={`bio-${trainer.id}`} className="mb-1.5 block text-sm font-medium">Biografie</label><textarea id={`bio-${trainer.id}`} name="bio" rows={4} defaultValue={trainer.bio ?? ""} className={area} /></div>
       <div><label htmlFor={`pts-${trainer.id}`} className="mb-1.5 block text-sm font-medium">Puncte cheie (unul pe rând)</label><textarea id={`pts-${trainer.id}`} name="points" rows={3} defaultValue={trainer.points.join("\n")} className={area} /></div>
+      <div><label htmlFor={`exp-${trainer.id}`} className="mb-1.5 block text-sm font-medium">Arii de expertiză (una pe rând)</label><textarea id={`exp-${trainer.id}`} name="expertise" rows={4} defaultValue={trainer.expertise.join("\n")} className={area} /></div>
+      <div><label htmlFor={`role-dma-${trainer.id}`} className="mb-1.5 block text-sm font-medium">Rolul în DMA</label><textarea id={`role-dma-${trainer.id}`} name="dma_role" rows={3} defaultValue={trainer.dma_role ?? ""} className={area} /></div>
       <Field label="Video de prezentare (link https, YouTube/Vimeo/mp4)" name="intro_video_url" type="url" defaultValue={trainer.intro_video_url ?? ""} error={e?.intro_video_url?.[0]} />
       <div><label htmlFor={`ph-${trainer.id}`} className="mb-1.5 block text-sm font-medium">Fotografie (JPG, PNG, WebP, maximum 6 MB)</label><input id={`ph-${trainer.id}`} type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/avif" className={fileCls} /></div>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_founder" defaultChecked={trainer.is_founder} className="size-4 accent-[#a9833d]" /> Fondator (apare în meniul Cine suntem)</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={trainer.published} className="size-4 accent-[#a9833d]" /> Afișat pe site</label>
       <Status message={state?.message} />
       <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează"}</Button>

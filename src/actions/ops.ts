@@ -210,14 +210,6 @@ export async function saveFaqs(_: FormState, formData: FormData): Promise<FormSt
   return { message: faqs.length ? `Salvat: ${faqs.length} întrebări.` : "Lista goală: site-ul folosește întrebările implicite." };
 }
 
-export async function savePartners(_: FormState, formData: FormData): Promise<FormState> {
-  const { profile } = await requireFullAdmin();
-  const list = String(formData.get("partners") ?? "").split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 30);
-  if (!(await saveContent("partners", list, profile.id))) return { message: "Nu s-a putut salva." };
-  revalidatePath("/", "layout");
-  return { message: list.length ? `Salvat: ${list.length} parteneri. Afișează doar mărci cu acord scris.` : "Lista este goală: secțiunea este ascunsă." };
-}
-
 export async function saveBank(_: FormState, formData: FormData): Promise<FormState> {
   const { profile } = await requireFullAdmin();
   const text = String(formData.get("bank") ?? "").trim().slice(0, 1000);

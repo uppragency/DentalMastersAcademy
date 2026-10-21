@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { withEffectivePrice } from "@/lib/pricing";
-import type { PointsRow, BlogPost, Category, Course, EventRow, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
+import type { PointsRow, BlogPost, Category, ClinicalCase, Course, EventRow, GalleryAlbum, Partner, TestimonialVideo, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
 
 const courseSelect = "*, categories(name, slug)";
 
@@ -304,4 +304,28 @@ export async function getCourseRating(courseId: string): Promise<{ avg: number; 
   const { data } = await supabase.rpc("course_ratings");
   const row = ((data ?? []) as { course_id: string; avg_rating: number; n: number }[]).find((r) => r.course_id === courseId);
   return row ? { avg: Number(row.avg_rating), n: Number(row.n) } : null;
+}
+
+export async function getPartnerRows(): Promise<Partner[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("partners").select("*").eq("published", true).order("sort_order");
+  return (data ?? []) as Partner[];
+}
+
+export async function getClinicalCases(trainerId: string): Promise<ClinicalCase[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("clinical_cases").select("*").eq("trainer_id", trainerId).eq("published", true).order("sort_order");
+  return (data ?? []) as ClinicalCase[];
+}
+
+export async function getAlbums(): Promise<GalleryAlbum[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("gallery_albums").select("*, gallery_photos(*), courses(title)").eq("published", true).order("sort_order").order("created_at", { ascending: false });
+  return ((data ?? []) as GalleryAlbum[]).map((a) => ({ ...a, gallery_photos: [...a.gallery_photos].sort((x, y) => x.sort_order - y.sort_order) }));
+}
+
+export async function getTestimonialVideos(): Promise<TestimonialVideo[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("testimonial_videos").select("*, courses(title)").eq("is_published", true).order("sort_order").order("created_at", { ascending: false });
+  return (data ?? []) as TestimonialVideo[];
 }

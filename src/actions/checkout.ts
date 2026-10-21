@@ -33,7 +33,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
 
   const { data: course } = await admin
     .from("courses")
-    .select("id, slug, title, currency, status, starts_at, ends_at, registration_opens_at, payment_methods")
+    .select("id, slug, title, currency, status, format, starts_at, ends_at, registration_opens_at, payment_methods")
     .eq("id", courseId)
     .eq("status", "published")
     .maybeSingle();
@@ -42,6 +42,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
   if (!courseMethods(course.payment_methods).includes(method)) return { message: "Metoda de plată aleasă nu este disponibilă pentru acest curs." };
   const endRef = course.ends_at ?? course.starts_at;
   if (endRef && new Date(endRef).getTime() < Date.now()) return { message: "Înscrierile pentru această ediție sunt închise. Scrie-ne pentru următoarea ediție." };
+  if (!course.starts_at && course.format !== "online") return { message: "Data ediției nu a fost anunțată încă. Te poți înscrie pe lista de așteptare." };
   if (course.registration_opens_at && new Date(course.registration_opens_at).getTime() > Date.now()) return { message: "Înscrierile pentru această ediție nu s-au deschis încă." };
 
   // Billing details: a saved profile (owned by the signed-in user) or the submitted fields.

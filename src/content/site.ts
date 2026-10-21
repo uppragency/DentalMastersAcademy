@@ -102,7 +102,6 @@ export const howItWorks = [
 ];
 
 /** Fill with the materials or systems used in courses ONLY with written permission from each brand. Hidden when empty. */
-export const partners: string[] = [];
 
 /** Optional looping hero video (https .mp4/.webm). Hidden when empty. */
 export const heroVideoUrl = "";

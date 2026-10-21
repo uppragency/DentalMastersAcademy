@@ -6,12 +6,12 @@ import { useEffect, useRef, useState } from "react";
 export type NavData = {
   categories: { name: string; slug: string }[];
   courses: { title: string; slug: string; date: string; price: string }[];
+  founders: { name: string; slug: string }[];
 };
 
-const about = [
-  { href: "/lectori", title: "Lectori", text: "Clinicienii care predau și experiența lor." },
-  { href: "/despre#concept", title: "Concept", text: "Cum arată academia: săli, tehnologie, grupe mici." },
-  { href: "/testimoniale", title: "Testimoniale", text: "Ce spun medicii care au participat." },
+const tail = [
+  { href: "/lectori", title: "Lectorii noștri", text: "Clinicienii care predau și experiența lor." },
+  { href: "/parteneri", title: "Partenerii noștri", text: "Companiile și laboratorul care susțin academia." },
 ];
 
 type Key = "cursuri" | "despre";
@@ -43,10 +43,11 @@ export function MainNav({ data }: { data: NavData }) {
       {(["cursuri", "despre"] as const).map((k) => (
         <div key={k} onMouseEnter={() => show(k)} className="flex items-center">
           <button type="button" aria-expanded={open === k} aria-controls={`mega-${k}`} onClick={() => setOpen(open === k ? null : k)} onFocus={() => show(k)} className={trigger}>
-            {k === "cursuri" ? "Cursuri" : "Despre noi"} {chevron(k)}
+            {k === "cursuri" ? "Cursuri și workshopuri" : "Cine suntem"} {chevron(k)}
           </button>
         </div>
       ))}
+      <Link href="/testimoniale" className="text-sm text-white/70 transition-colors hover:text-white" onMouseEnter={close}>Testimoniale</Link>
       <Link href="/blog" className="text-sm text-white/70 transition-colors hover:text-white" onMouseEnter={close}>Blog</Link>
       <Link href="/contact" className="text-sm text-white/70 transition-colors hover:text-white" onMouseEnter={close}>Contact</Link>
 
@@ -84,6 +85,11 @@ export function MainNav({ data }: { data: NavData }) {
               <p className="font-display text-3xl leading-tight">Toate cursurile, într-un singur loc.</p>
               <p className="mt-3 text-sm text-white/60">Filtrează după specializare, format sau perioadă și vezi calendarul edițiilor.</p>
               <Link href="/cursuri" onClick={close} className="mt-6 inline-flex min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink hover:bg-gold-soft">Vezi catalogul</Link>
+              <ul className="mt-6 space-y-1 text-sm text-white/75">
+                <li><Link href="/cursuri#dma" onClick={close} className="hover:text-white">Cursuri DMA</Link></li>
+                <li><Link href="/cursuri#hosted" onClick={close} className="hover:text-white">Cursuri găzduite</Link></li>
+                <li><Link href="/mentorat" onClick={close} className="hover:text-white">Mentorat clinic</Link></li>
+              </ul>
             </div>
           </div>
         </div>
@@ -96,14 +102,14 @@ export function MainNav({ data }: { data: NavData }) {
         className="absolute inset-x-0 top-full border-b border-white/10 bg-ink text-white shadow-[0_40px_60px_-30px_rgba(0,0,0,.7)]"
       >
         <div className="mx-auto w-full max-w-[1680px] px-12 py-10 2xl:px-16">
-          <ul className="grid gap-4 lg:grid-cols-4">
+          <ul className="grid gap-4 lg:grid-cols-5">
             <li>
-              <Link href="/despre" onClick={close} className="block h-full rounded-3xl bg-gradient-to-br from-gold to-gold-bright p-6 text-ink">
-                <span className="font-display block text-2xl leading-tight">Despre noi</span>
-                <span className="mt-2 block text-sm text-ink/70">Povestea academiei și echipa din spatele ei.</span>
+              <Link href="/cine-suntem" onClick={close} className="block h-full rounded-3xl bg-gradient-to-br from-gold to-gold-bright p-6 text-ink">
+                <span className="font-display block text-2xl leading-tight">Conceptul DMA</span>
+                <span className="mt-2 block text-sm text-ink/70">Un ecosistem de educație clinică, într-un singur loc.</span>
               </Link>
             </li>
-            {about.map((a) => (
+            {[...data.founders.map((f) => ({ href: `/lectori/${f.slug}`, title: f.name, text: "Profil, expertiză și cazuri clinice." })), ...tail].map((a) => (
               <li key={a.href}>
                 <Link href={a.href} onClick={close} className="block h-full rounded-3xl border border-white/10 p-6 hover:border-gold-bright/50 hover:bg-white/5">
                   <span className="font-display block text-2xl leading-tight">{a.title}</span>

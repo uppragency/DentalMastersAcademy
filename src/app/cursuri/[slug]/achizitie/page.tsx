@@ -9,7 +9,7 @@ import { OrderSummary } from "@/components/order-summary";
 import { createClient } from "@/lib/supabase/server";
 import type { BillingProfile } from "@/lib/billing";
 import { getCourseBySlug, getCurrentProfile, getEnrolledCourseIds, getPendingTransfer, getLoyaltySettings } from "@/lib/data";
-import { formatDateRange, isEnded, isNotOpen } from "@/lib/format";
+import { formatDateRange, isDateTbd, isEnded, isNotOpen } from "@/lib/format";
 import { tierPerks } from "@/lib/loyalty";
 import { nowMs } from "@/lib/time";
 import { paymentsEnabled } from "@/lib/stripe";
@@ -21,7 +21,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();
   const perk = tierPerks(profile?.tier ?? "standard", loyalty);
-  if (isEnded(course, nowMs()) || isNotOpen(course, nowMs(), perk.earlyMs)) redirect(`/cursuri/${slug}`);
+  if (isEnded(course, nowMs()) || isDateTbd(course) || isNotOpen(course, nowMs(), perk.earlyMs)) redirect(`/cursuri/${slug}`);
   const refCode = (await cookies()).get("dma_ref")?.value ?? "";
 
   let billingProfiles: BillingProfile[] = [];
