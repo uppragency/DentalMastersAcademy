@@ -4,7 +4,7 @@ import { CourseCard } from "@/components/course-card";
 import { PageHero } from "@/components/page-hero";
 import { CourseFilters } from "@/components/course-filters";
 import { Reveal } from "@/components/reveal";
-import { getCategories, getCourses } from "@/lib/data";
+import { getCourses } from "@/lib/data";
 import { isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 
@@ -13,11 +13,11 @@ export const metadata: Metadata = {
   description: "Catalogul de cursuri Dental Masters Academy pentru medici stomatologi.",
 };
 
-type Props = { searchParams: Promise<{ categorie?: string; format?: string; perioada?: string }> };
+type Props = { searchParams: Promise<{ format?: string; perioada?: string }> };
 
 export default async function CoursesPage({ searchParams }: Props) {
-  const { categorie, format, perioada } = await searchParams;
-  const [categories, all] = await Promise.all([getCategories(), getCourses({ category: categorie, format })]);
+  const { format, perioada } = await searchParams;
+  const all = await getCourses({ format });
   const now = nowMs();
   const when = perioada === "viitoare" || perioada === "incheiate" ? perioada : "";
   const courses = all.filter((c) => (when === "viitoare" ? !isEnded(c, now) : when === "incheiate" ? isEnded(c, now) : true));
@@ -37,8 +37,6 @@ export default async function CoursesPage({ searchParams }: Props) {
       <section className="py-14 sm:py-20">
         <Container>
           <CourseFilters
-            categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
-            categorie={categorie}
             format={format}
             perioada={when}
             upcoming={all.filter((c) => !isEnded(c, now)).map((c) => ({ id: c.id, slug: c.slug, title: c.title, starts_at: c.starts_at }))}

@@ -47,10 +47,10 @@ export async function runPostPurchase(admin: Admin) {
   }
 
   // Step 4: four days after the course ended, propose the next course to those who attended.
-  const { data: ended } = await admin.from("courses").select("id, title, category_id, ends_at, starts_at").eq("status", "published").not("starts_at", "is", null);
+  const { data: ended } = await admin.from("courses").select("id, title, ends_at, starts_at").eq("status", "published").not("starts_at", "is", null);
   const finished = (ended ?? []).filter((c) => diffDays(today, day(new Date(c.ends_at ?? c.starts_at!))) === 4);
   if (finished.length > 0) {
-    const { data: upcoming } = await admin.from("courses").select("id, slug, title, summary, category_id, price_cents, currency, capacity, starts_at, ends_at").eq("status", "published").gt("starts_at", new Date(now).toISOString()).order("starts_at");
+    const { data: upcoming } = await admin.from("courses").select("id, slug, title, summary, price_cents, currency, capacity, starts_at, ends_at").eq("status", "published").gt("starts_at", new Date(now).toISOString()).order("starts_at");
     const { data: enr } = await admin.from("enrollments").select("course_id");
     const taken = new Map<string, number>();
     for (const r of enr ?? []) taken.set(r.course_id, (taken.get(r.course_id) ?? 0) + 1);
@@ -63,7 +63,7 @@ export async function runPostPurchase(admin: Admin) {
         const { data: mine } = await admin.from("enrollments").select("course_id").eq("user_id", e.user_id);
         const owned = new Set((mine ?? []).map((m) => m.course_id));
         const open = (upcoming ?? []).filter((u) => !owned.has(u.id) && (!u.capacity || (taken.get(u.id) ?? 0) < u.capacity));
-        const pick = open.find((u) => u.category_id && u.category_id === fc.category_id) ?? open[0];
+        const pick = open[0];
         if (!pick) continue;
         const ok = await sendMail({
           to: e.profiles.email,

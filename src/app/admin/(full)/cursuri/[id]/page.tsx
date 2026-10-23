@@ -7,7 +7,7 @@ import { AnnounceForm, MaterialForm } from "@/components/engagement-forms";
 import { deleteMaterial } from "@/actions/engagement";
 import { ButtonLink } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
-import { getCategories, getLessons } from "@/lib/data";
+import { getLessons } from "@/lib/data";
 import type { Course } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Editare curs | Administrare", robots: { index: false } };
@@ -15,9 +15,8 @@ export const metadata: Metadata = { title: "Editare curs | Administrare", robots
 export default async function EditCourse({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const [{ data }, categories, lessons, { data: others }, { data: materials }] = await Promise.all([
+  const [{ data }, lessons, { data: others }, { data: materials }] = await Promise.all([
     supabase.from("courses").select("*").eq("id", id).maybeSingle<Course>(),
-    getCategories(),
     getLessons(id),
     supabase.from("courses").select("id, title").order("starts_at", { ascending: false }),
     supabase.from("course_materials").select("id, title, url, file_path").eq("course_id", id).order("created_at"),
@@ -29,7 +28,7 @@ export default async function EditCourse({ params }: { params: Promise<{ id: str
         <h1 className="text-3xl font-semibold tracking-tight">Editare curs</h1>
         <ButtonLink href={`/admin/cursuri/${id}/participanti`} variant="ghost">Participanți și prezență</ButtonLink>
       </div>
-      <CourseForm course={data} categories={categories} otherCourses={others ?? []} />
+      <CourseForm course={data} otherCourses={others ?? []} />
       <section className="mt-14 border-t border-line pt-10" aria-labelledby="lessons">
         <h2 id="lessons" className="text-2xl font-semibold tracking-tight">Lecții și materiale video</h2>
         <p className="mt-2 text-sm text-muted">Lecțiile sunt vizibile doar cursanților înscriși.</p>

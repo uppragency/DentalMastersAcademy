@@ -30,9 +30,6 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
         ) : null}
       </div>
       <div className="flex flex-1 flex-col p-7">
-        {course.categories?.name ? (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">{course.categories.name}</p>
-        ) : null}
         <h3 className="font-display mt-3 text-balance text-2xl font-medium leading-tight">{course.title}</h3>
         {course.powered_by ? <p className="mt-1 text-xs font-medium text-gold">Powered by {course.powered_by}</p> : null}
         {course.summary ? <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-muted">{course.summary}</p> : null}

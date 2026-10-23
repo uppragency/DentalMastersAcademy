@@ -34,8 +34,8 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
   const owned = new Set(courses.map((c) => c.id));
   const allCourses = await getCourses();
   const spec = (profile.specialization ?? "").toLowerCase().split(/\s+/).filter((w) => w.length > 3);
-  const relevance = (c: { title: string; summary: string | null; categories?: { name: string } | null }) => {
-    const hay = `${c.title} ${c.summary ?? ""} ${c.categories?.name ?? ""}`.toLowerCase();
+  const relevance = (c: { title: string; summary: string | null }) => {
+    const hay = `${c.title} ${c.summary ?? ""}`.toLowerCase();
     return spec.filter((w) => hay.includes(w)).length;
   };
   const suggestions = allCourses

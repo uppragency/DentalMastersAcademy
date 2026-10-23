@@ -5,17 +5,14 @@ import { useState, type ReactNode } from "react";
 import { EditionsTimeline } from "@/components/editions-timeline";
 import type { Course } from "@/lib/types";
 
-type Key = "categorie" | "perioada" | "format" | "calendar";
+type Key = "perioada" | "format" | "calendar";
 type Props = {
-  categories: { slug: string; name: string }[];
-  categorie?: string;
   format?: string;
   perioada: string;
   upcoming: Pick<Course, "id" | "slug" | "title" | "starts_at">[];
 };
 
 const icons: Record<Key, ReactNode> = {
-  categorie: <path d="M4 6h16M4 12h16M4 18h10" />,
   perioada: <><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></>,
   format: <><rect x="3" y="5" width="18" height="12" rx="2" /><path d="M8 21h8M12 17v4" /></>,
   calendar: <><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></>,
@@ -24,28 +21,26 @@ const icons: Record<Key, ReactNode> = {
 const formatNames: Record<string, string> = { physical: "Fizic", online: "Online", hybrid: "Hibrid" };
 const periodNames: Record<string, string> = { viitoare: "Înscrieri deschise", incheiate: "Înscrieri închise" };
 
-export function CourseFilters({ categories, categorie, format, perioada, upcoming }: Props) {
+export function CourseFilters({ format, perioada, upcoming }: Props) {
   const [open, setOpen] = useState<Key | null>(null);
 
-  const href = (o: { c?: string; f?: string; p?: string }) => {
+  const href = (o: { f?: string; p?: string }) => {
     const params = new URLSearchParams();
-    if (o.c) params.set("categorie", o.c);
     if (o.f) params.set("format", o.f);
     if (o.p) params.set("perioada", o.p);
     const qs = params.toString();
     return qs ? `/cursuri?${qs}` : "/cursuri";
   };
-  const cur = { c: categorie, f: format, p: perioada || undefined };
+  const cur = { f: format, p: perioada || undefined };
   const chip = (active: boolean) =>
     `rounded-full border px-5 py-2.5 text-sm transition-all duration-300 ${active ? "border-ink bg-ink text-white" : "border-line bg-card text-muted hover:border-foreground/30 hover:text-foreground"}`;
 
   const tabs: { key: Key; label: string; value?: string }[] = [
-    { key: "categorie", label: "Specializare", value: categories.find((c) => c.slug === categorie)?.name },
     { key: "perioada", label: "Perioadă", value: periodNames[perioada] },
     { key: "format", label: "Format", value: format ? formatNames[format] : undefined },
     { key: "calendar", label: "Calendar ediții" },
   ];
-  const active = [categorie, perioada, format].filter(Boolean).length;
+  const active = [perioada, format].filter(Boolean).length;
 
   return (
     <div className="rounded-[2rem] border border-line bg-card p-2">
@@ -77,12 +72,6 @@ export function CourseFilters({ categories, categorie, format, perioada, upcomin
 
       {open ? (
         <div id={`filter-${open}`} role="tabpanel" className="px-4 pb-5 pt-5 sm:px-6">
-          {open === "categorie" ? (
-            <nav aria-label="Filtrare după specializare" className="flex flex-wrap gap-2">
-              <Link href={href({ ...cur, c: undefined })} className={chip(!categorie)}>Toate specializările</Link>
-              {categories.map((c) => <Link key={c.slug} href={href({ ...cur, c: c.slug })} className={chip(categorie === c.slug)}>{c.name}</Link>)}
-            </nav>
-          ) : null}
           {open === "perioada" ? (
             <nav aria-label="Filtrare după perioadă" className="flex flex-wrap gap-2">
               <Link href={href({ ...cur, p: undefined })} className={chip(!perioada)}>Toate</Link>

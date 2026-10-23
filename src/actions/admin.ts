@@ -77,7 +77,6 @@ function parseSections(v: string | undefined) {
 const courseSchema = z.object({
   title: z.string().trim().min(3, { error: "Titlul este obligatoriu." }).max(200),
   slug: z.string().trim().max(80).optional(),
-  category_id: z.string().uuid().optional(),
   summary: z.string().trim().max(500).optional(),
   description: z.string().trim().max(20000).optional(),
   syllabus: z.string().trim().max(20000).optional(),
@@ -129,7 +128,6 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
   const parsed = courseSchema.safeParse({
     title: formData.get("title"),
     slug: opt(formData.get("slug")),
-    category_id: opt(formData.get("category_id")),
     summary: opt(formData.get("summary")),
     description: opt(formData.get("description")),
     syllabus: opt(formData.get("syllabus")),
@@ -172,7 +170,6 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
   const row = {
     title: d.title,
     slug: slugify(d.slug || d.title),
-    category_id: d.category_id ?? null,
     summary: d.summary ?? null,
     description: d.description ?? null,
     syllabus: d.syllabus ?? null,

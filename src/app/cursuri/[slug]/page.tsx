@@ -102,10 +102,8 @@ export default async function CoursePage({ params }: Props) {
         <Container className="pb-[70px] pt-16 sm:pb-40 sm:pt-24 lg:pb-48">
           <nav aria-label="Breadcrumb" className="rise text-sm text-white/55">
             <Link href="/cursuri" className="hover:text-white">Cursuri</Link>
-            {course.categories ? (<> <span aria-hidden="true">/</span> <Link href={`/categorii/${course.categories.slug}`} className="hover:text-white">{course.categories.name}</Link></>) : null}
           </nav>
           <div className="rise mt-8 flex flex-wrap items-center gap-2 text-xs font-semibold" style={{ ["--d" as string]: "80ms" }}>
-            {course.categories ? <span className="rounded-full bg-gold-bright px-3.5 py-1.5 uppercase tracking-widest text-ink">{course.categories.name}</span> : null}
             {ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Înscrieri închise</span> : null}
             {notOpen ? <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-white backdrop-blur">Înscrieri în curând</span> : null}
             {soldOut && !ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Ediție completă</span> : null}

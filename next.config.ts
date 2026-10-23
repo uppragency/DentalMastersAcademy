@@ -2,7 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   async redirects() {
-    return [{ source: "/despre", destination: "/cine-suntem", permanent: true }];
+    return [
+      { source: "/despre", destination: "/cine-suntem", permanent: true },
+      { source: "/categorii", destination: "/cursuri", permanent: true },
+      { source: "/categorii/:slug", destination: "/cursuri", permanent: true },
+    ];
   },
   experimental: { serverActions: { bodySizeLimit: "4mb" } },
   images: {

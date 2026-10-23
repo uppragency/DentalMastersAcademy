@@ -5,7 +5,7 @@ import { addLesson, addTestimonial, createDiscountCode, deleteCourse, saveCourse
 import { Button, Field } from "@/components/ui";
 import { GalleryField } from "@/components/gallery-field";
 import { toBucharestLocal } from "@/lib/format";
-import type { Category, Course, LoyaltySettings } from "@/lib/types";
+import type { Course, LoyaltySettings } from "@/lib/types";
 
 const area =
   "w-full rounded-xl border border-line bg-card px-4 py-3 text-base outline-none transition-colors focus:border-gold";
@@ -14,7 +14,7 @@ function Status({ message }: { message?: string }) {
   return message ? <p role="status" className="rounded-xl bg-gold-soft px-4 py-3 text-sm">{message}</p> : null;
 }
 
-export function CourseForm({ course, categories, otherCourses = [] }: { course?: Course; categories: Category[]; otherCourses?: { id: string; title: string }[] }) {
+export function CourseForm({ course, otherCourses = [] }: { course?: Course; otherCourses?: { id: string; title: string }[] }) {
   const [state, action, pending] = useActionState(saveCourse.bind(null, course?.id ?? null), undefined);
   const e = state?.errors;
   const fmtDay = (iso: string | null | undefined) =>
@@ -53,13 +53,6 @@ export function CourseForm({ course, categories, otherCourses = [] }: { course?:
       </div>
       <Field label="Slug (opțional, se generează din titlu)" name="slug" defaultValue={course?.slug} error={e?.slug?.[0]} />
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="category_id" className="mb-1.5 block text-sm font-medium">Specializare</label>
-          <select id="category_id" name="category_id" defaultValue={course?.category_id ?? ""} className="min-h-12 w-full rounded-xl border border-line bg-card px-4 text-base">
-            <option value="">Fără specializare</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
         <div>
           <label htmlFor="format" className="mb-1.5 block text-sm font-medium">Format</label>
           <select id="format" name="format" defaultValue={course?.format ?? "physical"} className="min-h-12 w-full rounded-xl border border-line bg-card px-4 text-base">

@@ -1,25 +1,14 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { withEffectivePrice } from "@/lib/pricing";
-import type { PointsRow, BlogPost, Category, ClinicalCase, Course, EventRow, GalleryAlbum, Partner, TestimonialVideo, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
+import type { PointsRow, BlogPost, ClinicalCase, Course, EventRow, GalleryAlbum, Partner, TestimonialVideo, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
 
-const courseSelect = "*, categories(name, slug)";
+const courseSelect = "*";
 
-export async function getCategories(): Promise<Category[]> {
-  const supabase = await createClient();
-  const { data } = await supabase.from("categories").select("*").order("sort_order");
-  return (data ?? []) as Category[];
-}
-
-export async function getCourses(opts: { category?: string; format?: string; featured?: boolean; limit?: number } = {}) {
+export async function getCourses(opts: { format?: string; featured?: boolean; limit?: number } = {}) {
   const supabase = await createClient();
   let query = supabase.from("courses").select(courseSelect).eq("status", "published");
 
-  if (opts.category) {
-    const { data: cat } = await supabase.from("categories").select("id").eq("slug", opts.category).maybeSingle();
-    if (!cat) return [] as Course[];
-    query = query.eq("category_id", cat.id);
-  }
   if (opts.format && ["physical", "online", "hybrid"].includes(opts.format)) query = query.eq("format", opts.format);
   if (opts.featured) query = query.eq("is_featured", true);
 
@@ -112,7 +101,7 @@ export async function getMyEnrollments(userId: string): Promise<EnrollmentRow[]>
   const supabase = await createClient();
   const { data } = await supabase
     .from("enrollments")
-    .select("id, created_at, source, attended, courses(*, categories(name, slug))")
+    .select("id, created_at, source, attended, courses(*)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   return (data ?? []) as unknown as EnrollmentRow[];
@@ -215,14 +204,6 @@ export async function getCompletedLessonIds(userId: string): Promise<string[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("lesson_progress").select("lesson_id").eq("user_id", userId);
   return (data ?? []).map((r: { lesson_id: string }) => r.lesson_id);
-}
-
-export async function getCategoryCounts(): Promise<Record<string, number>> {
-  const supabase = await createClient();
-  const { data } = await supabase.from("courses").select("category_id").eq("status", "published");
-  const counts: Record<string, number> = {};
-  for (const r of data ?? []) if (r.category_id) counts[r.category_id] = (counts[r.category_id] ?? 0) + 1;
-  return counts;
 }
 
 export const getSeatCounts = cache(async (): Promise<Record<string, number>> => {

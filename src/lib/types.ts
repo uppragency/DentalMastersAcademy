@@ -1,11 +1,9 @@
 export type Tier = "standard" | "gold" | "platinum";
 export type CourseFormat = "physical" | "online" | "hybrid";
 
-export type Category = { id: string; slug: string; name: string; sort_order: number };
 
 export type Course = {
   id: string;
-  category_id: string | null;
   slug: string;
   title: string;
   summary: string | null;
@@ -45,7 +43,6 @@ export type Course = {
   duration_hours?: number | null;
   parking_info: string | null;
   bring_info: string | null;
-  categories?: { name: string; slug: string } | null;
 };
 
 export type Profile = {

@@ -6,7 +6,7 @@ import { TestimonialsCarousel } from "@/components/testimonials-carousel";
 import { Faq } from "@/components/faq";
 import { Reveal } from "@/components/reveal";
 import { Counter } from "@/components/counter";
-import { getCategories, getCategoryCounts, getCourses, getLoyaltySettings, getPartnerRows, getTestimonials, getTrainers } from "@/lib/data";
+import { getCourses, getLoyaltySettings, getPartnerRows, getTestimonials, getTrainers } from "@/lib/data";
 import { dayNum, formatPrice, isEnded, monthShort } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 import { advantages, facility, heroVideoUrl, howItWorks, modules, stats, topics } from "@/content/site";
@@ -15,13 +15,11 @@ import { LocationMap } from "@/components/location-map";
 import { TrainerAvatar } from "@/components/trainer-avatar";
 
 export default async function HomePage() {
-  const [trainers, courses, testimonials, loyalty, categories, counts, faqs, partners] = await Promise.all([
+  const [trainers, courses, testimonials, loyalty, faqs, partners] = await Promise.all([
     getTrainers(),
     getCourses(),
     getTestimonials(),
     getLoyaltySettings(),
-    getCategories(),
-    getCategoryCounts(),
     getFaqs(),
     getPartnerRows(),
   ]);
@@ -150,30 +148,6 @@ export default async function HomePage() {
           </ol>
         </Container>
       </section>
-
-      {/* CATEGORIES */}
-      {categories.length > 0 ? (
-        <section className="pb-16 sm:pb-24 lg:pb-32" aria-labelledby="cats-title">
-          <Container>
-            <Reveal><h2 id="cats-title" className="sr-only">Categorii</h2></Reveal>
-            <ul className="grid gap-px overflow-hidden rounded-[2rem] border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-              {categories.map((c) => (
-                <li key={c.id} className="bg-card">
-                  <Link href={`/categorii/${c.slug}`} className="group flex min-h-32 items-center justify-between gap-4 p-8 transition-colors hover:bg-gold-soft">
-                    <span>
-                      <span className="font-display block text-2xl">{c.name}</span>
-                      <span className="mt-1 block text-sm text-muted">{counts[c.id] ?? 0} {(counts[c.id] ?? 0) === 1 ? "curs" : "cursuri"}</span>
-                    </span>
-                    <span className="flex size-11 items-center justify-center rounded-full border border-line transition-all group-hover:border-ink group-hover:bg-ink group-hover:text-white">
-                      <Arrow className="group-hover:translate-x-0" />
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Container>
-        </section>
-      ) : null}
 
       {/* MASTER COURSE */}
       <section className="grain relative overflow-hidden bg-ink-2 py-24 text-white sm:py-32" aria-labelledby="master-title">
