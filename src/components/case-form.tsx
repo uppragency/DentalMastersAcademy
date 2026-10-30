@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useActionState, useRef, useState, useTransition } from "react";
 import { prepareCaseUploads, submitCase } from "@/actions/cases";
 import { Button, Field } from "@/components/ui";
@@ -26,6 +27,7 @@ const copy: Record<Kind, { cta: string; messageLabel: string; filesLabel: string
 };
 
 export function CaseForm({ kind }: { kind: Kind }) {
+  const tr = useT();
   const c = copy[kind];
   const [state, action, pending] = useActionState(submitCase, undefined);
   const [filesJson, setFilesJson] = useState("[]");
@@ -81,10 +83,10 @@ export function CaseForm({ kind }: { kind: Kind }) {
     <form ref={form} onSubmit={onSubmit} className="space-y-5">
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="files" value={filesJson} readOnly />
-      <Field label="Nume și prenume" name="name" autoComplete="name" required error={e?.name?.[0]} id={`${kind}-name`} />
+      <Field label={tr("Nume și prenume")} name="name" autoComplete="name" required error={e?.name?.[0]} id={`${kind}-name`} />
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Email" name="email" type="email" autoComplete="email" required error={e?.email?.[0]} id={`${kind}-email`} />
-        <Field label="Telefon" name="phone" type="tel" autoComplete="tel" required error={e?.phone?.[0]} id={`${kind}-phone`} />
+        <Field label={tr("Email")} name="email" type="email" autoComplete="email" required error={e?.email?.[0]} id={`${kind}-email`} />
+        <Field label={tr("Telefon")} name="phone" type="tel" autoComplete="tel" required error={e?.phone?.[0]} id={`${kind}-phone`} />
       </div>
       <div>
         <label htmlFor={`${kind}-message`} className="mb-1.5 block text-sm font-medium">{c.messageLabel}</label>
@@ -94,10 +96,10 @@ export function CaseForm({ kind }: { kind: Kind }) {
       <div>
         <label htmlFor={`${kind}-files`} className="mb-1.5 block text-sm font-medium">{c.filesLabel}</label>
         <input id={`${kind}-files`} name="attachments" type="file" multiple accept={CASE_EXTENSIONS.map((x) => `.${x}`).join(",")} className="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-ink file:px-5 file:py-2.5 file:text-sm file:font-medium file:text-white" />
-        <p className="mt-1.5 text-xs text-muted">{c.hint} Maximum {MAX_CASE_FILES} fișiere, 50 MB fiecare. Formate: PDF, JPG, PNG, WebP, HEIC, ZIP, DICOM (.dcm), STL, PLY, OBJ.</p>
+        <p className="mt-1.5 text-xs text-muted">{c.hint} {" "}{tr("Maximum")}{" "}{MAX_CASE_FILES} {" "}{tr("fișiere, 50 MB fiecare. Formate: PDF, JPG, PNG, WebP, HEIC, ZIP, DICOM (.dcm), STL, PLY, OBJ.")}</p>
       </div>
       <div className="hidden" aria-hidden="true">
-        <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
+        <label>{tr("Website")}<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       <label className="flex items-start gap-3 text-sm leading-relaxed">
         <input type="checkbox" name="consent" required className="mt-1 size-4 shrink-0 accent-[#a9833d]" />

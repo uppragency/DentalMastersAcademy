@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { contact } from "@/content/site";
 import { LegalShell, LegalText } from "@/components/legal-text";
@@ -16,22 +17,21 @@ export default async function Page() {
   const custom = await getLegalText("legal_cookies");
   if (custom) {
     return (
-      <LegalShell title="Politica de cookies" lead="Folosim doar ce este necesar funcționării platformei.">
+      <LegalShell title={tr("Politica de cookies")} lead={tr("Folosim doar ce este necesar funcționării platformei.")}>
         <LegalText text={custom} />
       </LegalShell>
     );
   }
   return (
-    <LegalShell title="Politica de cookies" lead="Folosim doar ce este necesar funcționării platformei.">
+    <LegalShell title={tr("Politica de cookies")} lead={tr("Folosim doar ce este necesar funcționării platformei.")}>
       <p className="mt-6 leading-relaxed text-muted">
-        Folosim doar cookie-uri și stocare locală necesare funcționării platformei. Nu folosim cookie-uri de marketing sau de urmărire publicitară.
-      </p>
+        {tr("Folosim doar cookie-uri și stocare locală necesare funcționării platformei. Nu folosim cookie-uri de marketing sau de urmărire publicitară.")}</p>
 
-      <h2 className="mt-10 text-xl font-semibold">Ce folosim</h2>
+      <h2 className="mt-10 text-xl font-semibold">{tr("Ce folosim")}</h2>
       <div className="mt-4 overflow-x-auto rounded-3xl border border-line">
         <table className="w-full min-w-[34rem] text-left text-sm">
           <thead className="bg-card text-muted">
-            <tr><th className="p-4 font-medium">Nume</th><th className="p-4 font-medium">Scop</th><th className="p-4 font-medium">Durată</th><th className="p-4 font-medium">Tip</th></tr>
+            <tr><th className="p-4 font-medium">{tr("Nume")}</th><th className="p-4 font-medium">{tr("Scop")}</th><th className="p-4 font-medium">{tr("Durată")}</th><th className="p-4 font-medium">{tr("Tip")}</th></tr>
           </thead>
           <tbody className="divide-y divide-line">
             {rows.map((r) => (
@@ -46,18 +46,16 @@ export default async function Page() {
         </table>
       </div>
 
-      <h2 className="mt-10 text-xl font-semibold">Plăți</h2>
+      <h2 className="mt-10 text-xl font-semibold">{tr("Plăți")}</h2>
       <p className="mt-3 leading-relaxed text-muted">
-        La plata cu cardul ești redirecționat către Stripe, care poate seta propriile cookie-uri pentru prevenirea fraudei, conform politicii lor.
-      </p>
+        {tr("La plata cu cardul ești redirecționat către Stripe, care poate seta propriile cookie-uri pentru prevenirea fraudei, conform politicii lor.")}</p>
 
-      <h2 className="mt-10 text-xl font-semibold">Cum le controlezi</h2>
+      <h2 className="mt-10 text-xl font-semibold">{tr("Cum le controlezi")}</h2>
       <p className="mt-3 leading-relaxed text-muted">
-        Poți șterge sau bloca cookie-urile din setările browserului. Fără cookie-urile strict necesare nu te poți autentifica în cont.
-      </p>
+        {tr("Poți șterge sau bloca cookie-urile din setările browserului. Fără cookie-urile strict necesare nu te poți autentifica în cont.")}</p>
 
       <p className="mt-10 text-sm text-muted">
-        Întrebări: <a className="underline underline-offset-4 hover:text-foreground" href={`mailto:${contact.email}`}>{contact.email}</a>
+        {tr("Întrebări:")}{" "}<a className="underline underline-offset-4 hover:text-foreground" href={`mailto:${contact.email}`}>{contact.email}</a>
       </p>
     </LegalShell>
   );

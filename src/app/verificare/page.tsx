@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { lredirect as redirect } from "@/lib/i18n/server";
 import { Container } from "@/components/ui";
@@ -13,11 +14,11 @@ async function go(formData: FormData) {
 export default function VerifyIndex() {
   return (
     <Container className="max-w-xl py-16">
-      <h1 className="text-4xl font-semibold tracking-tight">Verificare adeverință</h1>
-      <p className="mt-4 leading-relaxed text-muted">Introdu numărul de pe adeverința de participare pentru a confirma că a fost emisă de Dental Masters Academy.</p>
+      <h1 className="text-4xl font-semibold tracking-tight">{tr("Verificare adeverință")}</h1>
+      <p className="mt-4 leading-relaxed text-muted">{tr("Introdu numărul de pe adeverința de participare pentru a confirma că a fost emisă de Dental Masters Academy.")}</p>
       <form action={go} className="mt-8 flex flex-wrap gap-3">
-        <input name="numar" required placeholder="DMA-2026-0001" aria-label="Număr adeverință" className="min-h-12 flex-1 rounded-full border border-line bg-card px-5 text-base outline-none focus:border-gold" />
-        <button type="submit" className="min-h-12 rounded-full bg-ink px-7 text-sm font-medium text-white">Verifică</button>
+        <input name="numar" required placeholder="DMA-2026-0001" aria-label={tr("Număr adeverință")} className="min-h-12 flex-1 rounded-full border border-line bg-card px-5 text-base outline-none focus:border-gold" />
+        <button type="submit" className="min-h-12 rounded-full bg-ink px-7 text-sm font-medium text-white">{tr("Verifică")}</button>
       </form>
     </Container>
   );

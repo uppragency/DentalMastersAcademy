@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import Image from "next/image";
 import Link from "@/components/locale-link";
 import { createClient } from "@/lib/supabase/server";
@@ -40,14 +41,14 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/95 text-white lg:bg-ink/85 lg:backdrop-blur-xl">
       <div className="mx-auto flex h-[72px] w-full max-w-[1680px] items-center justify-between px-5 sm:px-8 lg:px-12 2xl:px-16">
-        <Link href="/" className="flex items-center" aria-label="Dental Masters Academy, prima pagină">
+        <Link href="/" className="flex items-center" aria-label={tr("Dental Masters Academy, prima pagină")}>
           <Image src="/logo.png" alt="" width={795} height={377} priority className="h-14 w-auto" />
         </Link>
 
         <MainNav data={navData} />
 
         <div className="flex items-center gap-2">
-          <Link href="/contact#medici" className="hidden min-h-11 items-center rounded-full border border-white/25 px-5 text-sm text-white/85 transition-colors hover:border-gold-bright hover:text-white 2xl:inline-flex">Trimite un caz</Link>
+          <Link href="/contact#medici" className="hidden min-h-11 items-center rounded-full border border-white/25 px-5 text-sm text-white/85 transition-colors hover:border-gold-bright hover:text-white 2xl:inline-flex">{tr("Trimite un caz")}</Link>
           <div className="hidden lg:block"><LanguageSwitch /></div>
           <SearchDialog />
           <ThemeToggle />
@@ -55,7 +56,7 @@ export async function SiteHeader() {
           {profile ? (
             <AccountMenu name={profile.full_name || profile.email} tier={profile.tier} tierLabel={tierNames[profile.tier]} />
           ) : (
-            <Link href="/autentificare" className="hidden min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink transition-colors hover:bg-gold-soft sm:inline-flex">Intră în cont</Link>
+            <Link href="/autentificare" className="hidden min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink transition-colors hover:bg-gold-soft sm:inline-flex">{tr("Intră în cont")}</Link>
           )}
           <MobileMenu items={mobileItems} signedIn={Boolean(userId)} />
         </div>

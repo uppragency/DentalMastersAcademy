@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Arrow } from "@/components/ui";
@@ -55,9 +56,9 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
 
   return (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Cursuri plătite</p>
-      <h1 className="font-display mt-2 text-5xl font-medium">Cursurile mele</h1>
-      <nav aria-label="Filtrare cursuri" className="mt-8 flex gap-2 overflow-x-auto pb-1">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{tr("Cursuri plătite")}</p>
+      <h1 className="font-display mt-2 text-5xl font-medium">{tr("Cursurile mele")}</h1>
+      <nav aria-label={tr("Filtrare cursuri")} className="mt-8 flex gap-2 overflow-x-auto pb-1">
         {tabs.map((t) => (
           <Link
             key={t.key}
@@ -92,14 +93,14 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
                       const pct = Math.round((p.done / p.total) * 100);
                       return (
                         <div className="mt-5">
-                          <div className="h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Progres curs">
+                          <div className="h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={tr("Progres curs")}>
                             <div className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
                           </div>
-                          <p className="mt-2 text-xs text-muted">{p.done} din {p.total} lecții ({pct}%)</p>
+                          <p className="mt-2 text-xs text-muted">{p.done} {" "}{tr("din")}{" "}{p.total} {" "}{tr("lecții (")}{pct}%)</p>
                         </div>
                       );
                     })()}
-                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-gold">Accesează cursul <Arrow className="group-hover:translate-x-1" /></span>
+                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-gold">{tr("Accesează cursul")}{" "}<Arrow className="group-hover:translate-x-1" /></span>
                   </div>
                 </Link>
               </li>
@@ -107,7 +108,7 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
           })}
         </ul>
       ) : (
-        <div className="mt-8"><EmptyState title={empty.title} text={empty.text} href="/cursuri" cta="Vezi catalogul" /></div>
+        <div className="mt-8"><EmptyState title={empty.title} text={empty.text} href="/cursuri" cta={tr("Vezi catalogul")} /></div>
       )}
     </div>
   );

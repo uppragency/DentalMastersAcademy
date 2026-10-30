@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import { EmptyState } from "@/components/empty-state";
 import type { Metadata } from "next";
 import { markAllNotificationsRead } from "@/actions/notifications";
@@ -18,11 +19,11 @@ export default async function NotificationsPage() {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Cont</p>
-          <h1 className="font-display mt-2 text-5xl font-medium">Notificări</h1>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{tr("Cont")}</p>
+          <h1 className="font-display mt-2 text-5xl font-medium">{tr("Notificări")}</h1>
         </div>
         {unread > 0 ? (
-          <form action={markAllNotificationsRead}><Button type="submit" variant="ghost">Marchează toate ca citite</Button></form>
+          <form action={markAllNotificationsRead}><Button type="submit" variant="ghost">{tr("Marchează toate ca citite")}</Button></form>
         ) : null}
       </div>
       {items.length > 0 ? (
@@ -32,7 +33,7 @@ export default async function NotificationsPage() {
           ))}
         </ul>
       ) : (
-        <div className="mt-10"><EmptyState title="Nu ai notificări" text="Aici vezi anunțuri de la organizator, materiale noi și mesaje despre cursurile tale." href="/cont/cursuri" cta="Cursurile mele" /></div>
+        <div className="mt-10"><EmptyState title={tr("Nu ai notificări")} text={tr("Aici vezi anunțuri de la organizator, materiale noi și mesaje despre cursurile tale.")} href="/cont/cursuri" cta={tr("Cursurile mele")} /></div>
       )}
     </div>
   );

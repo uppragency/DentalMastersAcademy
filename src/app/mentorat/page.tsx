@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { ButtonLink, Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
@@ -11,15 +12,14 @@ export const metadata: Metadata = {
 export default function MentorshipPage() {
   return (
     <>
-      <PageHero eyebrow="Mentorat clinic" title={<>Cazul tău, cu <span className="text-gold-sheen">experții DMA.</span></>} lead="Vino cu propriul pacient în cabinetul DMA și beneficiază de experiența echipei noastre." />
+      <PageHero eyebrow={tr("Mentorat clinic")} title={<>{tr("Cazul tău, cu")}{" "}<span className="text-gold-sheen">{tr("experții DMA.")}</span></>} lead={tr("Vino cu propriul pacient în cabinetul DMA și beneficiază de experiența echipei noastre.")} />
       <section className="py-16 sm:py-24">
         <Container className="grid gap-12 lg:grid-cols-12">
           <Reveal className="space-y-6 text-lg leading-relaxed text-muted lg:col-span-7">
             <p>
-              În funcție de complexitatea cazului și de obiectivele tale de învățare, poți realiza intervenția cu îndrumarea experților noștri sau poți asista la intervenția efectuată de aceștia, în format over-the-shoulder.
-            </p>
-            <p>Cazul, planul de tratament și modul de implicare sunt stabilite împreună, înaintea intervenției.</p>
-            <div className="pt-4"><ButtonLink href="/contact#medici" variant="gold">Discută un caz cu echipa DMA</ButtonLink></div>
+              {tr("În funcție de complexitatea cazului și de obiectivele tale de învățare, poți realiza intervenția cu îndrumarea experților noștri sau poți asista la intervenția efectuată de aceștia, în format over-the-shoulder.")}</p>
+            <p>{tr("Cazul, planul de tratament și modul de implicare sunt stabilite împreună, înaintea intervenției.")}</p>
+            <div className="pt-4"><ButtonLink href="/contact#medici" variant="gold">{tr("Discută un caz cu echipa DMA")}</ButtonLink></div>
           </Reveal>
           <Reveal className="lg:col-span-5" delay={120}>
             <ol className="space-y-5 rounded-[2rem] border border-line bg-card p-8">

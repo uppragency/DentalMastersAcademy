@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Container } from "@/components/ui";
@@ -12,11 +13,11 @@ export default async function BlogPage() {
   const posts = await getPosts();
   return (
     <>
-      <PageHero eyebrow="Blog" title="Articole pentru medici." lead="Explicații scurte și practice din cursurile și cazurile academiei." />
+      <PageHero eyebrow={tr("Blog")} title={tr("Articole pentru medici.")} lead={tr("Explicații scurte și practice din cursurile și cazurile academiei.")} />
       <section className="py-20">
         <Container>
           {posts.length === 0 ? (
-            <p className="rounded-3xl border border-dashed border-line p-12 text-center text-muted">Articolele vor fi publicate în curând.</p>
+            <p className="rounded-3xl border border-dashed border-line p-12 text-center text-muted">{tr("Articolele vor fi publicate în curând.")}</p>
           ) : (
             <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {posts.map((p, i) => (
@@ -25,7 +26,7 @@ export default async function BlogPage() {
                     <p className="text-xs text-muted">{formatDate(p.published_at)} · {p.author_name}</p>
                     <h2 className="font-display mt-4 text-2xl leading-snug">{p.title}</h2>
                     {p.excerpt ? <p className="mt-3 text-[15px] leading-relaxed text-muted">{p.excerpt}</p> : null}
-                    <span className="mt-auto pt-6 text-sm font-medium text-gold">Citește articolul</span>
+                    <span className="mt-auto pt-6 text-sm font-medium text-gold">{tr("Citește articolul")}</span>
                   </Link>
                 </Reveal>
               ))}

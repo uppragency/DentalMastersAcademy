@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
@@ -75,7 +76,7 @@ export default async function MyCoursePage({
 
   return (
     <div>
-      <Link href="/cont/cursuri" className="text-sm text-muted transition-colors hover:text-foreground">← Cursurile mele</Link>
+      <Link href="/cont/cursuri" className="text-sm text-muted transition-colors hover:text-foreground">{tr("← Cursurile mele")}</Link>
 
       <div className={`mt-6 grid gap-8 ${online ? "xl:grid-cols-[minmax(0,1fr)_16rem]" : ""}`}>
         <div className="min-w-0">
@@ -94,21 +95,21 @@ export default async function MyCoursePage({
                 </p>
               ) : null}
               <dl className="mt-8 grid gap-6 border-t border-white/15 pt-6 text-sm sm:grid-cols-2">
-                <div><dt className="text-white/50">Adresa</dt><dd className="mt-1 font-medium">{address}</dd></div>
-                {parking ? <div><dt className="text-white/50">Parcare și acces</dt><dd className="mt-1 font-medium">{parking}</dd></div> : null}
-                {course.bring_info ? <div><dt className="text-white/50">Ce să aduci</dt><dd className="mt-1 font-medium">{course.bring_info}</dd></div> : null}
-                {course.trainer_name ? <div><dt className="text-white/50">Lectori</dt><dd className="mt-1 font-medium">{course.trainer_name}</dd></div> : null}
+                <div><dt className="text-white/50">{tr("Adresa")}</dt><dd className="mt-1 font-medium">{address}</dd></div>
+                {parking ? <div><dt className="text-white/50">{tr("Parcare și acces")}</dt><dd className="mt-1 font-medium">{parking}</dd></div> : null}
+                {course.bring_info ? <div><dt className="text-white/50">{tr("Ce să aduci")}</dt><dd className="mt-1 font-medium">{course.bring_info}</dd></div> : null}
+                {course.trainer_name ? <div><dt className="text-white/50">{tr("Lectori")}</dt><dd className="mt-1 font-medium">{course.trainer_name}</dd></div> : null}
               </dl>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a href={`https://www.google.com/maps/dir/?api=1&destination=${mapQ}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink hover:bg-gold-soft">Indicații Google Maps</a>
-                {course.starts_at ? <a href={`/cont/cursuri/${slug}/calendar.ics`} className="inline-flex min-h-11 items-center rounded-full border border-white/25 px-5 text-sm font-medium hover:bg-white/10">Adaugă în calendar</a> : null}
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${mapQ}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink hover:bg-gold-soft">{tr("Indicații Google Maps")}</a>
+                {course.starts_at ? <a href={`/cont/cursuri/${slug}/calendar.ics`} className="inline-flex min-h-11 items-center rounded-full border border-white/25 px-5 text-sm font-medium hover:bg-white/10">{tr("Adaugă în calendar")}</a> : null}
               </div>
             </section>
           ) : null}
 
           {physical && course.schedule.length > 0 ? (
             <section className="mt-10" aria-labelledby="sched">
-              <h2 id="sched" className="font-display text-3xl">Programul zilelor</h2>
+              <h2 id="sched" className="font-display text-3xl">{tr("Programul zilelor")}</h2>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 {course.schedule.map((d) => (
                   <article key={d.title} className="rounded-3xl border border-line bg-card p-6">
@@ -160,7 +161,7 @@ export default async function MyCoursePage({
                     {done.has(current.id) ? "Marcată ca terminată" : "Marchează ca terminată"}
                   </Button>
                 </form>
-                {next ? <ButtonLink href={`/cont/cursuri/${slug}?lectia=${next.id}`} variant="primary">Următoarea lecție</ButtonLink> : null}
+                {next ? <ButtonLink href={`/cont/cursuri/${slug}?lectia=${next.id}`} variant="primary">{tr("Următoarea lecție")}</ButtonLink> : null}
               </div>
             ) : null}
           </div>
@@ -183,7 +184,7 @@ export default async function MyCoursePage({
           </dl>
           {course.starts_at ? (
             <p className="mt-4">
-              <a href={`/cont/cursuri/${slug}/calendar.ics`} className="text-sm font-medium text-gold underline underline-offset-4">Adaugă în calendar</a>
+              <a href={`/cont/cursuri/${slug}/calendar.ics`} className="text-sm font-medium text-gold underline underline-offset-4">{tr("Adaugă în calendar")}</a>
             </p>
           ) : null}
 
@@ -192,13 +193,13 @@ export default async function MyCoursePage({
 
           {(materials ?? []).length > 0 ? (
             <section className="mt-14" aria-labelledby="mat">
-              <h2 id="mat" className="font-display text-3xl">Materiale</h2>
+              <h2 id="mat" className="font-display text-3xl">{tr("Materiale")}</h2>
               <ul className="mt-6 divide-y divide-line rounded-3xl border border-line bg-card">
                 {materials!.map((m) => (
                   <li key={m.id}>
                     <a href={m.file_path ? `/api/materiale/${m.id}` : (m.url ?? "#")} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-background">
                       <span><span className="block font-medium">{m.title}</span>{m.description ? <span className="block text-sm text-muted">{m.description}</span> : null}</span>
-                      <span className="shrink-0 text-sm font-medium text-gold">Deschide</span>
+                      <span className="shrink-0 text-sm font-medium text-gold">{tr("Deschide")}</span>
                     </a>
                   </li>
                 ))}
@@ -208,25 +209,25 @@ export default async function MyCoursePage({
 
           {physical && !enrollment.attended && !courseOver && course.starts_at && Date.parse(course.starts_at) - nowMs() > 3 * 86_400_000 ? (
             <section className="mt-14 rounded-3xl border border-line bg-card p-7" aria-labelledby="transfer">
-              <h2 id="transfer" className="font-display text-2xl">Nu mai poți participa?</h2>
-              <p className="mt-2 text-sm text-muted">Îți poți transfera locul unui coleg, fără costuri. Cererea se aprobă de organizator, iar colegul trebuie să aibă cont. Detalii în <a href="/rambursare" className="underline underline-offset-4">politica de rambursare și transfer</a>.</p>
+              <h2 id="transfer" className="font-display text-2xl">{tr("Nu mai poți participa?")}</h2>
+              <p className="mt-2 text-sm text-muted">{tr("Îți poți transfera locul unui coleg, fără costuri. Cererea se aprobă de organizator, iar colegul trebuie să aibă cont. Detalii în")}{" "}<a href="/rambursare" className="underline underline-offset-4">{tr("politica de rambursare și transfer")}</a>.</p>
               {transfer ? (
                 <div className="mt-5 rounded-2xl bg-gold-soft px-5 py-4 text-sm">
-                  <p>Cerere în așteptare către <strong>{transfer.to_email}</strong>.</p>
-                  <form action={cancelTransfer.bind(null, transfer.id)} className="mt-3"><Button type="submit" variant="ghost">Anulează cererea</Button></form>
+                  <p>{tr("Cerere în așteptare către")}{" "}<strong>{transfer.to_email}</strong>.</p>
+                  <form action={cancelTransfer.bind(null, transfer.id)} className="mt-3"><Button type="submit" variant="ghost">{tr("Anulează cererea")}</Button></form>
                 </div>
               ) : <TransferForm enrollmentId={enrollment.id} />}
             </section>
           ) : null}
 
           {enrollment.attended ? (
-            <p className="mt-10"><a href={`/cont/cursuri/${slug}/adeverinta`} className="text-sm font-medium text-gold underline underline-offset-4">Deschide adeverința de participare</a></p>
+            <p className="mt-10"><a href={`/cont/cursuri/${slug}/adeverinta`} className="text-sm font-medium text-gold underline underline-offset-4">{tr("Deschide adeverința de participare")}</a></p>
           ) : null}
 
 
           {course.sections.length > 0 ? (
             <section className="mt-14" aria-labelledby="prog">
-              <h2 id="prog" className="font-display text-3xl">Programa</h2>
+              <h2 id="prog" className="font-display text-3xl">{tr("Programa")}</h2>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 {course.sections.map((s, i) => (
                   <article key={s.title} className="rounded-3xl border border-line bg-card p-6">
@@ -243,9 +244,9 @@ export default async function MyCoursePage({
 
           {courseOver ? (
             <section id="feedback" className="mt-14 scroll-mt-28 rounded-[2rem] border border-line bg-card p-8" aria-labelledby="rev">
-              <h2 id="rev" className="font-display text-3xl">Spune-ne cum a fost</h2>
+              <h2 id="rev" className="font-display text-3xl">{tr("Spune-ne cum a fost")}</h2>
               {(reviewCount ?? 0) > 0 ? (
-                <p className="mt-3 text-sm text-muted">Ai trimis deja evaluarea. Mulțumim!</p>
+                <p className="mt-3 text-sm text-muted">{tr("Ai trimis deja evaluarea. Mulțumim!")}</p>
               ) : (
                 <div className="mt-5 max-w-xl"><FeedbackForm courseId={course.id} /></div>
               )}
@@ -253,13 +254,13 @@ export default async function MyCoursePage({
           ) : null}
         </div>
 
-        {online ? <aside className="xl:sticky xl:top-28 xl:self-start" aria-label="Lecții">
+        {online ? <aside className="xl:sticky xl:top-28 xl:self-start" aria-label={tr("Lecții")}>
           <div className="rounded-[2rem] border border-line bg-card p-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-2xl">Lecții</h2>
+              <h2 className="font-display text-2xl">{tr("Lecții")}</h2>
               <span className="text-sm text-muted">{completed}/{lessons.length}</span>
             </div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Progres curs">
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label={tr("Progres curs")}>
               <div className="h-full rounded-full bg-gradient-to-r from-gold to-gold-bright transition-all duration-700" style={{ width: `${percent}%` }} />
             </div>
             {lessons.length > 0 ? (
@@ -282,7 +283,7 @@ export default async function MyCoursePage({
                                 {done.has(l.id) ? "✓" : i + 1}
                               </span>
                               <span className="min-w-0 flex-1 leading-snug">{l.title}</span>
-                              {l.duration_min ? <span className={`shrink-0 text-xs ${isCurrent ? "text-white/60" : "text-muted"}`}>{l.duration_min} min</span> : null}
+                              {l.duration_min ? <span className={`shrink-0 text-xs ${isCurrent ? "text-white/60" : "text-muted"}`}>{l.duration_min} {" "}{tr("min")}</span> : null}
                             </Link>
                           </li>
                         );
@@ -292,7 +293,7 @@ export default async function MyCoursePage({
                 ))}
               </div>
             ) : (
-              <p className="mt-5 text-sm leading-relaxed text-muted">Lecțiile și materialele vor fi adăugate aici. Vei primi o notificare când sunt disponibile.</p>
+              <p className="mt-5 text-sm leading-relaxed text-muted">{tr("Lecțiile și materialele vor fi adăugate aici. Vei primi o notificare când sunt disponibile.")}</p>
             )}
           </div>
         </aside> : null}

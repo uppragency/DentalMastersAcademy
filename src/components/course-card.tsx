@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import Link from "@/components/locale-link";
 import type { Course } from "@/lib/types";
 import { dayNum, formatDateRange, formatPrice, isDateTbd, monthShort } from "@/lib/format";
@@ -19,9 +20,9 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
           </div>
         ) : null}
         <div className="absolute right-4 top-4 flex flex-col items-end gap-2 text-[11px] font-semibold">
-          {ended ? <span className="rounded-full bg-red-600/90 px-3 py-1 text-white backdrop-blur">Înscrieri închise</span> : null}
-          {course.kind === "hosted" ? <span className="rounded-full bg-white/90 px-3 py-1 text-ink backdrop-blur">Curs găzduit</span> : null}
-          {course.gold_free ? <span className="rounded-full bg-gold px-3 py-1 text-white">Gratuit Gold</span> : null}
+          {ended ? <span className="rounded-full bg-red-600/90 px-3 py-1 text-white backdrop-blur">{tr("Înscrieri închise")}</span> : null}
+          {course.kind === "hosted" ? <span className="rounded-full bg-white/90 px-3 py-1 text-ink backdrop-blur">{tr("Curs găzduit")}</span> : null}
+          {course.gold_free ? <span className="rounded-full bg-gold px-3 py-1 text-white">{tr("Gratuit Gold")}</span> : null}
         </div>
         {course.language ? (
           <span className="absolute bottom-4 left-4 rounded-full border border-white/30 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white/90 backdrop-blur">
@@ -31,7 +32,7 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
       </div>
       <div className="flex flex-1 flex-col p-7">
         <h3 className="font-display mt-3 text-balance text-2xl font-medium leading-tight">{course.title}</h3>
-        {course.powered_by ? <p className="mt-1 text-xs font-medium text-gold">Powered by {course.powered_by}</p> : null}
+        {course.powered_by ? <p className="mt-1 text-xs font-medium text-gold">{tr("Powered by")}{" "}{course.powered_by}</p> : null}
         {course.summary ? <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-muted">{course.summary}</p> : null}
         <p className="mt-auto pt-6 text-sm text-muted">{course.starts_at ? formatDateRange(course.starts_at, course.ends_at) : "Data va fi anunțată"}</p>
         <div className="mt-4 flex items-end justify-between border-t border-line pt-5">
@@ -41,7 +42,7 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
             ) : null}
             <span className="text-xl font-semibold tracking-tight">{isDateTbd(course) && course.price_cents === 0 ? "Preț în curând" : formatPrice(course.price_cents, course.currency)}</span>
           </div>
-          {ended ? <span className="sr-only">Înscrierile sunt închise</span> : null}
+          {ended ? <span className="sr-only">{tr("Înscrierile sunt închise")}</span> : null}
           <span className="inline-flex size-10 items-center justify-center rounded-full bg-ink text-white transition-all duration-300 group-hover:bg-gold group-hover:pl-0.5">
             <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 15L15 5M7 5h8v8" /></svg>
           </span>

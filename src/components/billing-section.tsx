@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useState, useTransition } from "react";
 import { lookupCui } from "@/actions/anaf";
 import { Field } from "@/components/ui";
@@ -58,6 +59,7 @@ export function BillingSection({
   defaultName: string;
   errors?: Record<string, string[]>;
 }) {
+  const tr = useT();
   const hasSaved = profiles.length > 0;
   const [mode, setMode] = useState<"saved" | "new">(hasSaved ? "saved" : "new");
   const [selectedId, setSelectedId] = useState(profiles[0]?.id ?? "");
@@ -84,11 +86,11 @@ export function BillingSection({
 
   return (
     <fieldset className="space-y-5">
-      <legend className="font-display text-2xl">Date de facturare</legend>
+      <legend className="font-display text-2xl">{tr("Date de facturare")}</legend>
 
       {hasSaved ? (
         <Segmented
-          label="Profil de facturare"
+          label={tr("Profil de facturare")}
           value={mode}
           onChange={(m) => {
             setMode(m);
@@ -104,7 +106,7 @@ export function BillingSection({
 
       {isSaved && profiles.length > 1 ? (
         <div>
-          <label htmlFor="billing_profile_id" className="mb-1.5 block text-sm font-medium">Alege profilul</label>
+          <label htmlFor="billing_profile_id" className="mb-1.5 block text-sm font-medium">{tr("Alege profilul")}</label>
           <select
             id="billing_profile_id"
             value={selectedId}
@@ -122,7 +124,7 @@ export function BillingSection({
       {isSaved ? <input type="hidden" name="billing_profile_id" value={selected.id} /> : null}
 
       <Segmented<Kind>
-        label="Tip client"
+        label={tr("Tip client")}
         value={currentKind}
         onChange={(k) => !readOnly && setKind(k)}
         options={[
@@ -131,13 +133,13 @@ export function BillingSection({
         ]}
       />
       <input type="hidden" name="billing_kind" value={currentKind} />
-      {readOnly ? <p className="-mt-2 text-xs text-muted">Datele sunt din profilul salvat. Alege „Profil nou” pentru a introduce altele.</p> : null}
+      {readOnly ? <p className="-mt-2 text-xs text-muted">{tr("Datele sunt din profilul salvat. Alege „Profil nou” pentru a introduce altele.")}</p> : null}
 
       <Field label={currentKind === "company" ? "Denumire firmă" : "Nume și prenume"} name="billing_name" autoComplete="organization" value={current.name} onChange={set("name")} readOnly={readOnly} required error={err("name")} />
       {currentKind === "company" ? (
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="CUI / CIF" name="billing_cui" placeholder="RO12345678" value={current.cui} onChange={set("cui")} readOnly={readOnly} required error={err("cui")} />
-          <Field label="Nr. Reg. Com. (opțional)" name="billing_reg_com" placeholder="J40/123/2020" value={current.reg_com} onChange={set("reg_com")} readOnly={readOnly} error={err("reg_com")} />
+          <Field label={tr("Nr. Reg. Com. (opțional)")} name="billing_reg_com" placeholder="J40/123/2020" value={current.reg_com} onChange={set("reg_com")} readOnly={readOnly} error={err("reg_com")} />
           {!readOnly ? (
             <div className="sm:col-span-2">
               <button type="button" onClick={fetchCui} disabled={lookingUp || values.cui.replace(/\D/g, "").length < 2} className="min-h-11 rounded-full border border-line px-5 text-sm font-medium transition-colors hover:border-foreground/30 disabled:opacity-50">
@@ -148,16 +150,16 @@ export function BillingSection({
           ) : null}
         </div>
       ) : null}
-      <Field label="Adresă" name="billing_address" autoComplete="street-address" value={current.address} onChange={set("address")} readOnly={readOnly} required error={err("address")} />
+      <Field label={tr("Adresă")} name="billing_address" autoComplete="street-address" value={current.address} onChange={set("address")} readOnly={readOnly} required error={err("address")} />
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Localitate" name="billing_city" autoComplete="address-level2" value={current.city} onChange={set("city")} readOnly={readOnly} required error={err("city")} />
-        <Field label="Județ / Sector" name="billing_county" autoComplete="address-level1" value={current.county} onChange={set("county")} readOnly={readOnly} required error={err("county")} />
+        <Field label={tr("Localitate")} name="billing_city" autoComplete="address-level2" value={current.city} onChange={set("city")} readOnly={readOnly} required error={err("city")} />
+        <Field label={tr("Județ / Sector")} name="billing_county" autoComplete="address-level1" value={current.county} onChange={set("county")} readOnly={readOnly} required error={err("county")} />
       </div>
 
       {!isSaved ? (
         <label className="flex items-start gap-3 text-sm">
           <input type="checkbox" name="billing_save" defaultChecked className="mt-1 size-4 accent-[#a9833d]" />
-          <span>Salvează acest profil pentru comenzile viitoare</span>
+          <span>{tr("Salvează acest profil pentru comenzile viitoare")}</span>
         </label>
       ) : null}
     </fieldset>

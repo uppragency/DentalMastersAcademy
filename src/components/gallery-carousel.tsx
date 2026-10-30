@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
@@ -7,6 +8,7 @@ const arrow = "flex size-11 items-center justify-center rounded-full border bord
 
 /** Square (1:1) photo gallery. Mobile: 4 per page carousel. Desktop: grid up to 5 photos, carousel above 5. */
 export function GalleryCarousel({ images, title }: { images: string[]; title: string }) {
+  const tr = useT();
   const track = useRef<HTMLUListElement>(null);
   const [edge, setEdge] = useState({ start: true, end: false });
   const carousel = images.length > 5; // desktop: grid up to 5, carousel above. Mobile: always a 4-up carousel.
@@ -35,7 +37,7 @@ export function GalleryCarousel({ images, title }: { images: string[]; title: st
       <ul
         ref={track}
         onScroll={update}
-        aria-label="Galerie foto"
+        aria-label={tr("Galerie foto")}
         className={`-mx-1 flex snap-x snap-mandatory overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${carousel ? "" : `sm:mx-0 sm:grid sm:gap-3 sm:overflow-visible sm:pb-0 ${cols}`}`}
       >
         {images.map((src, i) => (
@@ -48,10 +50,10 @@ export function GalleryCarousel({ images, title }: { images: string[]; title: st
       </ul>
       {showArrows ? (
         <div className={`mt-4 flex items-center justify-end gap-3 ${carousel ? "" : "sm:hidden"}`}>
-          <button type="button" aria-label="Fotografii anterioare" className={arrow} onClick={() => go(-1)} disabled={edge.start}>
+          <button type="button" aria-label={tr("Fotografii anterioare")} className={arrow} onClick={() => go(-1)} disabled={edge.start}>
             <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 5l-7 7 7 7" /></svg>
           </button>
-          <button type="button" aria-label="Fotografii următoare" className={arrow} onClick={() => go(1)} disabled={edge.end}>
+          <button type="button" aria-label={tr("Fotografii următoare")} className={arrow} onClick={() => go(1)} disabled={edge.end}>
             <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 5l7 7-7 7" /></svg>
           </button>
         </div>

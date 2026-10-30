@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/empty-state";
 import { PrintButton } from "@/components/print-button";
@@ -30,8 +31,8 @@ export default async function PortfolioPage() {
 
   return (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold print:hidden">Cont</p>
-      <h1 className="font-display mt-2 text-5xl font-medium">Portofoliu de formare</h1>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold print:hidden">{tr("Cont")}</p>
+      <h1 className="font-display mt-2 text-5xl font-medium">{tr("Portofoliu de formare")}</h1>
       <p className="mt-3 text-muted">
         {profile.full_name ?? profile.email}
         {profile.specialization ? `, ${profile.specialization}` : ""}
@@ -41,8 +42,8 @@ export default async function PortfolioPage() {
       {rows.length > 0 ? (
         <>
           <dl className="mt-8 grid grid-cols-2 gap-4">
-            <div className="rounded-3xl border border-line bg-card p-6"><dt className="text-sm text-muted">Cursuri absolvite</dt><dd className="font-display mt-2 text-4xl">{rows.length}</dd></div>
-            <div className="rounded-3xl border border-line bg-card p-6"><dt className="text-sm text-muted">Ore de formare</dt><dd className="font-display mt-2 text-4xl">{hours > 0 ? hours : "-"}</dd></div>
+            <div className="rounded-3xl border border-line bg-card p-6"><dt className="text-sm text-muted">{tr("Cursuri absolvite")}</dt><dd className="font-display mt-2 text-4xl">{rows.length}</dd></div>
+            <div className="rounded-3xl border border-line bg-card p-6"><dt className="text-sm text-muted">{tr("Ore de formare")}</dt><dd className="font-display mt-2 text-4xl">{hours > 0 ? hours : "-"}</dd></div>
           </dl>
           <ol className="mt-8 divide-y divide-line rounded-3xl border border-line bg-card">
             {rows.map((r) => {
@@ -57,17 +58,17 @@ export default async function PortfolioPage() {
                     {c.duration_hours ? `, ${c.duration_hours} ore` : ""}
                     {ce?.days_attended ? `, ${ce.days_attended} ${ce.days_attended === 1 ? "zi" : "zile"} de prezență` : ""}
                   </p>
-                  {c.trainer_name ? <p className="mt-1 text-sm text-muted">Lector: {c.trainer_name}</p> : null}
-                  {ce?.number ? <p className="mt-1 text-xs text-muted">Adeverință {ce.number}</p> : null}
+                  {c.trainer_name ? <p className="mt-1 text-sm text-muted">{tr("Lector:")}{" "}{c.trainer_name}</p> : null}
+                  {ce?.number ? <p className="mt-1 text-xs text-muted">{tr("Adeverință")}{" "}{ce.number}</p> : null}
                 </li>
               );
             })}
           </ol>
-          <p className="mt-6 text-xs text-muted">Emis de Dental Masters Academy, {contact.address}. Adeverințele se verifică pe site la /verificare.</p>
+          <p className="mt-6 text-xs text-muted">{tr("Emis de Dental Masters Academy,")}{" "}{contact.address}{tr(". Adeverințele se verifică pe site la /verificare.")}</p>
           <div className="mt-6 print:hidden"><PrintButton /></div>
         </>
       ) : (
-        <div className="mt-8"><EmptyState title="Portofoliul este gol" text="Cursurile la care participi apar aici automat, cu ore și adeverințe, gata de exportat pentru dosarul tău." href="/cursuri" cta="Vezi cursurile" /></div>
+        <div className="mt-8"><EmptyState title={tr("Portofoliul este gol")} text={tr("Cursurile la care participi apar aici automat, cu ore și adeverințe, gata de exportat pentru dosarul tău.")} href="/cursuri" cta={tr("Vezi cursurile")} /></div>
       )}
     </div>
   );

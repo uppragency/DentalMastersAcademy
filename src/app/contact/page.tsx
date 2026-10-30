@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui";
 import { LocationMap } from "@/components/location-map";
@@ -17,18 +18,18 @@ export default function ContactPage() {
   ];
   return (
     <>
-      <PageHero eyebrow="Contact" title={<>Hai să <span className="text-gold-sheen">vorbim.</span></>} lead="Ești medic sau pacient? Alege formularul potrivit. Pentru întrebări generale, folosește formularul de la finalul paginii." />
+      <PageHero eyebrow={tr("Contact")} title={<>{tr("Hai să")}{" "}<span className="text-gold-sheen">{tr("vorbim.")}</span></>} lead={tr("Ești medic sau pacient? Alege formularul potrivit. Pentru întrebări generale, folosește formularul de la finalul paginii.")} />
       <Container className="grid gap-6 py-16 sm:py-24 lg:grid-cols-2">
         <section id="medici" className="scroll-mt-28 rounded-[2rem] border border-line bg-card p-8 sm:p-10" aria-labelledby="medici-title">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Pentru medici</p>
-          <h2 id="medici-title" className="font-display mt-3 text-3xl leading-tight">Ai un caz complex? Hai să îl evaluăm împreună.</h2>
-          <p className="mt-4 leading-relaxed text-muted">Trimite-ne detaliile cazului și investigațiile disponibile: scanări intraorale, radiografii sau CBCT. Echipa noastră va analiza informațiile pentru a discuta opțiunile de colaborare, inclusiv posibilitatea de a asista la intervenție în format over-the-shoulder.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{tr("Pentru medici")}</p>
+          <h2 id="medici-title" className="font-display mt-3 text-3xl leading-tight">{tr("Ai un caz complex? Hai să îl evaluăm împreună.")}</h2>
+          <p className="mt-4 leading-relaxed text-muted">{tr("Trimite-ne detaliile cazului și investigațiile disponibile: scanări intraorale, radiografii sau CBCT. Echipa noastră va analiza informațiile pentru a discuta opțiunile de colaborare, inclusiv posibilitatea de a asista la intervenție în format over-the-shoulder.")}</p>
           <div className="mt-8"><CaseForm kind="doctor" /></div>
         </section>
         <section id="pacienti" className="scroll-mt-28 rounded-[2rem] border border-line bg-card p-8 sm:p-10" aria-labelledby="pacienti-title">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Pentru pacienți</p>
-          <h2 id="pacienti-title" className="font-display mt-3 text-3xl leading-tight">Ai nevoie de un tratament? Începe cu o evaluare.</h2>
-          <p className="mt-4 leading-relaxed text-muted">Spune-ne cu ce problemă te confrunți și atașează investigațiile pe care le ai. Echipa noastră te va contacta pentru a stabili următorii pași către o consultație și posibilitatea unui tratament realizat de experții noștri.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{tr("Pentru pacienți")}</p>
+          <h2 id="pacienti-title" className="font-display mt-3 text-3xl leading-tight">{tr("Ai nevoie de un tratament? Începe cu o evaluare.")}</h2>
+          <p className="mt-4 leading-relaxed text-muted">{tr("Spune-ne cu ce problemă te confrunți și atașează investigațiile pe care le ai. Echipa noastră te va contacta pentru a stabili următorii pași către o consultație și posibilitatea unui tratament realizat de experții noștri.")}</p>
           <div className="mt-8"><CaseForm kind="patient" /></div>
         </section>
       </Container>
@@ -44,7 +45,7 @@ export default function ContactPage() {
           ))}
         </dl>
         <div className="rounded-[2rem] border border-line bg-card p-8 sm:p-10 lg:col-span-7">
-          <h2 className="font-display mb-6 text-2xl">Altă întrebare</h2>
+          <h2 className="font-display mb-6 text-2xl">{tr("Altă întrebare")}</h2>
           <ContactForm />
         </div>
       </Container>

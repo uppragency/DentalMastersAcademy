@@ -23,7 +23,6 @@ export function formatDate(iso: string | null, locale?: string) {
 }
 
 export const formatLabels = { physical: "Fizic", online: "Online", hybrid: "Hibrid" } as const;
-export const 
 
 export function formatDateRange(start: string | null, end: string | null, locale?: string) {
   if (!start) return tbd(locale);

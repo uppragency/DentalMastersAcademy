@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
@@ -34,7 +35,7 @@ export default async function TrainerPage({ params }: Props) {
       <JsonLd data={[personJsonLd(t)]} />
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
         <Container className="py-20 sm:py-28">
-          <nav aria-label="Breadcrumb" className="text-sm text-white/55"><Link href={t.is_founder ? "/cine-suntem" : "/lectori"} className="hover:text-white">{t.is_founder ? "Cine suntem" : "Lectorii noștri"}</Link></nav>
+          <nav aria-label={tr("Breadcrumb")} className="text-sm text-white/55"><Link href={t.is_founder ? "/cine-suntem" : "/lectori"} className="hover:text-white">{t.is_founder ? "Cine suntem" : "Lectorii noștri"}</Link></nav>
           <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-center">
             <TrainerAvatar name={t.name} photo={t.photo_url} size={140} />
             <div>
@@ -46,7 +47,7 @@ export default async function TrainerPage({ params }: Props) {
       </section>
       <Container className="grid gap-12 py-16 lg:grid-cols-12">
         <div className="lg:col-span-8">
-          <Eyebrow>Despre</Eyebrow>
+          <Eyebrow>{tr("Despre")}</Eyebrow>
           <p className="font-display mt-6 text-2xl leading-snug sm:text-3xl">{t.bio}</p>
         </div>
         <ul className="space-y-3 lg:col-span-4">
@@ -60,7 +61,7 @@ export default async function TrainerPage({ params }: Props) {
           <Container className="grid gap-12 lg:grid-cols-12">
             {t.expertise.length > 0 ? (
               <div className="lg:col-span-6">
-                <Eyebrow>Arii de expertiză</Eyebrow>
+                <Eyebrow>{tr("Arii de expertiză")}</Eyebrow>
                 <ul className="mt-6 space-y-3">
                   {t.expertise.map((x) => (
                     <li key={x} className="flex gap-3 border-t border-line pt-3 text-[15px]"><span className="mt-2.5 size-1 shrink-0 rotate-45 bg-gold" />{x}</li>
@@ -70,7 +71,7 @@ export default async function TrainerPage({ params }: Props) {
             ) : null}
             {t.dma_role ? (
               <div className="lg:col-span-6">
-                <Eyebrow>Rolul în Dental Masters Academy</Eyebrow>
+                <Eyebrow>{tr("Rolul în Dental Masters Academy")}</Eyebrow>
                 <p className="font-display mt-6 text-2xl leading-snug">{t.dma_role}</p>
               </div>
             ) : null}
@@ -87,7 +88,7 @@ export default async function TrainerPage({ params }: Props) {
       {cases.length > 0 ? (
         <section className="border-t border-line py-16">
           <Container>
-            <h2 className="font-display text-4xl">Cazuri clinice documentate</h2>
+            <h2 className="font-display text-4xl">{tr("Cazuri clinice documentate")}</h2>
             <ul className="mt-10 grid gap-6 md:grid-cols-2">
               {cases.map((c) => (
                 <li key={c.id} className="rounded-[2rem] border border-line bg-card p-6 sm:p-8">
@@ -110,7 +111,7 @@ export default async function TrainerPage({ params }: Props) {
       {courses.length > 0 ? (
         <section className="border-t border-line bg-card py-16">
           <Container>
-            <h2 className="font-display text-4xl">Cursuri susținute</h2>
+            <h2 className="font-display text-4xl">{tr("Cursuri susținute")}</h2>
             <ul className="mt-10 grid gap-6 md:grid-cols-3">
               {courses.map((c) => <li key={c.id}><CourseCard course={c} ended={isEnded(c, now)} /></li>)}
             </ul>
@@ -120,7 +121,7 @@ export default async function TrainerPage({ params }: Props) {
       {articles.length > 0 ? (
         <section className="border-t border-line py-16">
           <Container>
-            <h2 className="font-display text-4xl">Articole</h2>
+            <h2 className="font-display text-4xl">{tr("Articole")}</h2>
             <ul className="mt-10 grid gap-6 md:grid-cols-3">
               {articles.map((a) => (
                 <li key={a.id}>

@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { contact } from "@/content/site";
 import { LegalShell, LegalText } from "@/components/legal-text";
@@ -59,14 +60,13 @@ const sections = [
 export default async function Page() {
   const custom = await getLegalText("legal_rambursare");
   return (
-    <LegalShell title="Politica de rambursare și transfer de loc" lead="Condițiile de retragere, transfer și rambursare pentru cursurile noastre.">
+    <LegalShell title={tr("Politica de rambursare și transfer de loc")} lead={tr("Condițiile de retragere, transfer și rambursare pentru cursurile noastre.")}>
       {custom ? (
         <LegalText text={custom} />
       ) : (
         <>
           <p className="mt-6 leading-relaxed text-muted">
-            Reguli generale pentru anulări, rambursări și transferul locului. Pentru situații speciale, scrie-ne și găsim o soluție.
-          </p>
+            {tr("Reguli generale pentru anulări, rambursări și transferul locului. Pentru situații speciale, scrie-ne și găsim o soluție.")}</p>
           <div className="mt-10 space-y-10">
             {sections.map((s) => (
               <section key={s.title}>
@@ -80,7 +80,7 @@ export default async function Page() {
             ))}
           </div>
           <p className="mt-10 leading-relaxed text-muted">
-            Cereri și întrebări: <a className="text-foreground underline" href={`mailto:${contact.email}`}>{contact.email}</a>, <a className="text-foreground underline" href={contact.phoneHref}>{contact.phone}</a>.
+            {tr("Cereri și întrebări:")}{" "}<a className="text-foreground underline" href={`mailto:${contact.email}`}>{contact.email}</a>, <a className="text-foreground underline" href={contact.phoneHref}>{contact.phone}</a>.
           </p>
         </>
       )}

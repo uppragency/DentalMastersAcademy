@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import { courseMethods, formatDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
@@ -100,23 +101,23 @@ export default async function CoursePage({ params }: Props) {
         <CourseImage course={course} variant="cover" priority sizes="100vw" className="absolute inset-0 -z-10 size-full" artClassName="absolute inset-0 -z-10 size-full scale-110 opacity-60" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/30" />
         <Container className="pb-[70px] pt-16 sm:pb-40 sm:pt-24 lg:pb-48">
-          <nav aria-label="Breadcrumb" className="rise text-sm text-white/55">
-            <Link href="/cursuri" className="hover:text-white">Cursuri</Link>
+          <nav aria-label={tr("Breadcrumb")} className="rise text-sm text-white/55">
+            <Link href="/cursuri" className="hover:text-white">{tr("Cursuri")}</Link>
           </nav>
           <div className="rise mt-8 flex flex-wrap items-center gap-2 text-xs font-semibold" style={{ ["--d" as string]: "80ms" }}>
-            {ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Înscrieri închise</span> : null}
-            {notOpen ? <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-white backdrop-blur">Înscrieri în curând</span> : null}
-            {soldOut && !ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">Ediție completă</span> : null}
-            {course.kind === "hosted" ? <span className="rounded-full border border-white/30 px-3.5 py-1.5 text-white/85">Curs găzduit</span> : null}
-            {course.gold_free ? <span className="rounded-full border border-gold-bright/60 px-3.5 py-1.5 text-gold-bright">Gratuit pentru membrii Gold</span> : null}
+            {ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">{tr("Înscrieri închise")}</span> : null}
+            {notOpen ? <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-white backdrop-blur">{tr("Înscrieri în curând")}</span> : null}
+            {soldOut && !ended ? <span className="rounded-full bg-red-600 px-3.5 py-1.5 text-white">{tr("Ediție completă")}</span> : null}
+            {course.kind === "hosted" ? <span className="rounded-full border border-white/30 px-3.5 py-1.5 text-white/85">{tr("Curs găzduit")}</span> : null}
+            {course.gold_free ? <span className="rounded-full border border-gold-bright/60 px-3.5 py-1.5 text-gold-bright">{tr("Gratuit pentru membrii Gold")}</span> : null}
           </div>
           <h1 className="rise font-display mt-6 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "160ms" }}>{course.title}</h1>
-          {course.powered_by ? <p className="rise mt-4 text-sm font-medium text-gold-bright">{course.powered_by_url ? <>Powered by <a href={course.powered_by_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{course.powered_by}</a></> : <>Powered by {course.powered_by}</>}</p> : null}
+          {course.powered_by ? <p className="rise mt-4 text-sm font-medium text-gold-bright">{course.powered_by_url ? <>{tr("Powered by")}{" "}<a href={course.powered_by_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{course.powered_by}</a></> : <>{tr("Powered by")}{" "}{course.powered_by}</>}</p> : null}
           {course.summary ? <p className="rise mt-6 max-w-2xl text-lg leading-relaxed text-white/65" style={{ ["--d" as string]: "240ms" }}>{course.summary}</p> : null}
         </Container>
       </section>
 
-      <nav aria-label="Secțiuni curs" className="sticky top-[72px] z-30 hidden border-b border-line bg-background/85 backdrop-blur-xl lg:block">
+      <nav aria-label={tr("Secțiuni curs")} className="sticky top-[72px] z-30 hidden border-b border-line bg-background/85 backdrop-blur-xl lg:block">
         <Container>
           <ul className="flex gap-1 overflow-x-auto py-2 text-sm">
             {navItems.map(([id, label]) => (
@@ -130,7 +131,7 @@ export default async function CoursePage({ params }: Props) {
         <div className="grid gap-10 lg:grid-cols-[1fr_24rem]">
           <div className="space-y-20 pt-32 lg:pt-44 [&_section]:scroll-mt-32">
             {promo ? (
-              <section id="promo" aria-label="Video de prezentare">
+              <section id="promo" aria-label={tr("Video de prezentare")}>
                 <div className="relative aspect-video overflow-hidden rounded-[2rem] bg-ink shadow-[0_40px_80px_-40px_rgba(8,13,23,.6)]">
                   <VideoPlayer source={promo} title={`Prezentare ${course.title}`} />
                 </div>
@@ -139,8 +140,8 @@ export default async function CoursePage({ params }: Props) {
             {paragraphs.length > 0 ? (
               <Reveal>
                 <section id="desc" aria-labelledby="desc-h">
-                  <Eyebrow>Despre curs</Eyebrow>
-                  <h2 id="desc-h" className="sr-only">Despre curs</h2>
+                  <Eyebrow>{tr("Despre curs")}</Eyebrow>
+                  <h2 id="desc-h" className="sr-only">{tr("Despre curs")}</h2>
                   <div className="mt-6 space-y-5">
                     {paragraphs.map((p, i) => (
                       <p key={i} className={i === 0 ? "font-display text-2xl leading-snug sm:text-3xl" : "text-lg leading-relaxed text-muted"}>{p}</p>
@@ -153,8 +154,8 @@ export default async function CoursePage({ params }: Props) {
 
             {course.outcomes.length > 0 ? (
               <section id="out" aria-labelledby="out-h">
-                <Reveal><Eyebrow>Ce vei învăța</Eyebrow></Reveal>
-                <h2 id="out-h" className="sr-only">Ce vei învăța</h2>
+                <Reveal><Eyebrow>{tr("Ce vei învăța")}</Eyebrow></Reveal>
+                <h2 id="out-h" className="sr-only">{tr("Ce vei învăța")}</h2>
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2">
                   {course.outcomes.map((o, i) => (
                     <Reveal as="li" key={o} delay={(i % 2) * 80}>
@@ -170,8 +171,8 @@ export default async function CoursePage({ params }: Props) {
 
             {course.sections.length > 0 ? (
               <section id="prog" aria-labelledby="prog-h">
-                <Reveal><Eyebrow>Programa</Eyebrow></Reveal>
-                <h2 id="prog-h" className="sr-only">Programa</h2>
+                <Reveal><Eyebrow>{tr("Programa")}</Eyebrow></Reveal>
+                <h2 id="prog-h" className="sr-only">{tr("Programa")}</h2>
                 <div className="mt-8 divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card">
                   {course.sections.map((s, i) => (
                     <details key={s.title} open={i === 0} className="group">
@@ -197,8 +198,8 @@ export default async function CoursePage({ params }: Props) {
               <section id="aud" aria-labelledby="aud-h">
                 <Reveal>
                   <div className="rounded-[2rem] bg-ink p-8 text-white sm:p-12">
-                    <Eyebrow light>Pentru cine este</Eyebrow>
-                    <h2 id="aud-h" className="font-display mt-4 text-3xl sm:text-4xl">Pentru medicii care vor mai mult de la practica lor.</h2>
+                    <Eyebrow light>{tr("Pentru cine este")}</Eyebrow>
+                    <h2 id="aud-h" className="font-display mt-4 text-3xl sm:text-4xl">{tr("Pentru medicii care vor mai mult de la practica lor.")}</h2>
                     <ul className="mt-8 grid gap-x-10 gap-y-4 sm:grid-cols-2">
                       {course.audience.map((a) => (
                         <li key={a} className="flex gap-3 border-t border-white/10 pt-4 text-[15px] text-white/75"><span className="mt-2 size-1.5 shrink-0 rounded-full bg-gold-bright" />{a}</li>
@@ -210,8 +211,8 @@ export default async function CoursePage({ params }: Props) {
             ) : null}
 
             <section id="lect" aria-labelledby="lect-h">
-              <Reveal><Eyebrow>Lectori</Eyebrow></Reveal>
-              <h2 id="lect-h" className="sr-only">Lectori</h2>
+              <Reveal><Eyebrow>{tr("Lectori")}</Eyebrow></Reveal>
+              <h2 id="lect-h" className="sr-only">{tr("Lectori")}</h2>
               <ul className="mt-8 grid gap-4 sm:grid-cols-3">
                 {trainers.map((t, i) => (
                   <Reveal as="li" key={t.id} delay={i * 80}>
@@ -227,14 +228,14 @@ export default async function CoursePage({ params }: Props) {
 
             {course.faqs.length > 0 ? (
               <section id="faq" aria-labelledby="faq-h">
-                <Reveal><Eyebrow>Întrebări frecvente</Eyebrow></Reveal>
-                <h2 id="faq-h" className="sr-only">Întrebări frecvente</h2>
+                <Reveal><Eyebrow>{tr("Întrebări frecvente")}</Eyebrow></Reveal>
+                <h2 id="faq-h" className="sr-only">{tr("Întrebări frecvente")}</h2>
                 <div className="mt-8"><Faq items={course.faqs} /></div>
               </section>
             ) : null}
           </div>
 
-          <aside className="lg:sticky lg:top-28 lg:z-40 lg:self-start" aria-label="Înscriere">
+          <aside className="lg:sticky lg:top-28 lg:z-40 lg:self-start" aria-label={tr("Înscriere")}>
             <div className="overflow-hidden rounded-[2rem] border border-line bg-card shadow-[0_40px_80px_-40px_rgba(8,13,23,.5)]">
               <div className="p-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{enrolled ? "Status" : ended ? "Preț ediție" : "Investiție"}</p>
@@ -244,13 +245,13 @@ export default async function CoursePage({ params }: Props) {
                 {!enrolled && !free && (discount > 0 || course.old_price_cents) ? (
                   <p className="mt-2 text-sm text-muted">
                     <span className="line-through">{formatPrice(discount > 0 ? course.price_cents : course.old_price_cents!, course.currency)}</span>
-                    {discount > 0 ? <span className="ml-2 font-medium text-gold">Reducere {perk.name} {discount}%</span> : <span className="ml-2 font-medium text-gold">{early ? "Preț early bird" : "Preț redus"}</span>}
+                    {discount > 0 ? <span className="ml-2 font-medium text-gold">{tr("Reducere")}{" "}{perk.name} {discount}%</span> : <span className="ml-2 font-medium text-gold">{early ? "Preț early bird" : "Preț redus"}</span>}
                   </p>
                 ) : null}
                 {early && !enrolled && !free && !ended ? (
                   <div className="mt-6 rounded-2xl bg-gold-soft p-4">
-                    <p className="text-sm font-medium">Preț early bird până pe {formatDate(course.early_until!)}. Apoi {formatPrice(course.old_price_cents!, course.currency)}.</p>
-                    <div className="mt-3"><Countdown to={course.early_until!} label="Timp rămas până la finalul prețului early bird" /></div>
+                    <p className="text-sm font-medium">{tr("Preț early bird până pe")}{" "}{formatDate(course.early_until!)}{tr(". Apoi")}{" "}{formatPrice(course.old_price_cents!, course.currency)}.</p>
+                    <div className="mt-3"><Countdown to={course.early_until!} label={tr("Timp rămas până la finalul prețului early bird")} /></div>
                   </div>
                 ) : null}
 
@@ -262,38 +263,37 @@ export default async function CoursePage({ params }: Props) {
 
                 {enrolled ? (
                   <>
-                    <ButtonLink href={`/cont/cursuri/${course.slug}`} className="mt-8 w-full">Accesează cursul <Arrow /></ButtonLink>
-                    <p className="mt-3 text-center text-xs text-muted">Ai achiziționat deja acest curs.</p>
+                    <ButtonLink href={`/cont/cursuri/${course.slug}`} className="mt-8 w-full">{tr("Accesează cursul")}{" "}<Arrow /></ButtonLink>
+                    <p className="mt-3 text-center text-xs text-muted">{tr("Ai achiziționat deja acest curs.")}</p>
                   </>
                 ) : pendingTransfer ? (
                   <div className="mt-8 rounded-2xl border border-gold bg-gold-soft p-5 text-sm" id="transfer-in-asteptare">
-                    <p className="font-semibold">Ai o comandă prin transfer bancar în așteptare</p>
+                    <p className="font-semibold">{tr("Ai o comandă prin transfer bancar în așteptare")}</p>
                     <p className="mt-2 leading-relaxed text-muted">
-                      Locul tău este rezervat până {formatDeadline(pendingTransfer.expires_at)}. Finalizează plata prin transfer sau plătește acum cu cardul.
-                    </p>
+                      {tr("Locul tău este rezervat până")}{" "}{formatDeadline(pendingTransfer.expires_at)}{tr(". Finalizează plata prin transfer sau plătește acum cu cardul.")}</p>
                     <div className="mt-4 flex flex-col gap-3">
-                      <ButtonLink href={`/multumim/${pendingTransfer.id}`} variant="gold" className="w-full">Vezi datele pentru transfer</ButtonLink>
-                      {courseMethods(course.payment_methods).includes("card") ? <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="ghost" className="w-full">Plătește cu cardul</ButtonLink> : null}
+                      <ButtonLink href={`/multumim/${pendingTransfer.id}`} variant="gold" className="w-full">{tr("Vezi datele pentru transfer")}</ButtonLink>
+                      {courseMethods(course.payment_methods).includes("card") ? <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="ghost" className="w-full">{tr("Plătește cu cardul")}</ButtonLink> : null}
                     </div>
-                    {courseMethods(course.payment_methods).includes("card") ? <p className="mt-3 text-xs text-muted">Dacă plata cu cardul reușește, comanda prin transfer se anulează automat.</p> : null}
+                    {courseMethods(course.payment_methods).includes("card") ? <p className="mt-3 text-xs text-muted">{tr("Dacă plata cu cardul reușește, comanda prin transfer se anulează automat.")}</p> : null}
                   </div>
                 ) : ended || notOpen || soldOut ? (
                   <div className="mt-8" id="lista-asteptare">
                     {ended ? (
-                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Înscrieri închise</p>
+                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">{tr("Înscrieri închise")}</p>
                     ) : notOpen ? (
                       <div>
                         {dateTbd || !course.registration_opens_at ? (
-                          <p role="status" className="rounded-2xl border border-gold bg-gold-soft px-4 py-3 text-center text-sm font-semibold">Data ediției va fi anunțată</p>
+                          <p role="status" className="rounded-2xl border border-gold bg-gold-soft px-4 py-3 text-center text-sm font-semibold">{tr("Data ediției va fi anunțată")}</p>
                         ) : (
                           <>
-                            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-gold">Înscrierile se deschid în</p>
+                            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-gold">{tr("Înscrierile se deschid în")}</p>
                             <Countdown to={course.registration_opens_at} />
                           </>
                         )}
                       </div>
                     ) : (
-                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">Ediție completă</p>
+                      <p role="status" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-800">{tr("Ediție completă")}</p>
                     )}
                     <p className="mb-4 mt-5 text-center text-xs leading-relaxed text-muted">
                       {ended || soldOut ? "Lasă-ți datele și te anunțăm când se deschide următoarea ediție." : "Lasă-ți datele și îți scriem în momentul deschiderii."}
@@ -310,8 +310,7 @@ export default async function CoursePage({ params }: Props) {
                 )}
               </div>
               <div className="border-t border-line bg-gold-soft/60 px-8 py-5 text-xs leading-relaxed text-muted">
-                Confirmarea și datele contului ajung pe email imediat după plată.
-              </div>
+                {tr("Confirmarea și datele contului ajung pe email imediat după plată.")}</div>
             </div>
           </aside>
         </div>
@@ -324,7 +323,7 @@ export default async function CoursePage({ params }: Props) {
               <p className="text-[11px] uppercase tracking-widest text-muted">{free ? "Acces" : "Investiție"}</p>
               <p className="text-xl font-semibold tracking-tight">{free ? "Gratuit" : dateTbd && course.price_cents === 0 ? "Preț în curând" : formatPrice(finalPrice, course.currency)}</p>
             </div>
-            <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold" className="px-6">Înscrie-te <Arrow /></ButtonLink>
+            <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold" className="px-6">{tr("Înscrie-te")}{" "}<Arrow /></ButtonLink>
           </div>
         </div>
       ) : null}
@@ -332,7 +331,7 @@ export default async function CoursePage({ params }: Props) {
       {others.length > 0 ? (
         <section className="border-t border-line bg-card py-20">
           <Container>
-            <Reveal><h2 className="font-display text-4xl">Alte cursuri</h2></Reveal>
+            <Reveal><h2 className="font-display text-4xl">{tr("Alte cursuri")}</h2></Reveal>
             <ul className="mt-10 grid gap-6 md:grid-cols-3">
               {others.map((c, i) => (
                 <Reveal as="li" key={c.id} delay={i * 90}><CourseCard course={c} ended={isEnded(c, now)} /></Reveal>

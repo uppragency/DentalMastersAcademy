@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { previewDiscount, type DiscountPreview } from "@/actions/commerce";
 import { formatPrice } from "@/lib/format";
@@ -29,6 +30,7 @@ export function OrderSummary({
   pointValueCents: number;
   capPercent: number;
 }) {
+  const tr = useT();
   const [code, setCode] = useState(defaultCode);
   const [preview, setPreview] = useState<DiscountPreview | null>(null);
   const [checking, start] = useTransition();
@@ -73,12 +75,12 @@ export function OrderSummary({
     <>
       {!free && !codeOpen ? (
         <div className="mt-5 border-t border-line pt-4">
-          <button type="button" onClick={() => setCodeOpen(true)} className="min-h-10 text-sm font-medium underline underline-offset-4 hover:text-gold">Ai un cod de reducere?</button>
+          <button type="button" onClick={() => setCodeOpen(true)} className="min-h-10 text-sm font-medium underline underline-offset-4 hover:text-gold">{tr("Ai un cod de reducere?")}</button>
         </div>
       ) : null}
       {!free && codeOpen ? (
         <div className="mt-5 border-t border-line pt-5">
-          <label htmlFor="discount_code" className="mb-1.5 block text-sm font-medium">Cod de reducere sau de recomandare</label>
+          <label htmlFor="discount_code" className="mb-1.5 block text-sm font-medium">{tr("Cod de reducere sau de recomandare")}</label>
           <div className="flex gap-2">
             <input
               id="discount_code"
@@ -95,15 +97,15 @@ export function OrderSummary({
               {checking ? "..." : "Aplică"}
             </button>
           </div>
-          {checking && !preview ? <p className="mt-2 text-sm text-muted">Se verifică codul...</p> : null}
+          {checking && !preview ? <p className="mt-2 text-sm text-muted">{tr("Se verifică codul...")}</p> : null}
           {preview ? <p role="status" className={`mt-2 text-sm ${preview.ok ? "text-gold" : "text-red-700"}`}>{preview.ok ? "Cod aplicat." : preview.message}</p> : null}
         </div>
       ) : null}
       {!free && pointsBalance > 0 ? (
         <div className="mt-5 border-t border-line pt-5">
           <div className="flex items-baseline justify-between gap-3">
-            <label htmlFor="points" className="text-sm font-medium">Plătește cu punctele tale</label>
-            <span className="text-xs text-muted">Sold: {pointsBalance} puncte</span>
+            <label htmlFor="points" className="text-sm font-medium">{tr("Plătește cu punctele tale")}</label>
+            <span className="text-xs text-muted">{tr("Sold:")}{" "}{pointsBalance} {" "}{tr("puncte")}</span>
           </div>
           {maxPoints > 0 ? (
             <>
@@ -120,31 +122,31 @@ export function OrderSummary({
                 className="mt-3 w-full accent-[#a9833d]"
               />
               <div className="mt-1 flex items-center justify-between text-xs text-muted">
-                <span>{points} puncte = {formatPrice(pointsDisc, currency)}</span>
-                <button type="button" onClick={() => setWantPoints(maxPoints)} className="font-medium text-foreground underline underline-offset-4">Maxim {maxPoints}</button>
+                <span>{points} {" "}{tr("puncte =")}{" "}{formatPrice(pointsDisc, currency)}</span>
+                <button type="button" onClick={() => setWantPoints(maxPoints)} className="font-medium text-foreground underline underline-offset-4">{tr("Maxim")}{" "}{maxPoints}</button>
               </div>
-              <p className="mt-2 text-xs text-muted">Poți acoperi cel mult {capPercent}% din preț cu puncte.</p>
+              <p className="mt-2 text-xs text-muted">{tr("Poți acoperi cel mult")}{" "}{capPercent}{tr("% din preț cu puncte.")}</p>
             </>
           ) : (
-            <p className="mt-2 text-xs text-muted">Punctele se pot folosi după aplicarea reducerii, în limita a {capPercent}% din preț.</p>
+            <p className="mt-2 text-xs text-muted">{tr("Punctele se pot folosi după aplicarea reducerii, în limita a")}{" "}{capPercent}{tr("% din preț.")}</p>
           )}
         </div>
       ) : null}
       <dl className="mt-5 space-y-2 border-t border-line pt-5 text-sm">
-        <div className="flex justify-between"><dt className="text-muted">Preț</dt><dd>{formatPrice(priceCents, currency)}</dd></div>
+        <div className="flex justify-between"><dt className="text-muted">{tr("Preț")}</dt><dd>{formatPrice(priceCents, currency)}</dd></div>
         {!free && codeOk > 0 ? (
           <div className="flex justify-between text-gold"><dt>{preview?.label === "Recomandare" ? "Reducere recomandare" : `Cod ${preview?.label}`}</dt><dd>−{formatPrice(codeOk, currency)}</dd></div>
         ) : tierPercent > 0 && !free ? (
-          <div className="flex justify-between text-gold"><dt>Reducere {tierName} {tierPercent}%</dt><dd>−{formatPrice(tierDisc, currency)}</dd></div>
+          <div className="flex justify-between text-gold"><dt>{tr("Reducere")}{" "}{tierName} {tierPercent}%</dt><dd>−{formatPrice(tierDisc, currency)}</dd></div>
         ) : null}
         {pointsDisc > 0 ? (
-          <div className="flex justify-between text-gold"><dt>Plătit cu {points} puncte</dt><dd>−{formatPrice(pointsDisc, currency)}</dd></div>
+          <div className="flex justify-between text-gold"><dt>{tr("Plătit cu")}{" "}{points} {" "}{tr("puncte")}</dt><dd>−{formatPrice(pointsDisc, currency)}</dd></div>
         ) : null}
         <div className="flex justify-between border-t border-line pt-3 text-lg font-semibold">
-          <dt>Total</dt><dd>{free ? "Gratuit" : formatPrice(total, currency)}</dd>
+          <dt>{tr("Total")}</dt><dd>{free ? "Gratuit" : formatPrice(total, currency)}</dd>
         </div>
         {savings > 0 ? (
-          <div className="flex justify-end"><span className="rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-gold">Economisești {formatPrice(savings, currency)}</span></div>
+          <div className="flex justify-end"><span className="rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-gold">{tr("Economisești")}{" "}{formatPrice(savings, currency)}</span></div>
         ) : null}
       </dl>
       <div ref={box} aria-hidden="true" className="h-px" />
@@ -152,13 +154,13 @@ export function OrderSummary({
       <div className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 px-5 py-3 backdrop-blur transition-transform duration-300 lg:hidden ${summaryVisible ? "translate-y-full" : "translate-y-0"}`}>
         <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
           <div>
-            <p className="text-xs text-muted">Total comandă</p>
+            <p className="text-xs text-muted">{tr("Total comandă")}</p>
             <p className="flex items-center gap-2 text-lg font-semibold">
               {free ? "Gratuit" : formatPrice(total, currency)}
               {savings > 0 ? <span className="rounded-full bg-gold-soft px-2 py-0.5 text-[11px] font-semibold text-gold">−{formatPrice(savings, currency)}</span> : null}
             </p>
           </div>
-          <a href="#sumar-comanda" className="inline-flex min-h-11 items-center rounded-full border border-line px-5 text-sm font-medium">Vezi detaliile</a>
+          <a href="#sumar-comanda" className="inline-flex min-h-11 items-center rounded-full border border-line px-5 text-sm font-medium">{tr("Vezi detaliile")}</a>
         </div>
       </div>
     </>

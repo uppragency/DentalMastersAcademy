@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
 import type { Tier } from "@/lib/types";
@@ -11,6 +12,7 @@ const pill: Record<Tier, string> = {
 };
 
 export function AccountMenu({ name, tier, tierLabel }: { name: string; tier: Tier; tierLabel: string }) {
+  const tr = useT();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,8 +39,7 @@ export function AccountMenu({ name, tier, tierLabel }: { name: string; tier: Tie
         onClick={() => setOpen((o) => !o)}
         className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-6 text-sm font-medium text-ink transition-colors hover:bg-gold-soft"
       >
-        Contul meu
-        <svg aria-hidden="true" viewBox="0 0 12 12" className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4.500l4 4 4-4" /></svg>
+        {tr("Contul meu")}<svg aria-hidden="true" viewBox="0 0 12 12" className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4.500l4 4 4-4" /></svg>
       </button>
       <div hidden={!open} role="menu" className="absolute right-0 top-full z-50 w-72 pt-2">
         <div className="rounded-3xl border border-white/10 bg-ink p-3 text-white shadow-[0_30px_60px_-20px_rgba(0,0,0,.6)]">
@@ -47,8 +48,8 @@ export function AccountMenu({ name, tier, tierLabel }: { name: string; tier: Tie
             <span className={`mt-2 inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-widest ${pill[tier]}`}>{tierLabel}</span>
           </Link>
           <ul className="mt-2">
-            <li><Link role="menuitem" href="/cont/cursuri" onClick={close} className={item}>Cursurile mele <span aria-hidden="true">→</span></Link></li>
-            <li><Link role="menuitem" href="/cont/profil" onClick={close} className={item}>Profil și securitate <span aria-hidden="true">→</span></Link></li>
+            <li><Link role="menuitem" href="/cont/cursuri" onClick={close} className={item}>{tr("Cursurile mele")}{" "}<span aria-hidden="true">→</span></Link></li>
+            <li><Link role="menuitem" href="/cont/profil" onClick={close} className={item}>{tr("Profil și securitate")}{" "}<span aria-hidden="true">→</span></Link></li>
           </ul>
         </div>
       </div>

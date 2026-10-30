@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import { lredirect as redirect } from "@/lib/i18n/server";
 import { logout } from "@/actions/auth";
 import { AccountNav } from "@/components/account-nav";
@@ -36,14 +37,14 @@ export default async function AccountLayout({ children }: { children: React.Reac
                   <div className="h-1.5 overflow-hidden rounded-full bg-white/15" role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100} aria-label={`Progres către ${tierNames[progress.next]}`}>
                     <div className="h-full rounded-full bg-gold-bright" style={{ width: `${progress.percent}%` }} />
                   </div>
-                  <p className="mt-2 text-xs text-white/60">{progress.percent}% spre {tierNames[progress.next]}{progress.missing ? `, mai ai ${progress.missing}` : ""}</p>
+                  <p className="mt-2 text-xs text-white/60">{progress.percent}{tr("% spre")}{" "}{tierNames[progress.next]}{progress.missing ? `, mai ai ${progress.missing}` : ""}</p>
                 </div>
-              ) : profile.tier === "platinum" ? <p className="relative mt-4 text-xs text-white/60">Nivelul maxim</p> : null}
+              ) : profile.tier === "platinum" ? <p className="relative mt-4 text-xs text-white/60">{tr("Nivelul maxim")}</p> : null}
             </div>
             <div className="mt-4"><AccountNav /></div>
             <div className="mt-4 hidden gap-2 lg:flex lg:flex-col">
-              {profile.role === "admin" ? <ButtonLink href="/admin" variant="ghost" className="w-full">Administrare</ButtonLink> : null}
-              <form action={logout}><Button type="submit" variant="ghost" className="w-full">Ieși din cont</Button></form>
+              {profile.role === "admin" ? <ButtonLink href="/admin" variant="ghost" className="w-full">{tr("Administrare")}</ButtonLink> : null}
+              <form action={logout}><Button type="submit" variant="ghost" className="w-full">{tr("Ieși din cont")}</Button></form>
             </div>
           </aside>
           <div className="min-w-0">{children}</div>

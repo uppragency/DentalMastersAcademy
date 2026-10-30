@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { VideoSource } from "@/lib/video";
 
 export function VideoPlayer({ source, title }: { source: VideoSource; title: string }) {
@@ -20,7 +21,7 @@ export function VideoPlayer({ source, title }: { source: VideoSource; title: str
   }
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      <a href={source.src} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-ink">Deschide lecția</a>
+      <a href={source.src} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-ink">{tr("Deschide lecția")}</a>
     </div>
   );
 }

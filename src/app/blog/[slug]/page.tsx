@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
@@ -28,7 +29,7 @@ export default async function PostPage({ params }: Props) {
     <article className="py-16 sm:py-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
       <Container className="max-w-3xl">
-        <Link href="/blog" className="text-sm text-muted hover:text-foreground">← Blog</Link>
+        <Link href="/blog" className="text-sm text-muted hover:text-foreground">{tr("← Blog")}</Link>
         <h1 className="font-display mt-6 text-balance text-4xl font-medium leading-tight sm:text-6xl">{p.title}</h1>
         <p className="mt-5 text-sm text-muted">{formatDate(p.published_at)} · {p.author_name}</p>
         <div className="mt-10 space-y-6 text-lg leading-relaxed">
@@ -40,9 +41,9 @@ export default async function PostPage({ params }: Props) {
           })}
         </div>
         <div className="mt-14 rounded-3xl bg-ink p-8 text-white">
-          <p className="font-display text-2xl">Vrei să aprofundezi?</p>
-          <p className="mt-2 text-white/65">Vezi cursurile hands-on din academie.</p>
-          <ButtonLink href="/cursuri" variant="gold" className="mt-6">Vezi cursurile</ButtonLink>
+          <p className="font-display text-2xl">{tr("Vrei să aprofundezi?")}</p>
+          <p className="mt-2 text-white/65">{tr("Vezi cursurile hands-on din academie.")}</p>
+          <ButtonLink href="/cursuri" variant="gold" className="mt-6">{tr("Vezi cursurile")}</ButtonLink>
         </div>
       </Container>
     </article>

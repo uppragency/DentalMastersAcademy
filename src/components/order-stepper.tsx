@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import { formatDate } from "@/lib/format";
 import { formatDeadline } from "@/lib/transfer";
 
@@ -48,7 +49,7 @@ export function OrderStepper({
   };
 
   return (
-    <nav aria-label="Stadiul comenzii" className="mt-8 rounded-[2rem] border border-line bg-card p-6 sm:p-8 print:hidden">
+    <nav aria-label={tr("Stadiul comenzii")} className="mt-8 rounded-[2rem] border border-line bg-card p-6 sm:p-8 print:hidden">
       <ol className={`grid gap-5 ${steps.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
         {steps.map((s, i) => (
           <li key={s.label} aria-current={s.state === "current" ? "step" : undefined} className="relative flex gap-4 sm:block">

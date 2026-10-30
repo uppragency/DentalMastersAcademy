@@ -1,10 +1,12 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Testimonial } from "@/lib/types";
 import { drName, initials } from "@/lib/names";
 
 function Card({ t }: { t: Testimonial }) {
+  const tr = useT();
   return (
     <figure className="flex h-full flex-col justify-between rounded-3xl border border-line bg-card p-4 sm:rounded-[2rem] sm:p-8">
       <div>
@@ -18,7 +20,7 @@ function Card({ t }: { t: Testimonial }) {
         <span className="min-w-0">
           <span className="block truncate text-[13px] font-semibold sm:text-sm">{drName(t.author_name)}</span>
           {t.author_title ? <span className="block text-xs text-muted sm:text-sm">{t.author_title}</span> : null}
-          {t.verified ? <span className="mt-1 block text-[10px] font-semibold uppercase tracking-widest text-gold">Cursant verificat</span> : null}
+          {t.verified ? <span className="mt-1 block text-[10px] font-semibold uppercase tracking-widest text-gold">{tr("Cursant verificat")}</span> : null}
         </span>
       </figcaption>
     </figure>
@@ -29,6 +31,7 @@ const arrow = "flex size-11 items-center justify-center rounded-full border bord
 
 /** Shows 3 testimonials per page on desktop and 2 on mobile; arrows move one full page. */
 export function TestimonialsCarousel({ items }: { items: Testimonial[] }) {
+  const tr = useT();
   const track = useRef<HTMLUListElement>(null);
   const [edge, setEdge] = useState({ start: true, end: false });
 
@@ -55,7 +58,7 @@ export function TestimonialsCarousel({ items }: { items: Testimonial[] }) {
         ref={track}
         onScroll={update}
         className="-mx-1 flex snap-x snap-mandatory overflow-x-auto scroll-smooth px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        aria-label="Testimoniale"
+        aria-label={tr("Testimoniale")}
       >
         {items.map((t) => (
           <li key={t.id} className="w-1/2 shrink-0 snap-start px-1.5 lg:w-1/3 lg:px-2.5">
@@ -64,10 +67,10 @@ export function TestimonialsCarousel({ items }: { items: Testimonial[] }) {
         ))}
       </ul>
       <div className="mt-6 flex items-center justify-end gap-3">
-        <button type="button" aria-label="Testimoniale anterioare" className={arrow} onClick={() => go(-1)} disabled={edge.start}>
+        <button type="button" aria-label={tr("Testimoniale anterioare")} className={arrow} onClick={() => go(-1)} disabled={edge.start}>
           <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 5l-7 7 7 7" /></svg>
         </button>
-        <button type="button" aria-label="Testimoniale următoare" className={arrow} onClick={() => go(1)} disabled={edge.end}>
+        <button type="button" aria-label={tr("Testimoniale următoare")} className={arrow} onClick={() => go(1)} disabled={edge.end}>
           <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 5l7 7-7 7" /></svg>
         </button>
       </div>

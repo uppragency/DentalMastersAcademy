@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useRef, useState } from "react";
 
 const SIZE = 1000;
@@ -20,6 +21,7 @@ async function squareJpeg(file: File): Promise<File> {
 }
 
 export function GalleryField({ existing }: { existing: string[] }) {
+  const tr = useT();
   const input = useRef<HTMLInputElement>(null);
   const [note, setNote] = useState("");
 
@@ -41,20 +43,20 @@ export function GalleryField({ existing }: { existing: string[] }) {
 
   return (
     <div className="rounded-2xl border border-line p-4">
-      <label htmlFor="gallery" className="mb-1.5 block text-sm font-medium">Galerie foto (pătrate 1:1, apare sub „Despre curs”)</label>
+      <label htmlFor="gallery" className="mb-1.5 block text-sm font-medium">{tr("Galerie foto (pătrate 1:1, apare sub „Despre curs”)")}</label>
       {existing.length > 0 ? (
         <ul className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {existing.map((u) => (
             <li key={u}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={u} alt="" className="aspect-square w-full rounded-xl object-cover" />
-              <label className="mt-1 flex items-center gap-1.5 text-xs text-muted"><input type="checkbox" name="remove_gallery" value={u} className="size-4" /> Șterge</label>
+              <label className="mt-1 flex items-center gap-1.5 text-xs text-muted"><input type="checkbox" name="remove_gallery" value={u} className="size-4" /> {" "}{tr("Șterge")}</label>
             </li>
           ))}
         </ul>
       ) : null}
       <input ref={input} onChange={onChange} id="gallery" type="file" name="gallery" multiple accept="image/jpeg,image/png,image/webp,image/avif" className="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-ink file:px-5 file:py-2.5 file:text-sm file:font-medium file:text-white" />
-      <p className="mt-2 text-xs text-muted">Poți alege mai multe odată (maximum 10 pe salvare, maximum 20 în total). Imaginile se decupează automat pătrat. Până la 5 fotografii apar în grilă, peste 5 devin carusel.</p>
+      <p className="mt-2 text-xs text-muted">{tr("Poți alege mai multe odată (maximum 10 pe salvare, maximum 20 în total). Imaginile se decupează automat pătrat. Până la 5 fotografii apar în grilă, peste 5 devin carusel.")}</p>
       {note ? <p role="status" className="mt-2 text-xs text-gold">{note}</p> : null}
     </div>
   );

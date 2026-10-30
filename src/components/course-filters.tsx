@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { useState, type ReactNode } from "react";
 import { EditionsTimeline } from "@/components/editions-timeline";
@@ -22,6 +23,7 @@ const formatNames: Record<string, string> = { physical: "Fizic", online: "Online
 const periodNames: Record<string, string> = { viitoare: "Înscrieri deschise", incheiate: "Înscrieri închise" };
 
 export function CourseFilters({ format, perioada, upcoming }: Props) {
+  const tr = useT();
   const [open, setOpen] = useState<Key | null>(null);
 
   const href = (o: { f?: string; p?: string }) => {
@@ -44,7 +46,7 @@ export function CourseFilters({ format, perioada, upcoming }: Props) {
 
   return (
     <div className="rounded-[2rem] border border-line bg-card p-2">
-      <div role="tablist" aria-label="Filtre cursuri" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div role="tablist" aria-label={tr("Filtre cursuri")} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {tabs.map((t) => {
           const isOpen = open === t.key;
           return (
@@ -73,27 +75,27 @@ export function CourseFilters({ format, perioada, upcoming }: Props) {
       {open ? (
         <div id={`filter-${open}`} role="tabpanel" className="px-4 pb-5 pt-5 sm:px-6">
           {open === "perioada" ? (
-            <nav aria-label="Filtrare după perioadă" className="flex flex-wrap gap-2">
-              <Link href={href({ ...cur, p: undefined })} className={chip(!perioada)}>Toate</Link>
-              <Link href={href({ ...cur, p: "viitoare" })} className={chip(perioada === "viitoare")}>Înscrieri deschise</Link>
-              <Link href={href({ ...cur, p: "incheiate" })} className={chip(perioada === "incheiate")}>Înscrieri închise</Link>
+            <nav aria-label={tr("Filtrare după perioadă")} className="flex flex-wrap gap-2">
+              <Link href={href({ ...cur, p: undefined })} className={chip(!perioada)}>{tr("Toate")}</Link>
+              <Link href={href({ ...cur, p: "viitoare" })} className={chip(perioada === "viitoare")}>{tr("Înscrieri deschise")}</Link>
+              <Link href={href({ ...cur, p: "incheiate" })} className={chip(perioada === "incheiate")}>{tr("Înscrieri închise")}</Link>
             </nav>
           ) : null}
           {open === "format" ? (
-            <nav aria-label="Filtrare după format" className="flex flex-wrap gap-2">
-              <Link href={href({ ...cur, f: undefined })} className={chip(!format)}>Orice format</Link>
+            <nav aria-label={tr("Filtrare după format")} className="flex flex-wrap gap-2">
+              <Link href={href({ ...cur, f: undefined })} className={chip(!format)}>{tr("Orice format")}</Link>
               {Object.entries(formatNames).map(([k, v]) => <Link key={k} href={href({ ...cur, f: k })} className={chip(format === k)}>{v}</Link>)}
             </nav>
           ) : null}
           {open === "calendar" ? (
-            upcoming.length > 0 ? <EditionsTimeline courses={upcoming} bare /> : <p className="text-sm text-muted">Nu există ediții programate momentan.</p>
+            upcoming.length > 0 ? <EditionsTimeline courses={upcoming} bare /> : <p className="text-sm text-muted">{tr("Nu există ediții programate momentan.")}</p>
           ) : null}
         </div>
       ) : null}
 
       {active > 0 ? (
         <div className="px-4 pb-3 pt-1 sm:px-6">
-          <Link href="/cursuri" className="text-xs font-medium text-gold underline underline-offset-4">Șterge filtrele ({active})</Link>
+          <Link href="/cursuri" className="text-xs font-medium text-gold underline underline-offset-4">{tr("Șterge filtrele (")}{active})</Link>
         </div>
       ) : null}
     </div>

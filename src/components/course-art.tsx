@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 const palettes = [
   ["#0b1730", "#1c3a5e", "#d9b873"],
   ["#1a0f1f", "#4a1d3a", "#e7c58a"],
@@ -21,7 +22,7 @@ export function CourseArt({ seed, className = "" }: { seed: string; className?: 
   const threads = Array.from({ length: 9 }, (_, i) => 118 + i * 14);
 
   return (
-    <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className={className} role="img" aria-label="Ilustrație curs">
+    <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className={className} role="img" aria-label={tr("Ilustrație curs")}>
       <defs>
         <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor={a} />

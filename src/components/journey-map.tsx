@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import Link from "@/components/locale-link";
 import type { Course } from "@/lib/types";
 
@@ -10,10 +11,10 @@ export function JourneyMap({ nodes }: { nodes: JourneyNode[] }) {
     <section aria-labelledby="journey-title" className="rounded-[2rem] border border-line bg-card p-8 sm:p-10">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Parcursul tău</p>
-          <h2 id="journey-title" className="font-display mt-2 text-3xl">Drumul prin academie</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">{tr("Parcursul tău")}</p>
+          <h2 id="journey-title" className="font-display mt-2 text-3xl">{tr("Drumul prin academie")}</h2>
         </div>
-        <p className="text-sm text-muted">{done} din {nodes.length} parcurse</p>
+        <p className="text-sm text-muted">{done} {" "}{tr("din")}{" "}{nodes.length} {" "}{tr("parcurse")}</p>
       </div>
       <ol className="mt-8 grid gap-0 sm:grid-cols-2 lg:flex lg:gap-0">
         {nodes.map((n, i) => (
@@ -41,7 +42,7 @@ export function Badges({ courses, gold, platinum = false }: { courses: number; g
     { label: "Platinum", on: platinum, hint: "Cel mai înalt nivel al programului" },
   ];
   return (
-    <ul className="flex flex-wrap gap-2" aria-label="Insigne">
+    <ul className="flex flex-wrap gap-2" aria-label={tr("Insigne")}>
       {list.map((b) => (
         <li key={b.label} title={b.hint} className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-widest ${b.on ? "bg-gradient-to-r from-gold-bright to-gold text-ink" : "border border-dashed border-line text-muted"}`}>
           {b.label}

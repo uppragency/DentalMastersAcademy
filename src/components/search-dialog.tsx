@@ -1,11 +1,13 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
 
 type Hit = { type: "curs" | "lector" | "articol"; title: string; href: string; sub?: string };
 
 export function SearchDialog() {
+  const tr = useT();
   const ref = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
@@ -49,14 +51,14 @@ export function SearchDialog() {
       <button
         type="button"
         onClick={() => { ref.current?.showModal(); inputRef.current?.focus(); }}
-        aria-label="Caută"
+        aria-label={tr("Caută")}
         className="flex size-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.500 4.500" /></svg>
       </button>
       <dialog
         ref={ref}
-        aria-label="Căutare"
+        aria-label={tr("Căutare")}
         onClick={(e) => e.target === ref.current && close()}
         className="m-auto mt-20 w-[min(36rem,calc(100vw-2rem))] rounded-[2rem] border border-line bg-card p-0 text-foreground shadow-2xl backdrop:bg-ink/60 backdrop:backdrop-blur-sm sm:mt-24"
       >
@@ -66,17 +68,17 @@ export function SearchDialog() {
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Caută cursuri, lectori, articole"
-            aria-label="Termen de căutare"
+            placeholder={tr("Caută cursuri, lectori, articole")}
+            aria-label={tr("Termen de căutare")}
             className="min-h-16 w-full bg-transparent text-base outline-none"
           />
-          <button type="button" onClick={close} className="rounded-full px-3 py-1.5 text-xs text-muted hover:bg-background">Esc</button>
+          <button type="button" onClick={close} className="rounded-full px-3 py-1.5 text-xs text-muted hover:bg-background">{tr("Esc")}</button>
         </div>
         <div className="max-h-[55dvh] overflow-y-auto">
           {shown === null ? (
-            <p className="p-8 text-center text-sm text-muted">Scrie cel puțin 2 caractere.</p>
+            <p className="p-8 text-center text-sm text-muted">{tr("Scrie cel puțin 2 caractere.")}</p>
           ) : shown.length === 0 ? (
-            <p className="p-8 text-center text-sm text-muted">Niciun rezultat pentru „{q.trim()}”.</p>
+            <p className="p-8 text-center text-sm text-muted">{tr("Niciun rezultat pentru „")}{q.trim()}”.</p>
           ) : (
             <ul className="divide-y divide-line">
               {shown.map((h) => (

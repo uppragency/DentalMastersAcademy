@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { useRef, useState, useTransition } from "react";
 import { loadLatestNotifications, markAllNotificationsRead, markNotificationRead } from "@/actions/notifications";
@@ -8,6 +9,7 @@ import type { Notification } from "@/lib/types";
 const fmt = new Intl.DateTimeFormat("ro-RO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Bucharest" });
 
 export function NotificationBell({ unread }: { unread: number }) {
+  const tr = useT();
   const ref = useRef<HTMLDialogElement>(null);
   const [items, setItems] = useState<Notification[] | null>(null);
   const [count, setCount] = useState(unread);
@@ -55,25 +57,25 @@ export function NotificationBell({ unread }: { unread: number }) {
         className="m-auto mt-20 w-[min(30rem,calc(100vw-2rem))] rounded-[2rem] border border-line bg-card p-0 text-foreground shadow-2xl backdrop:bg-ink/60 backdrop:backdrop-blur-sm sm:mr-8 sm:mt-24"
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-4">
-          <h2 id="notif-title" className="text-lg font-semibold tracking-tight">Notificări</h2>
+          <h2 id="notif-title" className="text-lg font-semibold tracking-tight">{tr("Notificări")}</h2>
           <div className="flex items-center gap-1">
-            {count > 0 ? <button type="button" onClick={readAll} className="rounded-full px-3 py-1.5 text-xs font-medium text-gold hover:bg-gold-soft">Marchează toate</button> : null}
-            <button type="button" onClick={close} aria-label="Închide" className="flex size-9 items-center justify-center rounded-full hover:bg-background">
+            {count > 0 ? <button type="button" onClick={readAll} className="rounded-full px-3 py-1.5 text-xs font-medium text-gold hover:bg-gold-soft">{tr("Marchează toate")}</button> : null}
+            <button type="button" onClick={close} aria-label={tr("Închide")} className="flex size-9 items-center justify-center rounded-full hover:bg-background">
               <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M5 5l10 10M15 5L5 15" /></svg>
             </button>
           </div>
         </div>
         <div className="max-h-[60dvh] overflow-y-auto">
           {items === null ? (
-            <p className="p-8 text-center text-sm text-muted">Se încarcă...</p>
+            <p className="p-8 text-center text-sm text-muted">{tr("Se încarcă...")}</p>
           ) : items.length === 0 ? (
-            <p className="p-8 text-center text-sm text-muted">Nu ai notificări.</p>
+            <p className="p-8 text-center text-sm text-muted">{tr("Nu ai notificări.")}</p>
           ) : (
             <ul className="divide-y divide-line">
               {items.map((n) => {
                 const inner = (
                   <>
-                    {!n.read_at ? <span aria-label="Necitită" className="mt-2 size-2 shrink-0 rounded-full bg-gold" /> : <span className="mt-2 size-2 shrink-0" />}
+                    {!n.read_at ? <span aria-label={tr("Necitită")} className="mt-2 size-2 shrink-0 rounded-full bg-gold" /> : <span className="mt-2 size-2 shrink-0" />}
                     <span className="min-w-0 flex-1">
                       <span className={`block text-sm ${n.read_at ? "font-medium" : "font-semibold"}`}>{n.title}</span>
                       {n.body ? <span className="mt-0.5 block text-sm text-muted">{n.body}</span> : null}
@@ -95,7 +97,7 @@ export function NotificationBell({ unread }: { unread: number }) {
           )}
         </div>
         <div className="border-t border-line px-6 py-3 text-center">
-          <Link href="/cont/notificari" onClick={close} className="text-sm font-medium text-gold hover:underline">Vezi toate notificările</Link>
+          <Link href="/cont/notificari" onClick={close} className="text-sm font-medium text-gold hover:underline">{tr("Vezi toate notificările")}</Link>
         </div>
       </dialog>
     </>

@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import { courseMethods, formatDeadline, transferDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -57,8 +58,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
     <div className="bg-background">
       <div className="grain relative overflow-hidden bg-ink text-white">
         <Container className="py-6 sm:py-8">
-          <h1 className="sr-only">Finalizare comandă: {course.title}</h1>
-          <ol aria-label="Pașii comenzii" className="flex items-center gap-3 text-sm sm:gap-5">
+          <h1 className="sr-only">{tr("Finalizare comandă:")}{" "}{course.title}</h1>
+          <ol aria-label={tr("Pașii comenzii")} className="flex items-center gap-3 text-sm sm:gap-5">
             {["Date", "Plată", "Confirmare"].map((label, i) => (
               <li key={label} className="flex items-center gap-3 sm:gap-5" aria-current={i === 0 ? "step" : undefined}>
                 <span className={`flex items-center gap-2.5 ${i === 0 ? "text-white" : "text-white/45"}`}>
@@ -72,7 +73,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
         </Container>
       </div>
       <Container className="grid gap-8 py-10 pb-28 lg:grid-cols-[1fr_26rem] lg:py-16 lg:pb-16">
-        <section className="rounded-[2rem] border border-line bg-card p-8 sm:p-10" aria-label="Date comandă">
+        <section className="rounded-[2rem] border border-line bg-card p-8 sm:p-10" aria-label={tr("Date comandă")}>
           <CheckoutForm
             courseId={course.id}
             signedIn={Boolean(profile)}
@@ -87,12 +88,12 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             missingProfile={{ phone: Boolean(profile) && !profile?.phone, specialization: Boolean(profile) && !profile?.specialization }}
           />
         </section>
-        <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" id="sumar-comanda" aria-label="Sumar comandă">
+        <aside className="h-fit overflow-hidden rounded-[2rem] border border-line bg-card lg:sticky lg:top-28" id="sumar-comanda" aria-label={tr("Sumar comandă")}>
           <div className="relative aspect-[16/9] bg-ink"><CourseImage course={course} variant="thumb" sizes="(min-width: 1024px) 400px, 100vw" className="size-full" /></div>
           <div className="p-7">
             <h2 className="font-display text-2xl leading-snug">{course.title}</h2>
             <p className="mt-1 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>
-            <ul aria-label="Ce primești" className="mt-4 space-y-2 text-sm">
+            <ul aria-label={tr("Ce primești")} className="mt-4 space-y-2 text-sm">
               {(course.format === "online"
                 ? ["Acces la lecții în contul tău", "Progresul tău se salvează automat"]
                 : ["Adeverință de participare cu număr unic verificabil", "Materiale disponibile 12 luni după curs", "Grup restrâns, cu atenție individuală"]
@@ -112,7 +113,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
               pointValueCents={Number(loyalty?.point_value_cents ?? 5)}
               capPercent={perk.capPercent}
             />
-            <p className="mt-5 text-xs leading-relaxed text-muted">Plată securizată prin Stripe. Datele cardului nu trec prin serverele noastre.</p>
+            <p className="mt-5 text-xs leading-relaxed text-muted">{tr("Plată securizată prin Stripe. Datele cardului nu trec prin serverele noastre.")}</p>
           </div>
         </aside>
       </Container>

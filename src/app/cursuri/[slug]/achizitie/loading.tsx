@@ -1,9 +1,10 @@
+import { tr } from "@/lib/i18n/server";
 import { Container } from "@/components/ui";
 import { LoadingRegion, Skeleton } from "@/components/skeleton";
 
 export default function Loading() {
   return (
-    <LoadingRegion label="Se încarcă comanda">
+    <LoadingRegion label={tr("Se încarcă comanda")}>
       <Container className="py-10 sm:py-16">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="mt-4 h-10 w-full max-w-md" />

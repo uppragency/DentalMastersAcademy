@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Eyebrow } from "@/components/ui";
@@ -52,26 +53,25 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
     <div className="space-y-10">
       {plata === "succes" ? (
         <p role="status" className="rounded-2xl bg-gold-soft px-5 py-4 text-sm">
-          Plata a fost primită. Cursul apare în lista ta în câteva secunde; vei primi și un email de confirmare.
-        </p>
+          {tr("Plata a fost primită. Cursul apare în lista ta în câteva secunde; vei primi și un email de confirmare.")}</p>
       ) : null}
 
       <header>
-        <Eyebrow>Contul meu</Eyebrow>
-        <h1 className="font-display mt-4 text-5xl font-medium sm:text-6xl">Bună{firstName ? `, ${firstName}` : ""}.</h1>
+        <Eyebrow>{tr("Contul meu")}</Eyebrow>
+        <h1 className="font-display mt-4 text-5xl font-medium sm:text-6xl">{tr("Bună")}{firstName ? `, ${firstName}` : ""}.</h1>
         <div className="mt-5"><Badges courses={courses.length} gold={isGold} platinum={profile.tier === "platinum"} /></div>
       </header>
 
       {gold.expiringSoon > 0 ? (
         <p role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gold-soft px-5 py-4 text-sm">
-          <span>{gold.expiringSoon} puncte expiră {gold.expiringAt ? `până la ${formatDate(gold.expiringAt)}` : "în curând"}. Le poți folosi la următoarea achiziție.</span>
-          <Link href="/cursuri" className="font-semibold underline underline-offset-4">Vezi cursurile</Link>
+          <span>{gold.expiringSoon} {" "}{tr("puncte expiră")}{" "}{gold.expiringAt ? `până la ${formatDate(gold.expiringAt)}` : "în curând"}{tr(". Le poți folosi la următoarea achiziție.")}</span>
+          <Link href="/cursuri" className="font-semibold underline underline-offset-4">{tr("Vezi cursurile")}</Link>
         </p>
       ) : null}
 
-      <section aria-label="Pe scurt" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-label={tr("Pe scurt")} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-[2rem] bg-ink p-7 text-white sm:col-span-2">
-          <p className="text-sm text-white/60">Următorul curs</p>
+          <p className="text-sm text-white/60">{tr("Următorul curs")}</p>
           {next ? (
             <>
               <p className="font-display mt-3 text-3xl leading-snug">{next.title}</p>
@@ -80,41 +80,41 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
                 <span className="rounded-full bg-gold-bright px-3.5 py-1.5 text-xs font-bold text-ink">
                   {daysUntil(next.starts_at!) <= 0 ? "Astăzi" : `În ${daysUntil(next.starts_at!)} ${daysUntil(next.starts_at!) === 1 ? "zi" : "zile"}`}
                 </span>
-                <Link href={`/cont/cursuri/${next.slug}`} className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">Detalii curs</Link>
+                <Link href={`/cont/cursuri/${next.slug}`} className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">{tr("Detalii curs")}</Link>
               </div>
             </>
           ) : (
             <>
-              <p className="font-display mt-3 text-3xl leading-snug">Niciun curs programat</p>
-              <p className="mt-2 text-sm text-white/60">Alege următorul pas din catalog.</p>
-              <Link href="/cursuri" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">Vezi cursurile</Link>
+              <p className="font-display mt-3 text-3xl leading-snug">{tr("Niciun curs programat")}</p>
+              <p className="mt-2 text-sm text-white/60">{tr("Alege următorul pas din catalog.")}</p>
+              <Link href="/cursuri" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">{tr("Vezi cursurile")}</Link>
             </>
           )}
         </div>
         <Link href="/cont/program" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
-          <p className="text-sm text-muted">Puncte disponibile</p>
+          <p className="text-sm text-muted">{tr("Puncte disponibile")}</p>
           <p className="font-display mt-3 text-5xl">{gold.balance}</p>
-          <p className="mt-2 text-sm text-muted">{formatPrice(Math.round(gold.balance * Number(loyalty?.point_value_cents ?? 5)), "EUR")} la următoarea achiziție</p>
+          <p className="mt-2 text-sm text-muted">{formatPrice(Math.round(gold.balance * Number(loyalty?.point_value_cents ?? 5)), "EUR")} {" "}{tr("la următoarea achiziție")}</p>
         </Link>
         <Link href="/cont/comenzi" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
-          <p className="text-sm text-muted">Comenzi plătite</p>
+          <p className="text-sm text-muted">{tr("Comenzi plătite")}</p>
           <p className="font-display mt-3 text-5xl">{paidOrders.length}</p>
-          <p className="mt-2 text-sm text-muted">{formatPrice(gold.spentCents, "EUR")} investit în ultimul an</p>
+          <p className="mt-2 text-sm text-muted">{formatPrice(gold.spentCents, "EUR")} {" "}{tr("investit în ultimul an")}</p>
         </Link>
         <Link href="/cont/cursuri" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
-          <p className="text-sm text-muted">Cursuri</p>
+          <p className="text-sm text-muted">{tr("Cursuri")}</p>
           <p className="font-display mt-3 text-5xl">{courses.length}</p>
-          <p className="mt-2 text-sm text-muted">{upcoming.length} viitoare</p>
+          <p className="mt-2 text-sm text-muted">{upcoming.length} {" "}{tr("viitoare")}</p>
         </Link>
         <Link href="/cont/notificari" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
-          <p className="text-sm text-muted">Notificări necitite</p>
+          <p className="text-sm text-muted">{tr("Notificări necitite")}</p>
           <p className="font-display mt-3 text-5xl">{unread}</p>
           <p className="mt-2 text-sm text-muted">{unread > 0 ? "Deschide notificările" : "Totul la zi"}</p>
         </Link>
       </section>
 
       <section aria-labelledby="gold-title" className={`rounded-[2rem] p-8 sm:p-10 ${isGold ? "bg-gradient-to-br from-[#14100a] to-[#2e220d] text-white" : "border border-line bg-card"}`}>
-        <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isGold ? "text-[#d9b873]" : "text-gold"}`}>Program Gold</p>
+        <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isGold ? "text-[#d9b873]" : "text-gold"}`}>{tr("Program Gold")}</p>
         <h2 id="gold-title" className="mt-2 font-display text-3xl">
           {isGold ? `Ești membru ${perk.name}` : "Drumul tău spre Gold"}
         </h2>
@@ -123,18 +123,18 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
             ? `Ai reducere ${perk.discountPercent}% la cursuri, ${perk.multiplier}x puncte la fiecare achiziție și acces gratuit la activitățile marcate Gold.`
             : "Statusul Gold aduce reduceri, puncte în plus și acces gratuit la activități selectate."}
         </p>
-        <Link href="/cont/program" className={`mt-5 inline-flex min-h-11 items-center rounded-full px-6 text-sm font-medium ${isGold ? "bg-white text-ink" : "bg-ink text-white"}`}>Vezi programul și punctele</Link>
+        <Link href="/cont/program" className={`mt-5 inline-flex min-h-11 items-center rounded-full px-6 text-sm font-medium ${isGold ? "bg-white text-ink" : "bg-ink text-white"}`}>{tr("Vezi programul și punctele")}</Link>
       </section>
 
       <JourneyMap nodes={journey} />
 
       {courses.length === 0 ? (
-        <EmptyState title="Nu ai încă cursuri" text="După prima înscriere, cursurile, programul și materialele apar aici." href="/cursuri" cta="Vezi catalogul" />
+        <EmptyState title={tr("Nu ai încă cursuri")} text={tr("După prima înscriere, cursurile, programul și materialele apar aici.")} href="/cursuri" cta={tr("Vezi catalogul")} />
       ) : null}
 
       {suggestions.length > 0 ? (
         <section aria-labelledby="rec-title">
-          <h2 id="rec-title" className="font-display text-3xl">Recomandate pentru tine</h2>
+          <h2 id="rec-title" className="font-display text-3xl">{tr("Recomandate pentru tine")}</h2>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             {suggestions.map((c) => <CourseCard key={c.id} course={c} />)}
           </div>

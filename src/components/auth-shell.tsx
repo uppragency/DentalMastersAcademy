@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { ReactNode } from "react";
 import { CourseArt } from "@/components/course-art";
 
@@ -10,7 +11,7 @@ export function AuthShell({ title, lead, children }: { title: string; lead: stri
         <CourseArt seed="auth" className="absolute inset-0 size-full scale-125 opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/20" />
         <div className="relative flex h-full flex-col justify-end p-16">
-          <p className="font-display max-w-md text-5xl leading-[1.05]">Învățarea ta, <span className="text-gold-sheen">la un clic distanță.</span></p>
+          <p className="font-display max-w-md text-5xl leading-[1.05]">{tr("Învățarea ta,")}{" "}<span className="text-gold-sheen">{tr("la un clic distanță.")}</span></p>
           <ul className="mt-10 space-y-3 text-white/70">
             {perks.map((p) => (
               <li key={p} className="flex items-center gap-3"><span className="size-1.5 rotate-45 bg-gold-bright" />{p}</li>

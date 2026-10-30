@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import Link from "@/components/locale-link";
 import type { Metadata } from "next";
 import { ButtonLink, Container, SectionTitle, Arrow } from "@/components/ui";
@@ -22,23 +23,21 @@ export default async function AboutPage() {
   return (
     <>
       <PageHero
-        eyebrow="Cine suntem"
-        title={<>Fluxul complet este <span className="text-gold-sheen">chiar aici.</span></>}
-        lead="Pe o piață mondială a implantologiei în continuă evoluție, nevoia de educație structurată, aplicată și de înaltă calitate este mai mare ca oricând."
+        eyebrow={tr("Cine suntem")}
+        title={<>{tr("Fluxul complet este")}{" "}<span className="text-gold-sheen">{tr("chiar aici.")}</span></>}
+        lead={tr("Pe o piață mondială a implantologiei în continuă evoluție, nevoia de educație structurată, aplicată și de înaltă calitate este mai mare ca oricând.")}
       />
 
       <section id="concept" className="scroll-mt-24 py-16 sm:py-24 lg:py-32">
         <Container className="grid gap-16 lg:grid-cols-12">
           <Reveal className="lg:col-span-6">
-            <SectionTitle eyebrow="Conceptul DMA" title="Un ecosistem de educație clinică, într-un singur loc." />
+            <SectionTitle eyebrow={tr("Conceptul DMA")} title={tr("Un ecosistem de educație clinică, într-un singur loc.")} />
           </Reveal>
           <Reveal className="space-y-6 text-lg leading-relaxed text-muted lg:col-span-6" delay={120}>
             <p>
-              Dental Masters Academy reunește într-un singur spațiu sala de curs, radiologia, cabinetul stomatologic și laboratorul dentar.
-            </p>
+              {tr("Dental Masters Academy reunește într-un singur spațiu sala de curs, radiologia, cabinetul stomatologic și laboratorul dentar.")}</p>
             <p>
-              De la teorie și planificare digitală, la intervenții live și lucrări protetice, participanții urmăresc etapele tratamentului și legăturile dintre ele, de la primul examen până la restaurarea finală.
-            </p>
+              {tr("De la teorie și planificare digitală, la intervenții live și lucrări protetice, participanții urmăresc etapele tratamentului și legăturile dintre ele, de la primul examen până la restaurarea finală.")}</p>
             <dl className="grid grid-cols-2 gap-6 pt-6">
               {stats.map((s) => (
                 <div key={s.label} className="border-t border-line pt-4">
@@ -53,7 +52,7 @@ export default async function AboutPage() {
 
       <section className="bg-ink py-24 text-white sm:py-32">
         <Container>
-          <Reveal><SectionTitle light eyebrow="HQ Concept" title="Un spațiu proiectat pentru educație clinică." lead="Abordare digitală pentru planificarea cazurilor și modele realiste, color printate, cu tehnologie recentă dezvoltată pentru industria dentară." /></Reveal>
+          <Reveal><SectionTitle light eyebrow={tr("HQ Concept")} title={tr("Un spațiu proiectat pentru educație clinică.")} lead={tr("Abordare digitală pentru planificarea cazurilor și modele realiste, color printate, cu tehnologie recentă dezvoltată pentru industria dentară.")} /></Reveal>
           <ul className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {facility.map((f, i) => (
               <Reveal as="li" key={f.title} delay={i * 90}>
@@ -80,7 +79,7 @@ export default async function AboutPage() {
 
       <section className="py-16 sm:py-24 lg:py-32">
         <Container>
-          <Reveal><SectionTitle eyebrow="Echipa" title="Lectori care practică zilnic ceea ce predau." /></Reveal>
+          <Reveal><SectionTitle eyebrow={tr("Echipa")} title={tr("Lectori care practică zilnic ceea ce predau.")} /></Reveal>
           <ul className="mt-14 grid gap-6 lg:grid-cols-3">
             {founders.map((t) => (
               <Reveal as="li" key={t.id}>
@@ -88,27 +87,27 @@ export default async function AboutPage() {
                   <TrainerAvatar name={t.name} photo={t.photo_url} size={96} />
                   <h3 className="font-display mt-6 text-2xl leading-tight">{t.name}</h3>
                   <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-muted">{t.role}</p>
-                  <span className="mt-auto pt-6 text-sm font-medium text-gold">Profil și cazuri clinice</span>
+                  <span className="mt-auto pt-6 text-sm font-medium text-gold">{tr("Profil și cazuri clinice")}</span>
                 </Link>
               </Reveal>
             ))}
             <Reveal as="li">
               <Link href="/lectori" className="flex h-full flex-col justify-between rounded-[2rem] border border-line bg-card p-8 transition-all duration-500 hover:-translate-y-1.5">
                 <div>
-                  <h3 className="font-display text-2xl leading-tight">Lectorii noștri</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">Echipa de lectori care completează programul academiei.</p>
+                  <h3 className="font-display text-2xl leading-tight">{tr("Lectorii noștri")}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">{tr("Echipa de lectori care completează programul academiei.")}</p>
                 </div>
-                <span className="pt-6 text-sm font-medium text-gold">Vezi lectorii</span>
+                <span className="pt-6 text-sm font-medium text-gold">{tr("Vezi lectorii")}</span>
               </Link>
             </Reveal>
           </ul>
           <Reveal>
             <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-[2rem] bg-ink p-8 text-white sm:flex-row sm:items-center">
               <div>
-                <h3 className="font-display text-2xl">Partenerii noștri</h3>
-                <p className="mt-2 text-sm text-white/65">Companiile și laboratorul care susțin educația clinică din academie.</p>
+                <h3 className="font-display text-2xl">{tr("Partenerii noștri")}</h3>
+                <p className="mt-2 text-sm text-white/65">{tr("Companiile și laboratorul care susțin educația clinică din academie.")}</p>
               </div>
-              <ButtonLink href="/parteneri" variant="outline">Vezi partenerii</ButtonLink>
+              <ButtonLink href="/parteneri" variant="outline">{tr("Vezi partenerii")}</ButtonLink>
             </div>
           </Reveal>
         </Container>
@@ -116,7 +115,7 @@ export default async function AboutPage() {
 
       <section className="bg-card py-16 sm:py-24 lg:py-32">
         <Container>
-          <Reveal><SectionTitle eyebrow="Cele cinci module" title="Un parcurs construit pas cu pas." /></Reveal>
+          <Reveal><SectionTitle eyebrow={tr("Cele cinci module")} title={tr("Un parcurs construit pas cu pas.")} /></Reveal>
           <ol className="mt-14 divide-y divide-line border-y border-line">
             {modules.map((m) => (
               <Reveal as="li" key={m.n}>
@@ -135,7 +134,7 @@ export default async function AboutPage() {
       {testimonials.length > 0 ? (
         <section className="py-16 sm:py-24 lg:py-32">
           <Container>
-            <Reveal><SectionTitle eyebrow="Testimoniale" title="Ce spun participanții noștri." /></Reveal>
+            <Reveal><SectionTitle eyebrow={tr("Testimoniale")} title={tr("Ce spun participanții noștri.")} /></Reveal>
             <div className="mt-14"><TestimonialsCarousel items={testimonials} /></div>
           </Container>
         </section>
@@ -144,10 +143,10 @@ export default async function AboutPage() {
       <section className="grain relative overflow-hidden bg-ink py-24 text-center text-white">
         <Container>
           <Reveal>
-            <h2 className="font-display mx-auto max-w-3xl text-balance text-5xl font-medium">Pregătit pentru următorul nivel?</h2>
+            <h2 className="font-display mx-auto max-w-3xl text-balance text-5xl font-medium">{tr("Pregătit pentru următorul nivel?")}</h2>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/cursuri" variant="gold">Vezi cursurile <Arrow /></ButtonLink>
-              <ButtonLink href="/contact" variant="outline">Contact</ButtonLink>
+              <ButtonLink href="/cursuri" variant="gold">{tr("Vezi cursurile")}{" "}<Arrow /></ButtonLink>
+              <ButtonLink href="/contact" variant="outline">{tr("Contact")}</ButtonLink>
             </div>
           </Reveal>
         </Container>

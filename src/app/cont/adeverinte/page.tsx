@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { EmptyState } from "@/components/empty-state";
@@ -25,9 +26,9 @@ export default async function CertificatesPage() {
 
   return (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Cont</p>
-      <h1 className="font-display mt-2 text-5xl font-medium">Adeverințe</h1>
-      <p className="mt-4 max-w-2xl text-muted">Adeverințele se emit după ce prezența ta este confirmată la curs. Fiecare are un număr unic, verificabil public.</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{tr("Cont")}</p>
+      <h1 className="font-display mt-2 text-5xl font-medium">{tr("Adeverințe")}</h1>
+      <p className="mt-4 max-w-2xl text-muted">{tr("Adeverințele se emit după ce prezența ta este confirmată la curs. Fiecare are un număr unic, verificabil public.")}</p>
       {rows.length > 0 ? (
         <ul className="mt-8 space-y-4">
           {rows.map((r) => {
@@ -37,13 +38,13 @@ export default async function CertificatesPage() {
               <li key={r.id} className="rounded-[2rem] border border-line bg-card p-6">
                 <h2 className="font-display text-2xl leading-snug">{c.title}</h2>
                 <p className="mt-1 text-sm text-muted">{formatDateRange(c.starts_at, c.ends_at)}</p>
-                {n ? <p className="mt-3 text-sm">Număr: <strong className="font-mono">{n}</strong></p> : null}
+                {n ? <p className="mt-3 text-sm">{tr("Număr:")}{" "}<strong className="font-mono">{n}</strong></p> : null}
                 <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <Link href={`/cont/cursuri/${c.slug}/adeverinta`} className="inline-flex min-h-11 items-center rounded-full bg-ink px-5 text-sm font-medium text-white">Deschide și descarcă</Link>
+                  <Link href={`/cont/cursuri/${c.slug}/adeverinta`} className="inline-flex min-h-11 items-center rounded-full bg-ink px-5 text-sm font-medium text-white">{tr("Deschide și descarcă")}</Link>
                   {n ? (
                     <>
-                      <Link href={`/verificare/${n}`} className="inline-flex min-h-11 items-center rounded-full border border-line px-5 text-sm font-medium">Pagina de verificare</Link>
-                      <CopyButton value={`${site}/verificare/${n}`} label="Copiază linkul de verificare" />
+                      <Link href={`/verificare/${n}`} className="inline-flex min-h-11 items-center rounded-full border border-line px-5 text-sm font-medium">{tr("Pagina de verificare")}</Link>
+                      <CopyButton value={`${site}/verificare/${n}`} label={tr("Copiază linkul de verificare")} />
                     </>
                   ) : null}
                 </div>
@@ -52,7 +53,7 @@ export default async function CertificatesPage() {
           })}
         </ul>
       ) : (
-        <div className="mt-8"><EmptyState title="Nicio adeverință încă" text="După ce participi la un curs și prezența ta este confirmată, adeverința apare aici." href="/cont/cursuri" cta="Cursurile mele" /></div>
+        <div className="mt-8"><EmptyState title={tr("Nicio adeverință încă")} text={tr("După ce participi la un curs și prezența ta este confirmată, adeverința apare aici.")} href="/cont/cursuri" cta={tr("Cursurile mele")} /></div>
       )}
     </div>
   );

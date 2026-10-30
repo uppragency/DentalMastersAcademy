@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
 
@@ -23,6 +24,7 @@ const panelCls = "absolute inset-x-0 top-full border-b border-white/10 bg-ink te
 const panelInner = "mx-auto w-full max-w-[1680px] px-12 py-10 2xl:px-16";
 
 export function MainNav({ data }: { data: NavData }) {
+  const tr = useT();
   const [open, setOpen] = useState<Key | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const root = useRef<HTMLElement>(null);
@@ -52,7 +54,7 @@ export function MainNav({ data }: { data: NavData }) {
   );
 
   return (
-    <nav ref={root} aria-label="Principal" className="hidden items-center gap-8 lg:flex xl:gap-9" onMouseLeave={hide}>
+    <nav ref={root} aria-label={tr("Principal")} className="hidden items-center gap-8 lg:flex xl:gap-9" onMouseLeave={hide}>
       {(Object.keys(labels) as Key[]).map((k) => (
         <div key={k} onMouseEnter={() => show(k)} className="flex items-center">
           <button type="button" aria-expanded={open === k} aria-controls={`mega-${k}`} onClick={() => setOpen(open === k ? null : k)} onFocus={() => show(k)} className={trigger}>
@@ -60,14 +62,14 @@ export function MainNav({ data }: { data: NavData }) {
           </button>
         </div>
       ))}
-      <Link href="/blog" className="text-sm text-white/70 transition-colors hover:text-white" onMouseEnter={close}>Blog</Link>
+      <Link href="/blog" className="text-sm text-white/70 transition-colors hover:text-white" onMouseEnter={close}>{tr("Blog")}</Link>
 
       {panel("cine", (
         <ul className="grid gap-4 lg:grid-cols-5">
           <li>
             <Link href="/cine-suntem" onClick={close} className="block h-full rounded-3xl bg-gradient-to-br from-gold to-gold-bright p-6 text-ink">
-              <span className={tileTitle}>Conceptul DMA</span>
-              <span className="mt-2 block text-sm leading-relaxed text-ink/70">Un ecosistem dedicat educației clinice, care reunește sala de curs, radiologia, cabinetul stomatologic și laboratorul dentar într-un singur loc.</span>
+              <span className={tileTitle}>{tr("Conceptul DMA")}</span>
+              <span className="mt-2 block text-sm leading-relaxed text-ink/70">{tr("Un ecosistem dedicat educației clinice, care reunește sala de curs, radiologia, cabinetul stomatologic și laboratorul dentar într-un singur loc.")}</span>
             </Link>
           </li>
           {data.founders.map((f) => (
@@ -80,8 +82,8 @@ export function MainNav({ data }: { data: NavData }) {
           ))}
           <li>
             <div className={tile}>
-              <Link href="/lectori" onClick={close} className={tileTitle}>Lectorii noștri</Link>
-              <span className={tileText}>Fotografie, scurtă biografie, domenii de expertiză și cursurile pe care le susține fiecare lector.</span>
+              <Link href="/lectori" onClick={close} className={tileTitle}>{tr("Lectorii noștri")}</Link>
+              <span className={tileText}>{tr("Fotografie, scurtă biografie, domenii de expertiză și cursurile pe care le susține fiecare lector.")}</span>
               <ul className="mt-3 space-y-1 text-sm">
                 {data.faculty.map((t) => (
                   <li key={t.slug}><Link href={`/lectori/${t.slug}`} onClick={close} className="text-gold-bright hover:underline">{t.name}</Link></li>
@@ -91,8 +93,8 @@ export function MainNav({ data }: { data: NavData }) {
           </li>
           <li>
             <Link href="/parteneri" onClick={close} className={tile}>
-              <span className={tileTitle}>Partenerii noștri</span>
-              <span className={tileText}>Straumann, iDentical Lab, DÜRR Dental, Invictus, G-Diff și alți parteneri.</span>
+              <span className={tileTitle}>{tr("Partenerii noștri")}</span>
+              <span className={tileText}>{tr("Straumann, iDentical Lab, DÜRR Dental, Invictus, G-Diff și alți parteneri.")}</span>
             </Link>
           </li>
         </ul>
@@ -101,8 +103,8 @@ export function MainNav({ data }: { data: NavData }) {
       {panel("cursuri", (
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <p className={colLabel}>Cursuri DMA</p>
-            <p className="mt-1 text-xs text-white/50">Susținute de Dr. Ovidiu Dumitru și Dr. Gabriel Mușețescu.</p>
+            <p className={colLabel}>{tr("Cursuri DMA")}</p>
+            <p className="mt-1 text-xs text-white/50">{tr("Susținute de Dr. Ovidiu Dumitru și Dr. Gabriel Mușețescu.")}</p>
             <ul className="mt-4 space-y-1">
               {data.dma.map((c) => (
                 <li key={c.slug}>
@@ -115,7 +117,7 @@ export function MainNav({ data }: { data: NavData }) {
             </ul>
           </div>
           <div className="lg:col-span-5">
-            <p className={colLabel}>Cursuri găzduite</p>
+            <p className={colLabel}>{tr("Cursuri găzduite")}</p>
             <ul className="mt-5 space-y-1">
               {data.hosted.map((c) => (
                 <li key={c.slug}>
@@ -129,11 +131,11 @@ export function MainNav({ data }: { data: NavData }) {
           </div>
           <div className="lg:col-span-3">
             <div className="grain relative h-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#1b2a44] to-ink-2 p-7">
-              <p className={colLabel}>Mentorat clinic</p>
-              <p className="font-display mt-3 text-2xl leading-tight">Vino cu propriul pacient în cabinetul DMA.</p>
-              <p className="mt-3 text-sm leading-relaxed text-white/60">Beneficiază de experiența echipei noastre, cu îndrumare sau în format over-the-shoulder.</p>
-              <Link href="/mentorat" onClick={close} className="mt-6 inline-flex min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink hover:bg-gold-soft">Discută un caz cu echipa DMA</Link>
-              <Link href="/cursuri" onClick={close} className="mt-4 block text-sm text-gold-bright hover:underline">Vezi toate cursurile</Link>
+              <p className={colLabel}>{tr("Mentorat clinic")}</p>
+              <p className="font-display mt-3 text-2xl leading-tight">{tr("Vino cu propriul pacient în cabinetul DMA.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-white/60">{tr("Beneficiază de experiența echipei noastre, cu îndrumare sau în format over-the-shoulder.")}</p>
+              <Link href="/mentorat" onClick={close} className="mt-6 inline-flex min-h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-ink hover:bg-gold-soft">{tr("Discută un caz cu echipa DMA")}</Link>
+              <Link href="/cursuri" onClick={close} className="mt-4 block text-sm text-gold-bright hover:underline">{tr("Vezi toate cursurile")}</Link>
             </div>
           </div>
         </div>

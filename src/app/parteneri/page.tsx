@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
@@ -13,7 +14,7 @@ export default async function PartnersPage() {
   const partners = await getPartnerRows();
   return (
     <>
-      <PageHero eyebrow="Parteneri" title={<>Partenerii <span className="text-gold-sheen">noștri.</span></>} lead="Companiile și laboratorul care susțin educația clinică din academie, de la planificare digitală la lucrarea protetică finală." />
+      <PageHero eyebrow={tr("Parteneri")} title={<>{tr("Partenerii")}{" "}<span className="text-gold-sheen">{tr("noștri.")}</span></>} lead={tr("Companiile și laboratorul care susțin educația clinică din academie, de la planificare digitală la lucrarea protetică finală.")} />
       <section className="py-16 sm:py-24">
         <Container>
           <ul className="grid gap-6 md:grid-cols-2">
@@ -31,13 +32,13 @@ export default async function PartnersPage() {
                   {p.description ? <p className="mt-6 leading-relaxed text-muted">{p.description}</p> : null}
                   {p.url ? (
                     <a href={p.url} target="_blank" rel="noopener noreferrer" className="mt-auto pt-8 text-sm font-medium text-gold underline-offset-4 hover:underline">
-                      Vizitează site-ul {p.name}
+                      {tr("Vizitează site-ul")}{" "}{p.name}
                     </a>
                   ) : null}
                 </article>
               </Reveal>
             ))}
-            {partners.length === 0 ? <li className="rounded-3xl border border-dashed border-line p-12 text-center text-muted md:col-span-2">Partenerii vor apărea aici.</li> : null}
+            {partners.length === 0 ? <li className="rounded-3xl border border-dashed border-line p-12 text-center text-muted md:col-span-2">{tr("Partenerii vor apărea aici.")}</li> : null}
           </ul>
         </Container>
       </section>

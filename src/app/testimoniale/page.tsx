@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { Container, SectionTitle } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
@@ -17,23 +18,23 @@ export default async function TestimonialsPage() {
   const empty = items.length === 0 && withPhotos.length === 0 && playable.length === 0;
   return (
     <>
-      <PageHero eyebrow="Testimoniale" title={<>Ce spun <span className="text-gold-sheen">participanții.</span></>} lead="Fotografii din ediții, păreri scrise și impresii video ale medicilor care au trecut prin cursurile noastre." />
+      <PageHero eyebrow={tr("Testimoniale")} title={<>{tr("Ce spun")}{" "}<span className="text-gold-sheen">{tr("participanții.")}</span></>} lead={tr("Fotografii din ediții, păreri scrise și impresii video ale medicilor care au trecut prin cursurile noastre.")} />
       <Container className="space-y-24 py-16 sm:py-24">
         {withPhotos.length > 0 ? (
           <section aria-labelledby="t-foto">
-            <div id="t-foto"><SectionTitle eyebrow="Din ediții" title="Momente din cursurile noastre." /></div>
+            <div id="t-foto"><SectionTitle eyebrow={tr("Din ediții")} title={tr("Momente din cursurile noastre.")} /></div>
             <div className="mt-12"><PhotoGallery albums={withPhotos} /></div>
           </section>
         ) : null}
         {items.length > 0 ? (
           <section aria-labelledby="t-text">
-            <div id="t-text"><SectionTitle eyebrow="Mărturii" title="Păreri scrise." /></div>
+            <div id="t-text"><SectionTitle eyebrow={tr("Mărturii")} title={tr("Păreri scrise.")} /></div>
             <div className="mt-12"><TestimonialsGrid items={items} /></div>
           </section>
         ) : null}
         {playable.length > 0 ? (
           <section aria-labelledby="t-video">
-            <div id="t-video"><SectionTitle eyebrow="Video" title="Impresii despre cursuri, lucrul hands-on și lectori." /></div>
+            <div id="t-video"><SectionTitle eyebrow={tr("Video")} title={tr("Impresii despre cursuri, lucrul hands-on și lectori.")} /></div>
             <ul className="mt-12 grid gap-8 md:grid-cols-2">
               {playable.map(({ v, source }) => (
                 <li key={v.id}>
@@ -47,7 +48,7 @@ export default async function TestimonialsPage() {
             </ul>
           </section>
         ) : null}
-        {empty ? <p className="rounded-3xl border border-dashed border-line p-12 text-center text-muted">Testimonialele vor apărea aici.</p> : null}
+        {empty ? <p className="rounded-3xl border border-dashed border-line p-12 text-center text-muted">{tr("Testimonialele vor apărea aici.")}</p> : null}
       </Container>
     </>
   );

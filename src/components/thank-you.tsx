@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import Link from "@/components/locale-link";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { ClearCheckoutDraft } from "@/components/checkout-draft";
@@ -64,7 +65,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
             {isTransfer ? "Loc rezervat" : free ? "Înscriere confirmată" : paid ? "Plată confirmată" : waiting ? "Confirmăm plata" : "Comandă înregistrată"}
           </p>
           <h1 className="rise font-display mt-4 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "140ms" }}>
-            Mulțumim{first ? `, ${first}` : ""}. <span className="text-gold-sheen">{isTransfer ? "Mai ai un singur pas." : "Ne vedem la curs."}</span>
+            {tr("Mulțumim")}{first ? `, ${first}` : ""}. <span className="text-gold-sheen">{isTransfer ? "Mai ai un singur pas." : "Ne vedem la curs."}</span>
           </h1>
           <p className="rise mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-white/65" style={{ ["--d" as string]: "220ms" }}>
             {isTransfer
@@ -84,7 +85,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
         <Container className="grid gap-8 pt-14 sm:pt-20 lg:grid-cols-2">
           <div className="lg:order-2">
             <section aria-labelledby="next-h" className="rounded-[2rem] border border-line bg-card p-7 sm:p-9">
-              <h2 id="next-h" className="font-display text-2xl">Ce urmează</h2>
+              <h2 id="next-h" className="font-display text-2xl">{tr("Ce urmează")}</h2>
               <ol className="mt-6 space-y-6">
                 {steps.map((s, i) => (
                   <li key={s.t} className="flex gap-4">
@@ -97,18 +98,18 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
           </div>
           <div className="lg:order-1">
             <section aria-labelledby="pay-h" className="rounded-[2rem] border border-gold bg-gold-soft p-7 sm:p-9">
-                <h2 id="pay-h" className="font-display text-2xl">Datele pentru transfer bancar</h2>
+                <h2 id="pay-h" className="font-display text-2xl">{tr("Datele pentru transfer bancar")}</h2>
                 <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
                   {bankLines.map((l) => {
                     const i = l.indexOf(":");
                     return i > 0 ? (<div key={l} className="contents"><dt className="text-muted">{l.slice(0, i)}</dt><dd className="break-all font-medium">{l.slice(i + 1).trim()}</dd></div>) : (<div key={l} className="col-span-2 font-medium">{l}</div>);
                   })}
-                  <dt className="text-muted">Sumă</dt><dd className="font-semibold">{formatPrice(o.total_cents, o.currency.trim())}</dd>
-                  <dt className="text-muted">Detalii plată</dt><dd className="font-medium">Comanda {o.id.slice(0, 8).toUpperCase()}</dd>
-                  <dt className="text-muted">Termen</dt><dd className="font-medium">{formatDeadline(transfer!.deadline)}</dd>
+                  <dt className="text-muted">{tr("Sumă")}</dt><dd className="font-semibold">{formatPrice(o.total_cents, o.currency.trim())}</dd>
+                  <dt className="text-muted">{tr("Detalii plată")}</dt><dd className="font-medium">{tr("Comanda")}{" "}{o.id.slice(0, 8).toUpperCase()}</dd>
+                  <dt className="text-muted">{tr("Termen")}</dt><dd className="font-medium">{formatDeadline(transfer!.deadline)}</dd>
                 </dl>
                 {ibans.length > 0 ? <div className="mt-5 flex flex-wrap gap-3">{ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? `Copiază IBAN ${i.label}` : "Copiază IBAN"} />)}</div> : null}
-                <p className="mt-5 text-xs leading-relaxed text-muted">Am trimis aceste date și pe email. Dacă plata nu ajunge până la termen, comanda se anulează automat, iar locul se eliberează.</p>
+                <p className="mt-5 text-xs leading-relaxed text-muted">{tr("Am trimis aceste date și pe email. Dacă plata nu ajunge până la termen, comanda se anulează automat, iar locul se eliberează.")}</p>
               </section>
           </div>
         </Container>
@@ -126,15 +127,15 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{o ? `Comanda ${o.id.slice(0, 8).toUpperCase()}` : "Înscriere gratuită"}</p>
                 <h2 className="font-display mt-3 text-3xl leading-snug">{course.title}</h2>
                 <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
-                  {course.starts_at ? (<><dt className="text-muted">Data</dt><dd>{formatDateRange(course.starts_at, course.ends_at)}</dd></>) : null}
-                  <dt className="text-muted">Format</dt><dd>{formatLabels[course.format]}</dd>
-                  {course.location ? (<><dt className="text-muted">Locație</dt><dd>{course.location}</dd></>) : null}
+                  {course.starts_at ? (<><dt className="text-muted">{tr("Data")}</dt><dd>{formatDateRange(course.starts_at, course.ends_at)}</dd></>) : null}
+                  <dt className="text-muted">{tr("Format")}</dt><dd>{formatLabels[course.format]}</dd>
+                  {course.location ? (<><dt className="text-muted">{tr("Locație")}</dt><dd>{course.location}</dd></>) : null}
                   <dt className="text-muted">{isTransfer ? "De plată" : o ? "Total plătit" : "Preț"}</dt><dd className="font-semibold">{o ? formatPrice(o.total_cents, o.currency.trim()) : "Gratuit"}</dd>
                 </dl>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  {isTransfer ? <ButtonLink href="/cont">Mergi în contul meu</ButtonLink> : <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? "Vezi detaliile cursului" : "Începe cursul"}</ButtonLink>}
-                  {!isTransfer && course.starts_at ? <a href={`/cont/cursuri/${course.slug}/calendar.ics`} className="inline-flex min-h-12 items-center rounded-full border border-line px-6 text-sm font-medium hover:border-foreground/30">Adaugă în calendar</a> : null}
-                  {o && !isTransfer ? <ButtonLink href={`/cont/comenzi/${o.id}`} variant="ghost">Dovadă de plată</ButtonLink> : null}
+                  {isTransfer ? <ButtonLink href="/cont">{tr("Mergi în contul meu")}</ButtonLink> : <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? "Vezi detaliile cursului" : "Începe cursul"}</ButtonLink>}
+                  {!isTransfer && course.starts_at ? <a href={`/cont/cursuri/${course.slug}/calendar.ics`} className="inline-flex min-h-12 items-center rounded-full border border-line px-6 text-sm font-medium hover:border-foreground/30">{tr("Adaugă în calendar")}</a> : null}
+                  {o && !isTransfer ? <ButtonLink href={`/cont/comenzi/${o.id}`} variant="ghost">{tr("Dovadă de plată")}</ButtonLink> : null}
                 </div>
               </div>
             </article>
@@ -143,7 +144,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
 
           {!isTransfer ? (
           <section aria-labelledby="next-h" className="rounded-[2rem] border border-line bg-card p-7 sm:p-9">
-            <h2 id="next-h" className="font-display text-2xl">Ce urmează</h2>
+            <h2 id="next-h" className="font-display text-2xl">{tr("Ce urmează")}</h2>
             <ol className="mt-6 space-y-6">
               {steps.map((s, i) => (
                 <li key={s.t} className="flex gap-4">
@@ -159,32 +160,32 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
         <aside className="space-y-6 lg:col-span-5">
           {physical && (course?.parking_info || course?.bring_info) ? (
             <section className="rounded-[2rem] border border-line bg-card p-7">
-              <h2 className="font-display text-xl">Pentru ziua cursului</h2>
+              <h2 className="font-display text-xl">{tr("Pentru ziua cursului")}</h2>
               <dl className="mt-4 space-y-4 text-sm">
-                {course?.parking_info ? (<div><dt className="text-muted">Parcare și acces</dt><dd className="mt-1">{course.parking_info}</dd></div>) : null}
-                {course?.bring_info ? (<div><dt className="text-muted">Ce să aduci</dt><dd className="mt-1">{course.bring_info}</dd></div>) : null}
+                {course?.parking_info ? (<div><dt className="text-muted">{tr("Parcare și acces")}</dt><dd className="mt-1">{course.parking_info}</dd></div>) : null}
+                {course?.bring_info ? (<div><dt className="text-muted">{tr("Ce să aduci")}</dt><dd className="mt-1">{course.bring_info}</dd></div>) : null}
               </dl>
             </section>
           ) : null}
 
           <section className="rounded-[2rem] bg-ink p-7 text-white">
-            <h2 className="font-display text-2xl">Un coleg ar putea învăța alături de tine</h2>
-            <p className="mt-3 text-sm leading-relaxed text-white/65">Trimite-i linkul tău. Colegul primește o reducere la prima achiziție, iar tu primești o recompensă când plătește.</p>
+            <h2 className="font-display text-2xl">{tr("Un coleg ar putea învăța alături de tine")}</h2>
+            <p className="mt-3 text-sm leading-relaxed text-white/65">{tr("Trimite-i linkul tău. Colegul primește o reducere la prima achiziție, iar tu primești o recompensă când plătește.")}</p>
             <div className="mt-5 break-all rounded-2xl bg-white/10 px-4 py-3 font-mono text-xs text-white/80">{link}</div>
             <div className="mt-4 flex flex-wrap gap-3">
               <CopyButton value={link} />
-              <Link href="/cont/recomanda" className="inline-flex min-h-10 items-center px-2 text-sm font-medium text-gold-bright underline underline-offset-4">Vezi recompensele</Link>
+              <Link href="/cont/recomanda" className="inline-flex min-h-10 items-center px-2 text-sm font-medium text-gold-bright underline underline-offset-4">{tr("Vezi recompensele")}</Link>
             </div>
           </section>
 
           <section className="rounded-[2rem] border border-line bg-card p-7 text-sm">
-            <h2 className="font-display text-xl">Ai nevoie de ajutor?</h2>
-            <p className="mt-2 text-muted">Răspundem rapid la orice întrebare despre comandă sau curs.</p>
+            <h2 className="font-display text-xl">{tr("Ai nevoie de ajutor?")}</h2>
+            <p className="mt-2 text-muted">{tr("Răspundem rapid la orice întrebare despre comandă sau curs.")}</p>
             <div className="mt-4 space-y-1.5 font-medium">
               <a className="block hover:text-gold" href={contact.phoneHref}>{contact.phone}</a>
               <a className="block hover:text-gold" href={`mailto:${contact.email}`}>{contact.email}</a>
             </div>
-            <Link href="/cont" className="mt-5 inline-block text-muted underline underline-offset-4 hover:text-foreground">Mergi în contul meu</Link>
+            <Link href="/cont" className="mt-5 inline-block text-muted underline underline-offset-4 hover:text-foreground">{tr("Mergi în contul meu")}</Link>
           </section>
         </aside>
       </Container>

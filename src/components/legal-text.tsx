@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { ReactNode } from "react";
 import type { LegalDoc } from "@/content/legal";
 import { PageHero } from "@/components/page-hero";
@@ -6,7 +7,7 @@ import { PageHero } from "@/components/page-hero";
 export function LegalShell({ title, lead, children }: { title: string; lead?: string; children: ReactNode }) {
   return (
     <>
-      <PageHero eyebrow="Legal" title={title} lead={lead} />
+      <PageHero eyebrow={tr("Legal")} title={title} lead={lead} />
       <div className="mx-auto w-full max-w-[1680px] px-5 py-14 sm:px-8 sm:py-24 lg:px-12 lg:py-28 2xl:px-16">
         <div className="max-w-4xl [&>*:first-child]:mt-0">{children}</div>
       </div>
@@ -18,7 +19,7 @@ export function LegalShell({ title, lead, children }: { title: string; lead?: st
 export function DefaultLegal({ doc }: { doc: LegalDoc }) {
   return (
     <>
-      <p className="mt-3 text-sm text-muted">Ultima actualizare: {doc.updated}</p>
+      <p className="mt-3 text-sm text-muted">{tr("Ultima actualizare:")}{" "}{doc.updated}</p>
       <p className="mt-6 leading-relaxed text-muted">{doc.intro}</p>
       <div className="mt-8 space-y-8">
         {doc.sections.map((s) => (

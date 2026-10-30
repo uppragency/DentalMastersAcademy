@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { useActionState, useState, useSyncExternalStore } from "react";
 import { startCheckout } from "@/actions/checkout";
@@ -37,6 +38,7 @@ export function CheckoutForm({
   missingProfile: { phone: boolean; specialization: boolean };
   pendingTransfer: { id: string; deadlineLabel: string } | null;
 }) {
+  const tr = useT();
   const totals = useSyncExternalStore(checkoutTotals.subscribe, checkoutTotals.get, () => null);
   const [method, setMethod] = useState<PayMethod>(methods[0]!);
   const [state, action, pending] = useActionState(startCheckout.bind(null, courseId), undefined);
@@ -48,31 +50,29 @@ export function CheckoutForm({
       {!signedIn ? (
         <>
           <p className="text-sm text-muted">
-            Setează emailul și parola cu care îți accesezi cursurile. Contul se creează la comandă, iar confirmarea ajunge pe email.
-          </p>
-          <Field label="Nume complet" name="full_name" autoComplete="name" required error={e?.full_name?.[0]} />
-          <Field label="Email" name="email" type="email" autoComplete="email" required error={e?.email?.[0]} />
-          <Field label="Parolă" name="password" type="password" autoComplete="new-password" minLength={8} required error={e?.password?.[0]} />
-          <Field label="Telefon (opțional)" name="phone" type="tel" autoComplete="tel" error={e?.phone?.[0]} />
-          <Field label="Specializare (opțional)" name="specialization" error={e?.specialization?.[0]} />
+            {tr("Setează emailul și parola cu care îți accesezi cursurile. Contul se creează la comandă, iar confirmarea ajunge pe email.")}</p>
+          <Field label={tr("Nume complet")} name="full_name" autoComplete="name" required error={e?.full_name?.[0]} />
+          <Field label={tr("Email")} name="email" type="email" autoComplete="email" required error={e?.email?.[0]} />
+          <Field label={tr("Parolă")} name="password" type="password" autoComplete="new-password" minLength={8} required error={e?.password?.[0]} />
+          <Field label={tr("Telefon (opțional)")} name="phone" type="tel" autoComplete="tel" error={e?.phone?.[0]} />
+          <Field label={tr("Specializare (opțional)")} name="specialization" error={e?.specialization?.[0]} />
         </>
       ) : null}
 
       {pendingTransfer ? (
         <div role="status" className="rounded-2xl border border-gold bg-gold-soft p-5 text-sm leading-relaxed">
-          <p className="font-semibold">Ai deja o comandă prin transfer bancar în așteptare.</p>
+          <p className="font-semibold">{tr("Ai deja o comandă prin transfer bancar în așteptare.")}</p>
           <p className="mt-1 text-muted">
-            Locul tău este rezervat până {pendingTransfer.deadlineLabel}. Dacă plătești acum cu cardul, comanda prin transfer se anulează automat după ce plata reușește.
-          </p>
-          <Link href={`/multumim/${pendingTransfer.id}`} className="mt-3 inline-block font-medium underline underline-offset-4">Vezi datele pentru transfer</Link>
+            {tr("Locul tău este rezervat până")}{" "}{pendingTransfer.deadlineLabel}{tr(". Dacă plătești acum cu cardul, comanda prin transfer se anulează automat după ce plata reușește.")}</p>
+          <Link href={`/multumim/${pendingTransfer.id}`} className="mt-3 inline-block font-medium underline underline-offset-4">{tr("Vezi datele pentru transfer")}</Link>
         </div>
       ) : null}
 
       {signedIn && (missingProfile.phone || missingProfile.specialization) ? (
         <div className="grid gap-5 sm:grid-cols-2">
-          {missingProfile.phone ? <Field label="Telefon (opțional)" name="phone" type="tel" autoComplete="tel" /> : null}
-          {missingProfile.specialization ? <Field label="Specializare (opțional)" name="specialization" /> : null}
-          <p className="text-xs text-muted sm:col-span-2">Le salvăm în profilul tău, ca să nu le mai introduci data viitoare.</p>
+          {missingProfile.phone ? <Field label={tr("Telefon (opțional)")} name="phone" type="tel" autoComplete="tel" /> : null}
+          {missingProfile.specialization ? <Field label={tr("Specializare (opțional)")} name="specialization" /> : null}
+          <p className="text-xs text-muted sm:col-span-2">{tr("Le salvăm în profilul tău, ca să nu le mai introduci data viitoare.")}</p>
         </div>
       ) : null}
 
@@ -85,7 +85,7 @@ export function CheckoutForm({
 
       {!free ? (
         <fieldset>
-          <legend className="mb-3 text-sm font-semibold">Metodă de plată</legend>
+          <legend className="mb-3 text-sm font-semibold">{tr("Metodă de plată")}</legend>
           <div className={`grid gap-3 ${methods.length > 1 ? "md:grid-cols-2" : ""}`}>
           {methods.map((m) => {
             const on = method === m;
@@ -103,8 +103,7 @@ export function CheckoutForm({
           })}
           {method === "transfer" ? (
             <p className="rounded-xl bg-background px-4 py-3 text-sm leading-relaxed md:col-span-full">
-              Locul tău se rezervă până <strong>{deadlineLabel}</strong>. Dacă plata nu ajunge până atunci, comanda se anulează automat, iar locul se eliberează.
-            </p>
+              {tr("Locul tău se rezervă până")}{" "}<strong>{deadlineLabel}</strong>{tr(". Dacă plata nu ajunge până atunci, comanda se anulează automat, iar locul se eliberează.")}</p>
           ) : null}
           </div>
         </fieldset>
@@ -114,7 +113,7 @@ export function CheckoutForm({
         <p role="status" className="rounded-xl bg-gold-soft px-4 py-3 text-sm">
           {state.message}{" "}
           {state.message.includes("Există deja un cont") ? (
-            <Link href={`/autentificare?next=${encodeURIComponent(next)}`} className="font-medium underline underline-offset-4">Intră în cont</Link>
+            <Link href={`/autentificare?next=${encodeURIComponent(next)}`} className="font-medium underline underline-offset-4">{tr("Intră în cont")}</Link>
           ) : null}
         </p>
       ) : null}
@@ -122,17 +121,17 @@ export function CheckoutForm({
       <Button type="submit" variant="gold" disabled={pending || (!free && method === "card" && !enabled)} className="w-full">
         {pending ? "Se procesează..." : free ? "Confirmă înscrierea" : method === "transfer" ? "Plasează comanda" : totals && !totals.free ? `Plătește ${formatPrice(totals.total, totals.currency)}` : "Continuă către plată"}
       </Button>
-      <ul className="grid gap-2 text-xs text-muted sm:grid-cols-2" aria-label="Garanții">
+      <ul className="grid gap-2 text-xs text-muted sm:grid-cols-2" aria-label={tr("Garanții")}>
         <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> {method === "card" ? "Plată securizată prin Stripe" : "Locul se rezervă imediat"}</li>
-        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> Factură fiscală după confirmarea plății</li>
-        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> <Link href="/rambursare" className="underline underline-offset-4 hover:text-foreground">Politica de rambursare și transfer</Link></li>
-        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> Întrebări? <a href={contact.phoneHref} className="underline underline-offset-4 hover:text-foreground">{contact.phone}</a></li>
+        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> {" "}{tr("Factură fiscală după confirmarea plății")}</li>
+        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> <Link href="/rambursare" className="underline underline-offset-4 hover:text-foreground">{tr("Politica de rambursare și transfer")}</Link></li>
+        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> {" "}{tr("Întrebări?")}{" "}<a href={contact.phoneHref} className="underline underline-offset-4 hover:text-foreground">{contact.phone}</a></li>
       </ul>
       <p className="text-center text-xs leading-relaxed text-muted">
-        Prin plasarea comenzii accepți <Link href="/termeni" className="underline underline-offset-4 hover:text-foreground">Termenii și condițiile</Link>. Vezi{" "}
-        <Link href="/confidentialitate" className="underline underline-offset-4 hover:text-foreground">Politica de confidențialitate</Link>.
+        {tr("Prin plasarea comenzii accepți")}{" "}<Link href="/termeni" className="underline underline-offset-4 hover:text-foreground">{tr("Termenii și condițiile")}</Link>{tr(". Vezi")}{" "}
+        <Link href="/confidentialitate" className="underline underline-offset-4 hover:text-foreground">{tr("Politica de confidențialitate")}</Link>.
       </p>
-      {!enabled && !free && method === "card" ? <p className="text-center text-xs text-muted">Plata online va fi activată în curând.</p> : null}
+      {!enabled && !free && method === "card" ? <p className="text-center text-xs text-muted">{tr("Plata online va fi activată în curând.")}</p> : null}
     </form>
   );
 }

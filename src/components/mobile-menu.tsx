@@ -1,11 +1,13 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Image from "next/image";
 import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
 import { LanguageSwitch } from "@/components/language-switch";
 
 export function MobileMenu({ items, signedIn }: { items: { href: string; label: string; children?: { href: string; label: string }[] }[]; signedIn: boolean }) {
+  const tr = useT();
   const [open, setOpen] = useState(false);
 
   const panel = useRef<HTMLDivElement>(null);
@@ -48,10 +50,10 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
         className={`fixed inset-0 z-[70] overflow-y-auto overscroll-contain bg-ink transition-all duration-500 ${open ? "visible opacity-100" : "invisible opacity-0"}`}
       >
         <div className="flex h-[72px] items-center justify-between border-b border-white/10 px-5 sm:px-8">
-          <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label="Dental Masters Academy, prima pagină">
+          <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label={tr("Dental Masters Academy, prima pagină")}>
           <Image src="/logo.png" alt="" width={795} height={377} priority className="h-14 w-auto" />
           </Link>
-          <button type="button" aria-label="Închide meniul" onClick={() => setOpen(false)} className="flex size-11 items-center justify-center rounded-full text-white hover:bg-white/10">
+          <button type="button" aria-label={tr("Închide meniul")} onClick={() => setOpen(false)} className="flex size-11 items-center justify-center rounded-full text-white hover:bg-white/10">
             <span className="relative block size-5">
               <span className="absolute left-0 top-1/2 h-px w-5 rotate-45 bg-current" />
               <span className="absolute left-0 top-1/2 h-px w-5 -rotate-45 bg-current" />
@@ -59,7 +61,7 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
           </button>
         </div>
         <div className="px-6 py-8">
-        <nav aria-label="Principal mobil" className="flex flex-col">
+        <nav aria-label={tr("Principal mobil")} className="flex flex-col">
           {items.map((item, i) => (
             <div key={item.label} style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }} className={`border-b border-white/10 py-4 transition-all duration-500 ${open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
               <Link href={item.href} onClick={() => setOpen(false)} className="font-display block py-1 text-3xl text-white">{item.label}</Link>

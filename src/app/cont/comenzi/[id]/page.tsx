@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
@@ -74,12 +75,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="max-w-5xl">
-      <Link href="/cont/comenzi" className="text-sm text-muted hover:text-foreground print:hidden">← Înapoi la achiziții</Link>
+      <Link href="/cont/comenzi" className="text-sm text-muted hover:text-foreground print:hidden">{tr("← Înapoi la achiziții")}</Link>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-4xl font-medium">Comanda {shortId}</h1>
+        <h1 className="font-display text-4xl font-medium">{tr("Comanda")}{" "}{shortId}</h1>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone[o.status] ?? "bg-card"}`}>{statusLabel[o.status] ?? o.status}</span>
       </div>
-      <p className="mt-2 text-sm text-muted">Plasată pe {formatDate(o.created_at)}{paid && o.paid_at ? `, plătită pe ${formatDate(o.paid_at)}` : ""}.</p>
+      <p className="mt-2 text-sm text-muted">{tr("Plasată pe")}{" "}{formatDate(o.created_at)}{paid && o.paid_at ? `, plătită pe ${formatDate(o.paid_at)}` : ""}.</p>
 
       <OrderStepper status={o.status} source={o.source} createdAt={o.created_at} paidAt={o.paid_at} expiresAt={o.expires_at} invoiceNumber={o.invoice_number} />
 
@@ -87,46 +88,46 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         <div className="space-y-6">
           {activeTransfer ? (
             <section className="rounded-[2rem] border border-gold bg-gold-soft p-6 sm:p-8">
-              <h2 className="font-display text-xl">De plată prin transfer bancar</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted">Locul tău este rezervat până {formatDeadline(o.expires_at!)}. Dacă plata nu ajunge până atunci, comanda se anulează automat.</p>
+              <h2 className="font-display text-xl">{tr("De plată prin transfer bancar")}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{tr("Locul tău este rezervat până")}{" "}{formatDeadline(o.expires_at!)}{tr(". Dacă plata nu ajunge până atunci, comanda se anulează automat.")}</p>
               <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
                 {bankLines.map((l) => {
                   const i = l.indexOf(":");
                   return i > 0 ? (<div key={l} className="contents"><dt className="text-muted">{l.slice(0, i)}</dt><dd className="break-all font-medium">{l.slice(i + 1).trim()}</dd></div>) : (<div key={l} className="col-span-2 font-medium">{l}</div>);
                 })}
-                <dt className="text-muted">Sumă</dt><dd className="font-semibold">{formatPrice(o.total_cents, cur)}</dd>
-                <dt className="text-muted">Detalii plată</dt><dd className="font-medium">Comanda {shortId}</dd>
+                <dt className="text-muted">{tr("Sumă")}</dt><dd className="font-semibold">{formatPrice(o.total_cents, cur)}</dd>
+                <dt className="text-muted">{tr("Detalii plată")}</dt><dd className="font-medium">{tr("Comanda")}{" "}{shortId}</dd>
               </dl>
               <ol className="mt-6 space-y-3 border-t border-gold/30 pt-5 text-sm">
-                <li><span className="font-semibold">1. Fă plata</span> cu datele de mai sus, cu numărul comenzii la detalii.</li>
-                <li><span className="font-semibold">2. Trimite dovada</span> la <a className="underline underline-offset-4" href={`mailto:${contact.email}`}>{contact.email}</a>, cu o captură a transferului.</li>
-                <li><span className="font-semibold">3. Îți activăm înscrierea</span> după ce vedem banii în cont. Factura se emite la confirmare.</li>
+                <li><span className="font-semibold">{tr("1. Fă plata")}</span> {" "}{tr("cu datele de mai sus, cu numărul comenzii la detalii.")}</li>
+                <li><span className="font-semibold">{tr("2. Trimite dovada")}</span> {" "}{tr("la")}{" "}<a className="underline underline-offset-4" href={`mailto:${contact.email}`}>{contact.email}</a>{tr(", cu o captură a transferului.")}</li>
+                <li><span className="font-semibold">{tr("3. Îți activăm înscrierea")}</span> {" "}{tr("după ce vedem banii în cont. Factura se emite la confirmare.")}</li>
               </ol>
               <div className="mt-5 flex flex-wrap gap-3 print:hidden">
                 {ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? `Copiază IBAN ${i.label}` : "Copiază IBAN"} />)}
-                {canCard && course ? <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="ghost">Plătește cu cardul</ButtonLink> : null}
+                {canCard && course ? <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="ghost">{tr("Plătește cu cardul")}</ButtonLink> : null}
               </div>
-              {canCard ? <p className="mt-3 text-xs text-muted print:hidden">Dacă plata cu cardul reușește, această comandă se anulează automat.</p> : null}
+              {canCard ? <p className="mt-3 text-xs text-muted print:hidden">{tr("Dacă plata cu cardul reușește, această comandă se anulează automat.")}</p> : null}
             </section>
           ) : null}
 
           {o.status === "pending" && o.source === "transfer" && !activeTransfer ? (
-            <p role="status" className="rounded-2xl border border-line bg-card px-5 py-4 text-sm">Rezervarea prin transfer a expirat. Dacă ai plătit deja, scrie-ne la <a className="underline underline-offset-4" href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
+            <p role="status" className="rounded-2xl border border-line bg-card px-5 py-4 text-sm">{tr("Rezervarea prin transfer a expirat. Dacă ai plătit deja, scrie-ne la")}{" "}<a className="underline underline-offset-4" href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
           ) : null}
 
           {cardPending && course ? (
             <section className="rounded-[2rem] border border-gold bg-gold-soft p-6 sm:p-8">
-              <h2 className="font-display text-xl">Plata cu cardul nu a fost finalizată</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted">Poți relua înscrierea oricând, cât mai sunt locuri. Comenzile cu cardul nefinalizate se anulează automat după 24 de ore.</p>
-              <div className="mt-4 print:hidden"><ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold">Reia plata</ButtonLink></div>
+              <h2 className="font-display text-xl">{tr("Plata cu cardul nu a fost finalizată")}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{tr("Poți relua înscrierea oricând, cât mai sunt locuri. Comenzile cu cardul nefinalizate se anulează automat după 24 de ore.")}</p>
+              <div className="mt-4 print:hidden"><ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold">{tr("Reia plata")}</ButtonLink></div>
             </section>
           ) : null}
 
           {o.status === "cancelled" && course ? (
-            <p role="status" className="rounded-2xl border border-line bg-card px-5 py-4 text-sm">Comanda a fost anulată. <Link className="font-medium underline underline-offset-4" href={`/cursuri/${course.slug}`}>Vezi cursul</Link></p>
+            <p role="status" className="rounded-2xl border border-line bg-card px-5 py-4 text-sm">{tr("Comanda a fost anulată.")}{" "}<Link className="font-medium underline underline-offset-4" href={`/cursuri/${course.slug}`}>{tr("Vezi cursul")}</Link></p>
           ) : null}
 
-          <Card title="Articole comandate">
+          <Card title={tr("Articole comandate")}>
             <ul className="divide-y divide-line">
               {o.order_items.map((i, k) => (
                 <li key={k} className="flex items-start justify-between gap-4 py-3 text-sm">
@@ -136,48 +137,48 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               ))}
             </ul>
             <dl className="mt-3 space-y-1 border-t border-line pt-4">
-              <Row k="Subtotal" v={formatPrice(o.subtotal_cents, cur)} />
+              <Row k={tr("Subtotal")} v={formatPrice(o.subtotal_cents, cur)} />
               {codeOrTier > 0 ? <div className="flex justify-between gap-6 py-1.5 text-sm text-gold"><dt>{discountLabel}</dt><dd className="font-medium">−{formatPrice(codeOrTier, cur)}</dd></div> : null}
-              {o.points_discount_cents > 0 ? <div className="flex justify-between gap-6 py-1.5 text-sm text-gold"><dt>Plătit cu {o.points_used} puncte</dt><dd className="font-medium">−{formatPrice(o.points_discount_cents, cur)}</dd></div> : null}
-              {o.refunded_cents ? <Row k="Rambursat" v={formatPrice(o.refunded_cents, cur)} /> : null}
+              {o.points_discount_cents > 0 ? <div className="flex justify-between gap-6 py-1.5 text-sm text-gold"><dt>{tr("Plătit cu")}{" "}{o.points_used} {" "}{tr("puncte")}</dt><dd className="font-medium">−{formatPrice(o.points_discount_cents, cur)}</dd></div> : null}
+              {o.refunded_cents ? <Row k={tr("Rambursat")} v={formatPrice(o.refunded_cents, cur)} /> : null}
               <div className="flex justify-between gap-6 border-t border-line pt-3 text-lg font-semibold"><dt>{paid ? "Total plătit" : "Total de plată"}</dt><dd>{formatPrice(o.total_cents, cur)}</dd></div>
-              {o.discount_cents > 0 ? <p className="pt-1 text-right text-xs font-semibold text-gold">Ai economisit {formatPrice(o.discount_cents, cur)}</p> : null}
+              {o.discount_cents > 0 ? <p className="pt-1 text-right text-xs font-semibold text-gold">{tr("Ai economisit")}{" "}{formatPrice(o.discount_cents, cur)}</p> : null}
             </dl>
           </Card>
         </div>
 
         <div className="space-y-6">
-          <Card title="Plată">
+          <Card title={tr("Plată")}>
             <dl>
-              <Row k="Metodă" v={method} />
-              <Row k="Status" v={statusLabel[o.status] ?? o.status} />
-              {o.paid_at ? <Row k="Data plății" v={formatDate(o.paid_at)} /> : null}
-              {o.invoice_number ? <Row k="Factură" v={o.invoice_number} /> : null}
+              <Row k={tr("Metodă")} v={method} />
+              <Row k={tr("Status")} v={statusLabel[o.status] ?? o.status} />
+              {o.paid_at ? <Row k={tr("Data plății")} v={formatDate(o.paid_at)} /> : null}
+              {o.invoice_number ? <Row k={tr("Factură")} v={o.invoice_number} /> : null}
             </dl>
           </Card>
 
-          <Card title="Date de facturare">
+          <Card title={tr("Date de facturare")}>
             {o.billing?.name ? (
               <dl className="text-sm">
-                <Row k="Tip client" v={o.billing.kind === "company" ? "Persoană juridică" : "Persoană fizică"} />
+                <Row k={tr("Tip client")} v={o.billing.kind === "company" ? "Persoană juridică" : "Persoană fizică"} />
                 <Row k={o.billing.kind === "company" ? "Denumire firmă" : "Nume și prenume"} v={o.billing.name} />
                 {o.billing.cui ? <Row k="CUI" v={o.billing.cui} /> : null}
-                {o.billing.reg_com ? <Row k="Nr. Reg. Com." v={o.billing.reg_com} /> : null}
+                {o.billing.reg_com ? <Row k={tr("Nr. Reg. Com.")} v={o.billing.reg_com} /> : null}
                 {o.billing.address ? <Row k={o.billing.kind === "company" ? "Adresa sediului" : "Adresă"} v={o.billing.address} /> : null}
-                {o.billing.city ? <Row k="Localitate" v={o.billing.city} /> : null}
-                {o.billing.county ? <Row k="Județ / Sector" v={o.billing.county} /> : null}
+                {o.billing.city ? <Row k={tr("Localitate")} v={o.billing.city} /> : null}
+                {o.billing.county ? <Row k={tr("Județ / Sector")} v={o.billing.county} /> : null}
               </dl>
-            ) : <p className="text-sm text-muted">Nu există date de facturare salvate.</p>}
+            ) : <p className="text-sm text-muted">{tr("Nu există date de facturare salvate.")}</p>}
           </Card>
 
           <div className="flex flex-wrap gap-3 print:hidden">
             {paid ? <PrintButton /> : null}
-            {o.proforma_number && o.status === "pending" && o.source === "transfer" ? <a href={`/api/proforme/${o.id}`} className="inline-flex h-12 items-center rounded-full bg-ink px-6 text-sm font-medium text-white">Descarcă proforma (PDF)</a> : null}
-            {o.invoice_number ? <a href={`/api/facturi/${o.id}`} className="inline-flex h-12 items-center rounded-full bg-ink px-6 text-sm font-medium text-white">Descarcă factura (PDF)</a> : null}
-            {paid && !o.invoice_number ? <p className="w-full text-sm text-muted">Factura apare aici după emitere și o primești și pe email.</p> : null}
-            {paid && course ? <ButtonLink href={`/cont/cursuri/${course.slug}`} variant="ghost">Mergi la curs</ButtonLink> : null}
+            {o.proforma_number && o.status === "pending" && o.source === "transfer" ? <a href={`/api/proforme/${o.id}`} className="inline-flex h-12 items-center rounded-full bg-ink px-6 text-sm font-medium text-white">{tr("Descarcă proforma (PDF)")}</a> : null}
+            {o.invoice_number ? <a href={`/api/facturi/${o.id}`} className="inline-flex h-12 items-center rounded-full bg-ink px-6 text-sm font-medium text-white">{tr("Descarcă factura (PDF)")}</a> : null}
+            {paid && !o.invoice_number ? <p className="w-full text-sm text-muted">{tr("Factura apare aici după emitere și o primești și pe email.")}</p> : null}
+            {paid && course ? <ButtonLink href={`/cont/cursuri/${course.slug}`} variant="ghost">{tr("Mergi la curs")}</ButtonLink> : null}
           </div>
-          {paid ? <p className="text-xs text-muted">Pagina confirmă plata și nu înlocuiește factura fiscală.</p> : null}
+          {paid ? <p className="text-xs text-muted">{tr("Pagina confirmă plata și nu înlocuiește factura fiscală.")}</p> : null}
         </div>
       </div>
     </div>

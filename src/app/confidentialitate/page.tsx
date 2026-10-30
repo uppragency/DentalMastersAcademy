@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { DefaultLegal, LegalShell, LegalText } from "@/components/legal-text";
 import { confidentialitate } from "@/content/legal";
@@ -7,5 +8,5 @@ export const metadata: Metadata = { title: "Politica de confidențialitate", des
 
 export default async function Page() {
   const text = await getLegalText("legal_confidentialitate");
-  return <LegalShell title="Politica de confidențialitate" lead="Ce date colectăm, de ce și cum îți exerciți drepturile.">{text ? <LegalText text={text} /> : <DefaultLegal doc={confidentialitate} />}</LegalShell>;
+  return <LegalShell title={tr("Politica de confidențialitate")} lead={tr("Ce date colectăm, de ce și cum îți exerciți drepturile.")}>{text ? <LegalText text={text} /> : <DefaultLegal doc={confidentialitate} />}</LegalShell>;
 }

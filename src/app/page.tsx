@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import Link from "@/components/locale-link";
 import { ButtonLink, Container, Eyebrow, SectionTitle, Arrow } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";
@@ -43,18 +44,16 @@ export default async function HomePage() {
         <Container className="grid items-center gap-14 py-20 sm:py-28 lg:grid-cols-12 lg:py-36">
           <div className="lg:col-span-7">
             <p className="rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium tracking-wide text-white/80" style={{ ["--d" as string]: "0ms" }}>
-              <span className="size-1.5 rounded-full bg-gold-bright" /> Master Course in Implanto-Prosthetics · București
-            </p>
+              <span className="size-1.5 rounded-full bg-gold-bright" /> {" "}{tr("Master Course in Implanto-Prosthetics · București")}</p>
             <h1 className="rise font-display mt-8 text-balance text-5xl font-medium leading-[0.98] sm:text-7xl lg:text-[5.5rem]" style={{ ["--d" as string]: "120ms" }}>
-              Fluxul complet al implantologiei,{" "}
-              <span className="text-gold-sheen">într-un singur loc.</span>
+              {tr("Fluxul complet al implantologiei,")}{" "}
+              <span className="text-gold-sheen">{tr("într-un singur loc.")}</span>
             </h1>
             <p className="rise mt-8 max-w-xl text-pretty text-lg leading-relaxed text-white/65" style={{ ["--d" as string]: "260ms" }}>
-              Cursuri hands-on, chirurgie live și planificare digitală, de la cazuri simple la reabilitări All-on-X. Grupe restrânse, lectori cu peste 15 ani de practică.
-            </p>
+              {tr("Cursuri hands-on, chirurgie live și planificare digitală, de la cazuri simple la reabilitări All-on-X. Grupe restrânse, lectori cu peste 15 ani de practică.")}</p>
             <div className="rise mt-10 flex flex-col gap-3 sm:flex-row" style={{ ["--d" as string]: "380ms" }}>
-              <ButtonLink href="/cursuri" variant="light">Explorează cursurile <Arrow /></ButtonLink>
-              <ButtonLink href="/cine-suntem" variant="outline">Despre academie</ButtonLink>
+              <ButtonLink href="/cursuri" variant="light">{tr("Explorează cursurile")}{" "}<Arrow /></ButtonLink>
+              <ButtonLink href="/cine-suntem" variant="outline">{tr("Despre academie")}</ButtonLink>
             </div>
           </div>
 
@@ -74,7 +73,7 @@ export default async function HomePage() {
                 </span>
                 <span className="font-display mt-2 block text-xl leading-snug">{next.title}</span>
                 <span className="mt-3 flex items-center justify-between text-sm text-white/70">
-                  <span>{dayNum(next.starts_at)} {monthShort(next.starts_at)} · București</span>
+                  <span>{dayNum(next.starts_at)} {monthShort(next.starts_at)} {" "}{tr("· București")}</span>
                   <span className="font-semibold text-white">{formatPrice(next.price_cents, next.currency)}</span>
                 </span>
               </Link>
@@ -114,10 +113,10 @@ export default async function HomePage() {
           <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <Reveal>
               <div id="courses-title">
-                <SectionTitle eyebrow="Cursuri 2026" title={<>Alege modulul <em className="text-gold">potrivit etapei tale.</em></>} />
+                <SectionTitle eyebrow={tr("Cursuri 2026")} title={<>{tr("Alege modulul")}{" "}<em className="text-gold">{tr("potrivit etapei tale.")}</em></>} />
               </div>
             </Reveal>
-            <Reveal delay={100}><ButtonLink href="/cursuri" variant="ghost">Toate cursurile <Arrow /></ButtonLink></Reveal>
+            <Reveal delay={100}><ButtonLink href="/cursuri" variant="ghost">{tr("Toate cursurile")}{" "}<Arrow /></ButtonLink></Reveal>
           </div>
           {courses.length > 0 ? (
             <ul className="mt-16 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -126,7 +125,7 @@ export default async function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="mt-12 rounded-3xl border border-dashed border-line p-10 text-center text-muted">Cursurile vor fi afișate aici imediat ce sunt publicate.</p>
+            <p className="mt-12 rounded-3xl border border-dashed border-line p-10 text-center text-muted">{tr("Cursurile vor fi afișate aici imediat ce sunt publicate.")}</p>
           )}
         </Container>
       </section>
@@ -134,7 +133,7 @@ export default async function HomePage() {
       {/* HOW IT WORKS */}
       <section className="pb-16 sm:pb-24 lg:pb-32" aria-labelledby="how-title">
         <Container>
-          <Reveal><div id="how-title"><SectionTitle eyebrow="Cum funcționează" title="De la alegere la certificare, în trei pași." /></div></Reveal>
+          <Reveal><div id="how-title"><SectionTitle eyebrow={tr("Cum funcționează")} title={tr("De la alegere la certificare, în trei pași.")} /></div></Reveal>
           <ol className="mt-14 grid gap-5 md:grid-cols-3">
             {howItWorks.map((st, i) => (
               <Reveal as="li" key={st.title} delay={i * 100}>
@@ -155,8 +154,8 @@ export default async function HomePage() {
         <Container className="relative">
           <Reveal>
             <div id="master-title">
-              <SectionTitle light eyebrow="Master Course" title={<>Cinci module progresive, de la cazuri simple la <span className="text-gold-sheen">All-on-X.</span></>}
-                lead="Un program intensiv în care construiești pas cu pas competențele chirurgicale și protetice necesare, cu accent pe rezultate clinice predictibile." />
+              <SectionTitle light eyebrow={tr("Master Course")} title={<>{tr("Cinci module progresive, de la cazuri simple la")}{" "}<span className="text-gold-sheen">{tr("All-on-X.")}</span></>}
+                lead={tr("Un program intensiv în care construiești pas cu pas competențele chirurgicale și protetice necesare, cu accent pe rezultate clinice predictibile.")} />
             </div>
           </Reveal>
           <ol className="mt-16 grid gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 lg:grid-cols-5">
@@ -180,8 +179,8 @@ export default async function HomePage() {
           <div className="grid gap-16 lg:grid-cols-12">
             <Reveal className="lg:col-span-5">
               <div id="hq-title">
-                <SectionTitle eyebrow="HQ Concept" title={<>Un spațiu creat pentru educație clinică.</>}
-                  lead="Abordare digitală pentru planificarea cazurilor și modele realiste, color printate, cu tehnologie recentă. Acoperim atât partea de laborator tehnic, cât și partea clinică a procedurii implanto-protetice." />
+                <SectionTitle eyebrow={tr("HQ Concept")} title={<>{tr("Un spațiu creat pentru educație clinică.")}</>}
+                  lead={tr("Abordare digitală pentru planificarea cazurilor și modele realiste, color printate, cu tehnologie recentă. Acoperim atât partea de laborator tehnic, cât și partea clinică a procedurii implanto-protetice.")} />
               </div>
               <ul className="mt-10 space-y-4">
                 {advantages.map((a) => (
@@ -214,7 +213,7 @@ export default async function HomePage() {
       <section className="bg-ink py-24 text-white sm:py-32" aria-labelledby="exp-title">
         <Container>
           <Reveal>
-            <div id="exp-title"><SectionTitle light eyebrow="Experții noștri" title="Învață de la clinicieni care practică zilnic." /></div>
+            <div id="exp-title"><SectionTitle light eyebrow={tr("Experții noștri")} title={tr("Învață de la clinicieni care practică zilnic.")} /></div>
           </Reveal>
           <ul className="mt-16 grid gap-5 lg:grid-cols-3">
             {trainers.slice(0, 3).map((t, i) => (
@@ -247,10 +246,10 @@ export default async function HomePage() {
                 <div aria-hidden="true" className="drift absolute -right-24 -top-24 size-96 rounded-full bg-gold-bright/30 blur-[100px]" />
                 <div className="relative grid items-center gap-12 lg:grid-cols-2">
                   <div>
-                    <Eyebrow light>Program Gold</Eyebrow>
-                    <h2 id="gold-title" className="font-display mt-5 text-balance text-4xl font-medium leading-[1.05] sm:text-6xl">Cu cât înveți mai mult, <span className="text-gold-sheen">cu atât câștigi mai mult.</span></h2>
-                    <p className="mt-6 max-w-lg text-lg text-white/65">Clienții cu istoric de participare devin automat Gold. Reducerea și accesul gratuit la activități selectate se aplică fără coduri și fără cereri.</p>
-                    <ButtonLink href="/inregistrare" variant="gold" className="mt-10">Creează cont gratuit <Arrow /></ButtonLink>
+                    <Eyebrow light>{tr("Program Gold")}</Eyebrow>
+                    <h2 id="gold-title" className="font-display mt-5 text-balance text-4xl font-medium leading-[1.05] sm:text-6xl">{tr("Cu cât înveți mai mult,")}{" "}<span className="text-gold-sheen">{tr("cu atât câștigi mai mult.")}</span></h2>
+                    <p className="mt-6 max-w-lg text-lg text-white/65">{tr("Clienții cu istoric de participare devin automat Gold. Reducerea și accesul gratuit la activități selectate se aplică fără coduri și fără cereri.")}</p>
+                    <ButtonLink href="/inregistrare" variant="gold" className="mt-10">{tr("Creează cont gratuit")}{" "}<Arrow /></ButtonLink>
                   </div>
                   <ul className="grid gap-4 sm:grid-cols-2">
                     {[
@@ -278,8 +277,8 @@ export default async function HomePage() {
           <Container>
             <Reveal>
               <div id="t-title" className="mb-16 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-                <SectionTitle eyebrow="Testimoniale" title="Ce spun participanții noștri." />
-                <ButtonLink href="/testimoniale" variant="ghost">Toate testimonialele <Arrow /></ButtonLink>
+                <SectionTitle eyebrow={tr("Testimoniale")} title={tr("Ce spun participanții noștri.")} />
+                <ButtonLink href="/testimoniale" variant="ghost">{tr("Toate testimonialele")}{" "}<Arrow /></ButtonLink>
               </div>
             </Reveal>
             <TestimonialsCarousel items={testimonials} />
@@ -289,9 +288,9 @@ export default async function HomePage() {
 
       {/* FAQ */}
       {partners.length > 0 ? (
-        <section aria-label="Parteneri" className="border-y border-line bg-card py-10">
+        <section aria-label={tr("Parteneri")} className="border-y border-line bg-card py-10">
           <Container>
-            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-muted">Partenerii noștri</p>
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-muted">{tr("Partenerii noștri")}</p>
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 font-display text-2xl text-foreground/70">
               {partners.map((p) => (
                 <li key={p.id}>
@@ -310,7 +309,7 @@ export default async function HomePage() {
 
       <section className="py-16 sm:py-24 lg:py-32" aria-labelledby="map-title">
         <Container>
-          <Reveal><div id="map-title"><SectionTitle eyebrow="Unde ne găsești" title="Dental Masters Academy, București." /></div></Reveal>
+          <Reveal><div id="map-title"><SectionTitle eyebrow={tr("Unde ne găsești")} title={tr("Dental Masters Academy, București.")} /></div></Reveal>
           <Reveal className="mt-12"><LocationMap /></Reveal>
         </Container>
       </section>
@@ -319,7 +318,7 @@ export default async function HomePage() {
         <Container>
           <div className="grid gap-12 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
-              <div id="faq-title"><SectionTitle eyebrow="Întrebări frecvente" title="Totul despre înscriere." /></div>
+              <div id="faq-title"><SectionTitle eyebrow={tr("Întrebări frecvente")} title={tr("Totul despre înscriere.")} /></div>
             </Reveal>
             <Reveal className="lg:col-span-8"><Faq items={faqs} /></Reveal>
           </div>
@@ -331,11 +330,11 @@ export default async function HomePage() {
         <div aria-hidden="true" className="grid-lines absolute inset-0" />
         <Container className="relative text-center">
           <Reveal>
-            <h2 className="font-display mx-auto max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl">Grupe restrânse. <span className="text-gold-sheen">Rezervă-ți locul.</span></h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-white/60">Te înscrii și plătești online, în câteva minute.</p>
+            <h2 className="font-display mx-auto max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl">{tr("Grupe restrânse.")}{" "}<span className="text-gold-sheen">{tr("Rezervă-ți locul.")}</span></h2>
+            <p className="mx-auto mt-6 max-w-xl text-lg text-white/60">{tr("Te înscrii și plătești online, în câteva minute.")}</p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/cursuri" variant="gold">Vezi cursurile <Arrow /></ButtonLink>
-              <ButtonLink href="/contact" variant="outline">Vorbește cu noi</ButtonLink>
+              <ButtonLink href="/cursuri" variant="gold">{tr("Vezi cursurile")}{" "}<Arrow /></ButtonLink>
+              <ButtonLink href="/contact" variant="outline">{tr("Vorbește cu noi")}</ButtonLink>
             </div>
           </Reveal>
         </Container>

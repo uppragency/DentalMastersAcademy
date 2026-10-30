@@ -1,9 +1,11 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useEffect, useState } from "react";
 import type { GalleryAlbum } from "@/lib/types";
 
 export function PhotoGallery({ albums }: { albums: (GalleryAlbum & { courseTitle: string | null })[] }) {
+  const tr = useT();
   const [open, setOpen] = useState<{ album: number; photo: number } | null>(null);
 
   useEffect(() => {
@@ -39,10 +41,10 @@ export function PhotoGallery({ albums }: { albums: (GalleryAlbum & { courseTitle
         </section>
       ))}
       {current ? (
-        <div role="dialog" aria-modal="true" aria-label="Fotografie" className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 p-4" onClick={() => setOpen(null)}>
+        <div role="dialog" aria-modal="true" aria-label={tr("Fotografie")} className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 p-4" onClick={() => setOpen(null)}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={current.url} alt={current.caption ?? ""} className="max-h-[88vh] max-w-full rounded-xl object-contain" onClick={(e) => e.stopPropagation()} />
-          <button type="button" onClick={() => setOpen(null)} aria-label="Închide" className="absolute right-4 top-4 flex size-11 items-center justify-center rounded-full bg-white/15 text-xl text-white">×</button>
+          <button type="button" onClick={() => setOpen(null)} aria-label={tr("Închide")} className="absolute right-4 top-4 flex size-11 items-center justify-center rounded-full bg-white/15 text-xl text-white">×</button>
         </div>
       ) : null}
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { useTransition } from "react";
 import { markNotificationRead } from "@/actions/notifications";
@@ -13,6 +14,7 @@ const icons: Record<string, string> = {
 };
 
 export function NotificationItem({ n, when }: { n: Notification; when: string }) {
+  const tr = useT();
   const [pending, start] = useTransition();
   const unread = !n.read_at;
   const body = (
@@ -25,7 +27,7 @@ export function NotificationItem({ n, when }: { n: Notification; when: string })
         {n.body ? <span className="mt-0.5 block text-sm text-muted">{n.body}</span> : null}
         <span className="mt-2 block text-xs text-muted">{when}</span>
       </span>
-      {unread ? <span aria-label="Necitită" className="mt-2 size-2.5 shrink-0 rounded-full bg-gold" /> : null}
+      {unread ? <span aria-label={tr("Necitită")} className="mt-2 size-2.5 shrink-0 rounded-full bg-gold" /> : null}
     </>
   );
   const cls = `flex items-start gap-4 rounded-3xl border p-5 transition-colors ${unread ? "border-gold/40 bg-gold-soft/50" : "border-line bg-card"} ${pending ? "opacity-60" : ""}`;

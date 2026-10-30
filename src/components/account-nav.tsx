@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "@/components/locale-link";
 import { usePathname } from "next/navigation";
 
@@ -15,9 +16,10 @@ const items = [
 ];
 
 export function AccountNav() {
+  const tr = useT();
   const pathname = usePathname();
   return (
-    <nav aria-label="Cont" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:flex-col lg:overflow-visible">
+    <nav aria-label={tr("Cont")} className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:flex-col lg:overflow-visible">
       {items.map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
         return (

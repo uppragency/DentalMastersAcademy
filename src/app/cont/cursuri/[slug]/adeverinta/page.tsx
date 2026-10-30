@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { lredirect as redirect } from "@/lib/i18n/server";
@@ -30,17 +31,16 @@ export default async function CertificatePage({ params }: { params: Promise<{ sl
 
   return (
     <div className="mx-auto max-w-2xl rounded-[2rem] border border-line bg-card p-10 sm:p-16 print:border-0 print:p-0">
-      <p className="text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-gold">Dental Masters Academy</p>
-      <h1 className="font-display mt-6 text-center text-4xl">Adeverință de participare</h1>
+      <p className="text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-gold">{tr("Dental Masters Academy")}</p>
+      <h1 className="font-display mt-6 text-center text-4xl">{tr("Adeverință de participare")}</h1>
       <p className="mt-10 text-center text-lg leading-relaxed">
-        Se certifică faptul că <strong>{profile.full_name ?? profile.email}</strong> a participat la cursul
-      </p>
+        {tr("Se certifică faptul că")}{" "}<strong>{profile.full_name ?? profile.email}</strong> {" "}{tr("a participat la cursul")}</p>
       <p className="font-display mt-4 text-center text-3xl">{course.title}</p>
       <p className="mt-4 text-center text-muted">{formatDateRange(course.starts_at, course.ends_at)}{course.location ? `, ${course.location}` : ""}</p>
       {number ? (
         <p className="mt-10 text-center text-sm">
-          Număr adeverință: <strong className="font-mono">{number}</strong>
-          <span className="mt-1 block text-xs text-muted">Se verifică la {site.replace(/^https?:\/\//, "")}/verificare/{number}</span>
+          {tr("Număr adeverință:")}{" "}<strong className="font-mono">{number}</strong>
+          <span className="mt-1 block text-xs text-muted">{tr("Se verifică la")}{" "}{site.replace(/^https?:\/\//, "")}{tr("/verificare/")}{number}</span>
         </p>
       ) : null}
       <p className="mt-10 text-center text-sm text-muted">{contact.address} · {contact.email}</p>

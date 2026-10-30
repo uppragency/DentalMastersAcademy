@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Tier } from "@/lib/types";
 
 export function Avatar({ name, tier, size = 64 }: { name: string; tier: Tier; size?: number }) {
@@ -24,11 +25,11 @@ export function Avatar({ name, tier, size = 64 }: { name: string; tier: Tier; si
 
 export function TierPill({ tier }: { tier: Tier }) {
   if (tier === "platinum") {
-    return <span className="rounded-full bg-gradient-to-r from-[#eef1f6] to-[#a3aec0] px-3.5 py-1.5 text-xs font-bold uppercase tracking-widest text-ink">Platinum</span>;
+    return <span className="rounded-full bg-gradient-to-r from-[#eef1f6] to-[#a3aec0] px-3.5 py-1.5 text-xs font-bold uppercase tracking-widest text-ink">{tr("Platinum")}</span>;
   }
   return tier === "gold" ? (
-    <span className="rounded-full bg-gradient-to-r from-gold-bright to-gold px-3.5 py-1.5 text-xs font-bold uppercase tracking-widest text-ink">Gold</span>
+    <span className="rounded-full bg-gradient-to-r from-gold-bright to-gold px-3.5 py-1.5 text-xs font-bold uppercase tracking-widest text-ink">{tr("Gold")}</span>
   ) : (
-    <span className="rounded-full border border-white/20 px-3.5 py-1.5 text-xs font-medium uppercase tracking-widest text-white/70">Standard</span>
+    <span className="rounded-full border border-white/20 px-3.5 py-1.5 text-xs font-medium uppercase tracking-widest text-white/70">{tr("Standard")}</span>
   );
 }

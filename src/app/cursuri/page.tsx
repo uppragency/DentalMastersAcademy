@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { ButtonLink, Container } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";
@@ -30,9 +31,9 @@ export default async function CoursesPage({ searchParams }: Props) {
   return (
     <>
       <PageHero
-        eyebrow="Catalog"
-        title={<>Cursuri de <span className="text-gold-sheen">înaltă specializare.</span></>}
-        lead="Cursuri DMA, cursuri găzduite și mentorat clinic. Înscrierea și plata se fac direct în platformă, cu cardul sau prin transfer bancar."
+        eyebrow={tr("Catalog")}
+        title={<>{tr("Cursuri de")}{" "}<span className="text-gold-sheen">{tr("înaltă specializare.")}</span></>}
+        lead={tr("Cursuri DMA, cursuri găzduite și mentorat clinic. Înscrierea și plata se fac direct în platformă, cu cardul sau prin transfer bancar.")}
       />
       <section className="py-14 sm:py-20">
         <Container>
@@ -62,14 +63,14 @@ export default async function CoursesPage({ searchParams }: Props) {
               ))}
             </div>
           ) : (
-            <p className="mt-6 rounded-3xl border border-dashed border-line p-14 text-center text-muted">Nu există cursuri pentru filtrele selectate.</p>
+            <p className="mt-6 rounded-3xl border border-dashed border-line p-14 text-center text-muted">{tr("Nu există cursuri pentru filtrele selectate.")}</p>
           )}
 
           <div className="mt-20 rounded-[2rem] bg-ink p-8 text-white sm:p-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-bright">Mentorat clinic</p>
-            <h2 className="font-display mt-3 max-w-2xl text-balance text-3xl font-medium sm:text-4xl">Vino cu propriul pacient în cabinetul DMA.</h2>
-            <p className="mt-4 max-w-2xl text-white/65">Realizezi intervenția cu îndrumarea experților noștri sau asiști la intervenția efectuată de aceștia, în format over-the-shoulder.</p>
-            <div className="mt-8"><ButtonLink href="/mentorat" variant="gold">Află cum funcționează</ButtonLink></div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-bright">{tr("Mentorat clinic")}</p>
+            <h2 className="font-display mt-3 max-w-2xl text-balance text-3xl font-medium sm:text-4xl">{tr("Vino cu propriul pacient în cabinetul DMA.")}</h2>
+            <p className="mt-4 max-w-2xl text-white/65">{tr("Realizezi intervenția cu îndrumarea experților noștri sau asiști la intervenția efectuată de aceștia, în format over-the-shoulder.")}</p>
+            <div className="mt-8"><ButtonLink href="/mentorat" variant="gold">{tr("Află cum funcționează")}</ButtonLink></div>
           </div>
         </Container>
       </section>
