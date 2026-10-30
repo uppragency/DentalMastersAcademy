@@ -40,7 +40,7 @@ function Segmented<T extends string>({
           role="radio"
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
-          className={tr("min-h-11 rounded-full px-4 text-sm font-medium transition-all duration-300 {v1}", { v1: value === o.value ? "bg-ink text-white shadow" : "text-muted hover:text-foreground" })}
+          className={`min-h-11 rounded-full px-4 text-sm font-medium transition-all duration-300 ${value === o.value ? "bg-ink text-white shadow" : "text-muted hover:text-foreground"}`}
         >
           {o.label}
         </button>

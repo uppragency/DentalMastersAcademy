@@ -1,3 +1,4 @@
+import { fmtLocale } from "@/lib/format";
 import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { CopyButton } from "@/components/copy-button";
@@ -37,7 +38,7 @@ export default async function ReferralPage() {
         </div>
         <p className="mt-5 text-sm text-muted">{tr("Sau codul tău:")}{" "}<strong className="font-mono text-foreground">{me?.referral_code}</strong></p>
         <a
-          href={tr("https://wa.me/?text={v1}", { v1: encodeURIComponent(tr("Îți recomand cursurile Dental Masters Academy. Cu linkul meu primești {friend}% reducere la prima achiziție: {link}", { friend: friend, link: link })) })}
+          href={`https://wa.me/?text=${encodeURIComponent(tr("Îți recomand cursurile Dental Masters Academy. Cu linkul meu primești {friend}% reducere la prima achiziție: {link}", { friend: friend, link: link }))}`}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-5 inline-flex min-h-11 items-center rounded-full bg-[#1f8f4e] px-5 text-sm font-medium text-white"
@@ -56,7 +57,7 @@ export default async function ReferralPage() {
             const used = r.max_uses !== null && r.used_count >= r.max_uses;
             return (
               <li key={r.id} className={`flex items-center justify-between rounded-3xl border border-line bg-card p-5 ${used ? "opacity-50" : ""}`}>
-                <div><p className="font-mono font-semibold">{r.code}</p><p className="text-sm text-muted">{r.value}{tr("% reducere")}{used ? " · folosit" : r.expires_at ? tr(" · valabil până la {v1}", { v1: new Date(r.expires_at).toLocaleDateString("ro-RO") }) : ""}</p></div>
+                <div><p className="font-mono font-semibold">{r.code}</p><p className="text-sm text-muted">{r.value}{tr("% reducere")}{used ? tr(" · folosit") : r.expires_at ? tr(" · valabil până la {v1}", { v1: new Date(r.expires_at).toLocaleDateString(fmtLocale()) }) : ""}</p></div>
                 {!used ? <CopyButton value={r.code} label={tr("Copiază codul")} /> : null}
               </li>
             );

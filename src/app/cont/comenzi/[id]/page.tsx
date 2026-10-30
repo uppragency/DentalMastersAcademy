@@ -81,7 +81,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <Link href="/cont/comenzi" className="text-sm text-muted hover:text-foreground print:hidden">{tr("← Înapoi la achiziții")}</Link>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <h1 className="font-display text-4xl font-medium">{tr("Comanda")}{" "}{shortId}</h1>
-        <span className={tr("rounded-full px-3 py-1 text-xs font-semibold {v1}", { v1: statusTone[o.status] ?? "bg-card" })}>{statusLabel[o.status] ?? o.status}</span>
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone[o.status] ?? "bg-card"}`}>{statusLabel[o.status] ?? o.status}</span>
       </div>
       <p className="mt-2 text-sm text-muted">{tr("Plasată pe")}{" "}{formatDate(o.created_at)}{paid && o.paid_at ? tr(", plătită pe {v1}", { v1: formatDate(o.paid_at) }) : ""}.</p>
 
