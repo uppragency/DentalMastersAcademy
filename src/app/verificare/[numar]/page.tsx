@@ -1,11 +1,14 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Container } from "@/components/ui";
 import { formatDateRange } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Verificare adeverință", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Verificare adeverință"), robots: { index: false } };
+}
 
 export default async function Verify({ params }: { params: Promise<{ numar: string }> }) {
   const { numar } = await params;

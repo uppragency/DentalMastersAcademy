@@ -39,7 +39,7 @@ export function NotificationBell({ unread }: { unread: number }) {
         type="button"
         onClick={open}
         aria-haspopup="dialog"
-        aria-label={count > 0 ? `Notificări, ${count} necitite` : "Notificări"}
+        aria-label={count > 0 ? tr("Notificări, {count} necitite", { count: count }) : tr("Notificări")}
         className="relative flex size-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">

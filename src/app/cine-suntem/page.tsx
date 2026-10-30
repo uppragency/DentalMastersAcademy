@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import Link from "@/components/locale-link";
 import type { Metadata } from "next";
 import { ButtonLink, Container, SectionTitle, Arrow } from "@/components/ui";
@@ -12,10 +12,13 @@ import { advantages, facility, modules, stats } from "@/content/site";
 import { TrainerAvatar } from "@/components/trainer-avatar";
 import { getTrainers } from "@/lib/data";
 
-export const metadata: Metadata = {
-  title: "Cine suntem",
-  description: "Dental Masters Academy: un ecosistem de educație clinică care reunește sala de curs, radiologia, cabinetul și laboratorul dentar într-un singur loc.",
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return {
+  title: tr("Cine suntem"),
+  description: tr("Dental Masters Academy: un ecosistem de educație clinică care reunește sala de curs, radiologia, cabinetul și laboratorul dentar într-un singur loc."),
 };
+}
 
 export default async function AboutPage() {
   const founders = (await getTrainers()).filter((t) => t.is_founder);

@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui";
 import { LocationMap } from "@/components/location-map";
@@ -7,11 +7,14 @@ import { CaseForm } from "@/components/case-form";
 import { PageHero } from "@/components/page-hero";
 import { contact } from "@/content/site";
 
-export const metadata: Metadata = { title: "Contact", description: "Contactează Dental Masters Academy: telefon, email, adresa din București și program. Răspundem la întrebări despre cursuri, înscriere și plată." };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Contact"), description: tr("Contactează Dental Masters Academy: telefon, email, adresa din București și program. Răspundem la întrebări despre cursuri, înscriere și plată.") };
+}
 
 export default function ContactPage() {
   const items = [
-    { k: "Adresă", v: contact.address, href: undefined },
+    { k: tr("Adresă"), v: contact.address, href: undefined },
     { k: "Telefon", v: contact.phone, href: contact.phoneHref },
     { k: "Email", v: contact.email, href: `mailto:${contact.email}` },
     { k: "Social", v: contact.social, href: contact.socialHref },

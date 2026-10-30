@@ -1,9 +1,12 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { lredirect as redirect } from "@/lib/i18n/server";
 import { Container } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Verificare adeverință", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Verificare adeverință"), robots: { index: false } };
+}
 
 async function go(formData: FormData) {
   "use server";

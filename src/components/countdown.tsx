@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useEffect, useState } from "react";
 
 function parts(target: number, now: number) {
@@ -13,7 +14,8 @@ function parts(target: number, now: number) {
   };
 }
 
-export function Countdown({ to, label = "Timp rămas până la deschiderea înscrierilor" }: { to: string; label?: string }) {
+export function Countdown({ to, label = tr("Timp rămas până la deschiderea înscrierilor") }: { to: string; label?: string }) {
+  const tr = useT();
   const target = new Date(to).getTime();
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
@@ -25,7 +27,7 @@ export function Countdown({ to, label = "Timp rămas până la deschiderea însc
   const p = now === null ? null : parts(target, now);
   const cells: [string, number | null][] = [["zile", p?.d ?? null], ["ore", p?.h ?? null], ["min", p?.m ?? null], ["sec", p?.s ?? null]];
   return (
-    <div role="timer" aria-label={label} className="grid grid-cols-4 gap-2 text-center">
+    <div role="timer" aria-label={tr(label)} className="grid grid-cols-4 gap-2 text-center">
       {cells.map(([label, v]) => (
         <div key={label} className="rounded-2xl border border-line bg-background px-2 py-3">
           <div className="font-display text-3xl tabular-nums">{v === null ? "--" : String(v).padStart(2, "0")}</div>

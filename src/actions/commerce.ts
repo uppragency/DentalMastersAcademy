@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, tr } from "@/lib/i18n/server";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -14,14 +14,14 @@ export type DiscountPreview = { ok: boolean; message: string; discountCents?: nu
 export async function previewDiscount(courseId: string, rawCode: string): Promise<DiscountPreview> {
   await getLocale();
   const code = rawCode.trim().toUpperCase();
-  if (!code) return { ok: false, message: "Introdu un cod." };
+  if (!code) return { ok: false, message: tr("Introdu un cod.") };
   const admin = createAdminClient();
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub ?? null;
 
   const { data: course } = await admin.from("courses").select("id, price_cents, early_price_cents, early_until").eq("id", courseId).eq("status", "published").maybeSingle();
-  if (!course) return { ok: false, message: "Cursul nu mai este disponibil." };
+  if (!course) return { ok: false, message: tr("Cursul nu mai este disponibil.") };
   if (course.early_price_cents != null && course.early_until && Date.parse(course.early_until) > Date.now()) course.price_cents = course.early_price_cents;
   const { data: settings } = await admin.from("loyalty_settings").select("*").maybeSingle();
 
@@ -42,26 +42,26 @@ export async function previewDiscount(courseId: string, rawCode: string): Promis
       (!dc.course_id || dc.course_id === courseId) &&
       (dc.max_uses === null || dc.used_count < dc.max_uses) &&
       (!dc.owner_user_id || dc.owner_user_id === userId);
-    if (!valid) return { ok: false, message: "Codul nu este valid pentru acest curs sau a expirat." };
+    if (!valid) return { ok: false, message: tr("Codul nu este valid pentru acest curs sau a expirat.") };
     disc = dc.kind === "percent" ? Math.round((course.price_cents * dc.value) / 100) : Math.min(dc.value, course.price_cents);
   } else {
     const { data: ref } = await admin.from("profiles").select("id").eq("referral_code", code).maybeSingle();
-    if (!ref || ref.id === userId) return { ok: false, message: "Codul nu a fost găsit." };
+    if (!ref || ref.id === userId) return { ok: false, message: tr("Codul nu a fost găsit.") };
     if (userId) {
       const { count } = await admin.from("enrollments").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("source", "purchase");
-      if ((count ?? 0) > 0) return { ok: false, message: "Codul de recomandare se aplică doar la prima achiziție." };
+      if ((count ?? 0) > 0) return { ok: false, message: tr("Codul de recomandare se aplică doar la prima achiziție.") };
     }
     disc = Math.round((course.price_cents * Number(settings?.referral_friend_percent ?? 0)) / 100);
     label = "Recomandare";
-    if (disc <= 0) return { ok: false, message: "Codul nu este activ momentan." };
+    if (disc <= 0) return { ok: false, message: tr("Codul nu este activ momentan.") };
   }
-  if (disc <= goldDisc) return { ok: false, message: "Reducerea de nivel din contul tău este deja mai avantajoasă. Reducerile nu se cumulează." };
+  if (disc <= goldDisc) return { ok: false, message: tr("Reducerea de nivel din contul tău este deja mai avantajoasă. Reducerile nu se cumulează.") };
   return { ok: true, message: "Cod aplicat.", discountCents: disc, label };
 }
 
 const waitSchema = z.object({
   name: z.string().trim().min(2, { error: "Introdu numele." }).max(120),
-  email: z.email({ error: "Introdu o adresă de email validă." }).trim().toLowerCase(),
+  email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
   phone: z.string().trim().max(40).optional(),
   desired_course: z.string().trim().max(200).optional(),
   website: z.string().max(0).optional(),
@@ -77,11 +77,11 @@ export async function joinWaitlist(courseId: string | null, _: FormState, formDa
     website: formData.get("website") || undefined,
   });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
-  if (parsed.data.website) return { message: "Te-ai înscris pe lista de așteptare." };
+  if (parsed.data.website) return { message: tr("Te-ai înscris pe lista de așteptare.") };
   const { website: _hp, ...row } = parsed.data;
   void _hp;
   const admin = createAdminClient();
   const { error } = await admin.from("waitlist").insert({ ...row, course_id: courseId });
-  if (error && error.code !== "23505") return { message: "Nu am putut salva cererea. Încearcă din nou." };
-  return { message: "Te-ai înscris pe lista de așteptare. Îți scriem imediat ce se deschid înscrierile." };
+  if (error && error.code !== "23505") return { message: tr("Nu am putut salva cererea. Încearcă din nou.") };
+  return { message: tr("Te-ai înscris pe lista de așteptare. Îți scriem imediat ce se deschid înscrierile.") };
 }

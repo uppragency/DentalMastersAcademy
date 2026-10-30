@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { DeleteAccountForm, EmailForm, PasswordForm, ProfileForm, SignOutAllForm } from "@/components/account-forms";
 import { deleteBillingProfile } from "@/actions/account";
@@ -8,7 +8,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data";
 import type { BillingProfile } from "@/lib/billing";
 
-export const metadata: Metadata = { title: "Profil", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Profil"), robots: { index: false } };
+}
 
 export default async function ProfilePage() {
   const profile = (await getCurrentProfile())!;
@@ -34,7 +37,7 @@ export default async function ProfilePage() {
                 <div className="min-w-0">
                   <p className="font-semibold">{p.name}</p>
                   <p className="mt-1 text-muted">
-                    {p.kind === "company" ? `Firmă · CUI ${p.cui}${p.reg_com ? ` · ${p.reg_com}` : ""}` : "Persoană fizică"}
+                    {p.kind === "company" ? tr("Firmă · CUI {cui}{v2}", { cui: p.cui ?? "", v2: p.reg_com ? ` · ${p.reg_com}` : "" }) : tr("Persoană fizică")}
                   </p>
                   <p className="text-muted">{p.address}, {p.city}, {p.county}</p>
                 </div>

@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import { courseMethods, formatDeadline, transferDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -16,7 +16,10 @@ import { tierPerks } from "@/lib/loyalty";
 import { nowMs } from "@/lib/time";
 import { paymentsEnabled } from "@/lib/stripe";
 
-export const metadata: Metadata = { title: "Finalizare comandă", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Finalizare comandă"), robots: { index: false } };
+}
 
 export default async function CheckoutPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -60,7 +63,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
         <Container className="py-6 sm:py-8">
           <h1 className="sr-only">{tr("Finalizare comandă:")}{" "}{course.title}</h1>
           <ol aria-label={tr("Pașii comenzii")} className="flex items-center gap-3 text-sm sm:gap-5">
-            {["Date", "Plată", "Confirmare"].map((label, i) => (
+            {["Date", tr("Plată"), "Confirmare"].map((label, i) => (
               <li key={label} className="flex items-center gap-3 sm:gap-5" aria-current={i === 0 ? "step" : undefined}>
                 <span className={`flex items-center gap-2.5 ${i === 0 ? "text-white" : "text-white/45"}`}>
                   <span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${i === 0 ? "bg-gold-bright text-ink" : "border border-white/25"}`}>{i + 1}</span>
@@ -95,8 +98,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             <p className="mt-1 text-sm text-muted">{formatDateRange(course.starts_at, course.ends_at)}</p>
             <ul aria-label={tr("Ce primești")} className="mt-4 space-y-2 text-sm">
               {(course.format === "online"
-                ? ["Acces la lecții în contul tău", "Progresul tău se salvează automat"]
-                : ["Adeverință de participare cu număr unic verificabil", "Materiale disponibile 12 luni după curs", "Grup restrâns, cu atenție individuală"]
+                ? [tr("Acces la lecții în contul tău"), tr("Progresul tău se salvează automat")]
+                : [tr("Adeverință de participare cu număr unic verificabil"), tr("Materiale disponibile 12 luni după curs"), tr("Grup restrâns, cu atenție individuală")]
               ).map((t) => (
                 <li key={t} className="flex gap-2.5"><span aria-hidden="true" className="text-gold">✓</span><span>{t}</span></li>
               ))}

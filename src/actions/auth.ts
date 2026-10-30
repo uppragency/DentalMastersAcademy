@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, tr } from "@/lib/i18n/server";
 import { lredirect as redirect } from "@/lib/i18n/server";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -14,7 +14,7 @@ function safeNext(value: FormDataEntryValue | null) {
 }
 
 const loginSchema = z.object({
-  email: z.email({ error: "Introdu o adresă de email validă." }).trim().toLowerCase(),
+  email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
   password: z.string().min(1, { error: "Introdu parola." }),
 });
 
@@ -25,21 +25,21 @@ export async function login(_: FormState, formData: FormData): Promise<FormState
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { message: "Email sau parolă incorecte." };
+  if (error) return { message: tr("Email sau parolă incorecte.") };
 
   redirect(safeNext(formData.get("next")));
 }
 
 const signupSchema = z.object({
   full_name: z.string().trim().min(2, { error: "Introdu numele complet." }).max(120),
-  email: z.email({ error: "Introdu o adresă de email validă." }).trim().toLowerCase(),
+  email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
   phone: z.string().trim().max(40).optional(),
   specialization: z.string().trim().max(120).optional(),
   password: z
     .string()
-    .min(8, { error: "Parola trebuie să aibă minimum 8 caractere." })
-    .regex(/[a-zA-Z]/, { error: "Parola trebuie să conțină o literă." })
-    .regex(/[0-9]/, { error: "Parola trebuie să conțină o cifră." }),
+    .min(8, { error: () => tr("Parola trebuie să aibă minimum 8 caractere.") })
+    .regex(/[a-zA-Z]/, { error: () => tr("Parola trebuie să conțină o literă.") })
+    .regex(/[0-9]/, { error: () => tr("Parola trebuie să conțină o cifră.") }),
 });
 
 export async function signup(_: FormState, formData: FormData): Promise<FormState> {
@@ -59,7 +59,7 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
   const { error } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: meta });
   if (error) {
     const exists = /already|registered|exists/i.test(error.message);
-    return { message: exists ? "Există deja un cont cu acest email. Autentifică-te." : "Nu am putut crea contul. Verifică datele sau încearcă din nou." };
+    return { message: exists ? tr("Există deja un cont cu acest email. Autentifică-te.") : tr("Nu am putut crea contul. Verifică datele sau încearcă din nou.") };
   }
 
   const supabase = await createClient();

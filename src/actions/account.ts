@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, tr } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
 import { lredirect as redirect } from "@/lib/i18n/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -35,7 +35,7 @@ export async function updateProfile(_: FormState, formData: FormData): Promise<F
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;
-  if (!userId) return { message: "Sesiunea a expirat. Intră din nou în cont." };
+  if (!userId) return { message: tr("Sesiunea a expirat. Intră din nou în cont.") };
 
   const { error } = await supabase
     .from("profiles")
@@ -48,7 +48,7 @@ export async function updateProfile(_: FormState, formData: FormData): Promise<F
       experience_years: parsed.data.experience_years ?? null,
     })
     .eq("id", userId);
-  if (error) return { message: "Datele nu au putut fi salvate." };
+  if (error) return { message: tr("Datele nu au putut fi salvate.") };
   revalidatePath("/cont", "layout");
   return { message: "Datele au fost salvate." };
 }
@@ -67,12 +67,12 @@ const passwordSchema = z
   .object({
     password: z
       .string()
-      .min(8, { error: "Parola trebuie să aibă minimum 8 caractere." })
-      .regex(/[a-zA-Z]/, { error: "Parola trebuie să conțină o literă." })
-      .regex(/[0-9]/, { error: "Parola trebuie să conțină o cifră." }),
+      .min(8, { error: () => tr("Parola trebuie să aibă minimum 8 caractere.") })
+      .regex(/[a-zA-Z]/, { error: () => tr("Parola trebuie să conțină o literă.") })
+      .regex(/[0-9]/, { error: () => tr("Parola trebuie să conțină o cifră.") }),
     confirm: z.string(),
   })
-  .refine((v) => v.password === v.confirm, { path: ["confirm"], error: "Parolele nu coincid." });
+  .refine((v) => v.password === v.confirm, { path: ["confirm"], error: () => tr("Parolele nu coincid.") });
 
 export async function changePassword(_: FormState, formData: FormData): Promise<FormState> {
   await getLocale();
@@ -81,8 +81,8 @@ export async function changePassword(_: FormState, formData: FormData): Promise<
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
-  if (error) return { message: "Parola nu a putut fi schimbată. Încearcă din nou." };
-  return { message: "Parola a fost schimbată." };
+  if (error) return { message: tr("Parola nu a putut fi schimbată. Încearcă din nou.") };
+  return { message: tr("Parola a fost schimbată.") };
 }
 
 export async function deleteBillingProfile(id: string) {
@@ -103,7 +103,7 @@ export async function addBillingProfile(_: FormState, formData: FormData): Promi
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;
-  if (!userId) return { message: "Sesiunea a expirat. Intră din nou în cont." };
+  if (!userId) return { message: tr("Sesiunea a expirat. Intră din nou în cont.") };
   const b = parsed.data;
   const { error } = await supabase.from("billing_profiles").insert({
     user_id: userId,
@@ -115,20 +115,20 @@ export async function addBillingProfile(_: FormState, formData: FormData): Promi
     city: b.city,
     county: b.county,
   });
-  if (error) return { message: "Profilul nu a putut fi salvat." };
+  if (error) return { message: tr("Profilul nu a putut fi salvat.") };
   revalidatePath("/cont/profil");
-  return { message: "Profilul de facturare a fost adăugat." };
+  return { message: tr("Profilul de facturare a fost adăugat.") };
 }
 
 export async function changeEmail(_: FormState, formData: FormData): Promise<FormState> {
   await getLocale();
-  const parsed = z.string().trim().toLowerCase().email({ error: "Introdu un email valid." }).safeParse(formData.get("email"));
+  const parsed = z.string().trim().toLowerCase().email({ error: () => tr("Introdu un email valid.") }).safeParse(formData.get("email"));
   if (!parsed.success) return { errors: { email: [parsed.error.issues[0]!.message] } };
   const supabase = await createClient();
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const { error } = await supabase.auth.updateUser({ email: parsed.data }, { emailRedirectTo: `${site}/auth/callback?next=/cont/profil` });
-  if (error) return { message: "Emailul nu a putut fi schimbat. Verifică adresa și încearcă din nou." };
-  return { message: "Am trimis un link de confirmare. Emailul se schimbă după ce îl deschizi." };
+  if (error) return { message: tr("Emailul nu a putut fi schimbat. Verifică adresa și încearcă din nou.") };
+  return { message: tr("Am trimis un link de confirmare. Emailul se schimbă după ce îl deschizi.") };
 }
 
 /** Ends every session of this account, on all devices. */
@@ -143,17 +143,17 @@ export async function signOutEverywhere() {
 export async function deleteMyAccount(_: FormState, formData: FormData): Promise<FormState> {
   await getLocale();
   const profile = await getCurrentProfile();
-  if (!profile) return { message: "Sesiunea a expirat. Intră din nou în cont." };
-  if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "ȘTERGE") return { message: "Scrie ȘTERGE pentru confirmare." };
-  if (profile.role === "admin" || profile.role === "operator") return { message: "Conturile de administrare nu se pot șterge din cont." };
+  if (!profile) return { message: tr("Sesiunea a expirat. Intră din nou în cont.") };
+  if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "ȘTERGE") return { message: tr("Scrie ȘTERGE pentru confirmare.") };
+  if (profile.role === "admin" || profile.role === "operator") return { message: tr("Conturile de administrare nu se pot șterge din cont.") };
   const admin = createAdminClient();
   const { data: enr } = await admin.from("enrollments").select("courses(ends_at, starts_at)").eq("user_id", profile.id);
   const upcoming = ((enr ?? []) as unknown as { courses: { ends_at: string | null; starts_at: string | null } | null }[]).some((e) => {
     const ref = e.courses?.ends_at ?? e.courses?.starts_at;
     return ref ? Date.parse(ref) > Date.now() : false;
   });
-  if (upcoming) return { message: "Ai cursuri viitoare. Scrie-ne mai întâi pentru anulare sau rambursare, apoi poți șterge contul." };
-  if (!(await anonymizeAccount(admin, profile.id))) return { message: "Ștergerea a eșuat. Scrie-ne și o rezolvăm." };
+  if (upcoming) return { message: tr("Ai cursuri viitoare. Scrie-ne mai întâi pentru anulare sau rambursare, apoi poți șterge contul.") };
+  if (!(await anonymizeAccount(admin, profile.id))) return { message: tr("Ștergerea a eșuat. Scrie-ne și o rezolvăm.") };
   const supabase = await createClient();
   await supabase.auth.signOut({ scope: "global" });
   redirect("/?cont=sters");

@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { getCurrentProfile, getLoyaltySettings, getLoyaltyState } from "@/lib/data";
@@ -6,7 +6,10 @@ import { formatDate, formatPrice } from "@/lib/format";
 import { tierNames, tierPerks } from "@/lib/loyalty";
 import type { Tier } from "@/lib/types";
 
-export const metadata: Metadata = { title: "Program Gold", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Program Gold"), robots: { index: false } };
+}
 
 const kindLabel = { earn: "Câștigate", redeem: "Folosite", restore: "Returnate", expire: "Expirate", adjust: "Ajustare" } as const;
 
@@ -38,9 +41,9 @@ export default async function ProgramPage() {
   const percent = ratios.length ? Math.min(100, Math.round(Math.max(...ratios) * 100)) : 100;
   const missing = next
     ? [
-        next.spend ? `${formatPrice(Math.max(0, next.spend - state.spentCents), cur)} în achiziții` : null,
+        next.spend ? tr("{v1} în achiziții", { v1: formatPrice(Math.max(0, next.spend - state.spentCents), cur) }) : null,
         next.courses ? `${Math.max(0, next.courses - state.courses)} ${next.courses - state.courses === 1 ? "curs" : "cursuri"}` : null,
-      ].filter(Boolean).join(" sau ")
+      ].filter(Boolean).join(tr(" sau "))
     : "";
   const perksFor = (t: Tier) => tierPerks(t, s);
 
@@ -71,15 +74,15 @@ export default async function ProgramPage() {
         <div className="rounded-[2rem] border border-line bg-card p-7">
           <p className="text-sm text-muted">{tr("Expiră în 30 de zile")}</p>
           <p className="font-display mt-3 text-5xl">{state.expiringSoon}</p>
-          <p className="mt-3 text-sm text-muted">{state.expiringAt ? `Prima expirare: ${formatDate(state.expiringAt)}` : `Valabilitate ${s.points_expiry_months} de luni`}</p>
+          <p className="mt-3 text-sm text-muted">{state.expiringAt ? `Prima expirare: ${formatDate(state.expiringAt)}` : tr("Valabilitate {points_expiry_months} de luni", { points_expiry_months: s.points_expiry_months })}</p>
         </div>
       </section>
 
       <section aria-labelledby="next-tier" className="rounded-[2rem] border border-line bg-card p-8">
-        <h2 id="next-tier" className="font-display text-3xl">{next ? `Drumul tău spre ${tierNames[next.id]}` : "Ai nivelul maxim"}</h2>
+        <h2 id="next-tier" className="font-display text-3xl">{next ? tr("Drumul tău spre {v1}", { v1: tierNames[next.id] }) : tr("Ai nivelul maxim")}</h2>
         {next ? (
           <>
-            <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label={`Progres către ${tierNames[next.id]}`}>
+            <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label={tr("Progres către {v1}", { v1: tierNames[next.id] })}>
               <div className="h-full rounded-full bg-gold transition-all" style={{ width: `${percent}%` }} />
             </div>
             <p className="mt-3 text-sm text-muted">
@@ -104,7 +107,7 @@ export default async function ProgramPage() {
                   {here ? <span className="rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">{tr("Nivelul tău")}</span> : null}
                 </div>
                 <p className="mt-2 text-sm text-muted">
-                  {t.id === "standard" ? "Oricine are un cont." : `${t.spend ? formatPrice(t.spend, cur) : ""}${t.spend && t.courses ? " sau " : ""}${t.courses ? `${t.courses} cursuri` : ""} în ultimele ${s.window_days ?? 365} de zile.`}
+                  {t.id === "standard" ? tr("Oricine are un cont.") : tr("{v1}{v2}{v3} în ultimele {v4} de zile.", { v1: t.spend ? formatPrice(t.spend, cur) : "", v2: t.spend && t.courses ? tr(" sau ") : "", v3: t.courses ? `${t.courses} cursuri` : "", v4: s.window_days ?? 365 })}
                 </p>
                 <ul className="mt-5 space-y-2 text-sm">
                   <li>{tr("Reducere automată:")}{" "}<strong>{p.discountPercent}%</strong></li>
@@ -133,7 +136,7 @@ export default async function ProgramPage() {
                   <tr key={h.id}>
                     <td className="p-4 whitespace-nowrap">{formatDate(h.created_at)}</td>
                     <td className="p-4">{kindLabel[h.kind]}</td>
-                    <td className="p-4 text-muted">{h.note ?? ""}{h.kind === "earn" && h.expires_at ? ` · expiră ${formatDate(h.expires_at)}` : ""}</td>
+                    <td className="p-4 text-muted">{h.note ?? ""}{h.kind === "earn" && h.expires_at ? tr(" · expiră {v1}", { v1: formatDate(h.expires_at) }) : ""}</td>
                     <td className={`p-4 text-right font-semibold ${h.delta >= 0 ? "text-gold" : ""}`}>{h.delta > 0 ? "+" : ""}{h.delta}</td>
                   </tr>
                 ))}

@@ -45,7 +45,7 @@ export function MainNav({ data }: { data: NavData }) {
   const chevron = (k: Key) => (
     <svg aria-hidden="true" viewBox="0 0 12 12" className={`size-3 transition-transform ${open === k ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4.500l4 4 4-4" /></svg>
   );
-  const labels: Record<Key, string> = { cine: "Cine suntem", cursuri: "Cursuri și workshopuri", testimoniale: "Testimoniale", contact: "Contact" };
+  const labels: Record<Key, string> = { cine: "Cine suntem", cursuri: tr("Cursuri și workshopuri"), testimoniale: "Testimoniale", contact: "Contact" };
 
   const panel = (k: Key, children: React.ReactNode) => (
     <div id={`mega-${k}`} hidden={open !== k} onMouseEnter={() => show(k)} className={panelCls}>
@@ -144,9 +144,9 @@ export function MainNav({ data }: { data: NavData }) {
       {panel("testimoniale", (
         <ul className="grid gap-4 lg:grid-cols-3">
           {[
-            { href: "/testimoniale#t-foto", title: "Galerii foto", text: "Din edițiile anterioare, pe cursuri și ediții." },
-            { href: "/testimoniale#t-text", title: "Testimoniale text", text: "Cu numele participantului și cursul urmat." },
-            { href: "/testimoniale#t-video", title: "Testimoniale video", text: "Impresii despre cursuri, experiența practică și interacțiunea cu lectorii." },
+            { href: "/testimoniale#t-foto", title: "Galerii foto", text: tr("Din edițiile anterioare, pe cursuri și ediții.") },
+            { href: "/testimoniale#t-text", title: "Testimoniale text", text: tr("Cu numele participantului și cursul urmat.") },
+            { href: "/testimoniale#t-video", title: "Testimoniale video", text: tr("Impresii despre cursuri, experiența practică și interacțiunea cu lectorii.") },
           ].map((a) => (
             <li key={a.href}><Link href={a.href} onClick={close} className={tile}><span className={tileTitle}>{a.title}</span><span className={tileText}>{a.text}</span></Link></li>
           ))}
@@ -156,8 +156,8 @@ export function MainNav({ data }: { data: NavData }) {
       {panel("contact", (
         <ul className="grid gap-4 lg:grid-cols-2">
           {[
-            { href: "/contact#medici", title: "Pentru medici", text: "Ai un caz complex? Hai să îl evaluăm împreună." },
-            { href: "/contact#pacienti", title: "Pentru pacienți", text: "Ai nevoie de un tratament? Începe cu o evaluare." },
+            { href: "/contact#medici", title: tr("Pentru medici"), text: tr("Ai un caz complex? Hai să îl evaluăm împreună.") },
+            { href: "/contact#pacienti", title: tr("Pentru pacienți"), text: tr("Ai nevoie de un tratament? Începe cu o evaluare.") },
           ].map((a) => (
             <li key={a.href}><Link href={a.href} onClick={close} className={tile}><span className={tileTitle}>{a.title}</span><span className={tileText}>{a.text}</span></Link></li>
           ))}

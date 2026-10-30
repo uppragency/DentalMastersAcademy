@@ -28,16 +28,16 @@ export function GalleryField({ existing }: { existing: string[] }) {
   async function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []).slice(0, 10);
     if (files.length === 0) return;
-    setNote("Se pregătesc imaginile...");
+    setNote(tr("Se pregătesc imaginile..."));
     try {
       const done = await Promise.all(files.map(squareJpeg));
       const dt = new DataTransfer();
       done.forEach((f) => dt.items.add(f));
       if (input.current) input.current.files = dt.files;
       const kb = Math.round(done.reduce((s, f) => s + f.size, 0) / 1024);
-      setNote(`${done.length} imagini pregătite (decupate 1:1, ${kb} KB în total).`);
+      setNote(tr("{v1} imagini pregătite (decupate 1:1, {kb} KB în total).", { v1: done.length, kb: kb }));
     } catch {
-      setNote("Imaginile au fost păstrate în forma originală.");
+      setNote(tr("Imaginile au fost păstrate în forma originală."));
     }
   }
 

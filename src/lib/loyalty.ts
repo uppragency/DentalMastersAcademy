@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import type { LoyaltySettings, Tier } from "@/lib/types";
 
 export const tierNames: Record<Tier, string> = { standard: "Standard", gold: "Gold", platinum: "Platinum" };
@@ -37,5 +38,5 @@ export function tierProgress(tier: Tier, s: LoyaltySettings | null, spentCents: 
     spend ? `${new Intl.NumberFormat("ro-RO", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Math.max(0, spend - spentCents) / 100)}` : null,
     need ? `${Math.max(0, need - courses)} ${need - courses === 1 ? "curs" : "cursuri"}` : null,
   ].filter(Boolean);
-  return { next, percent, missing: parts.join(" sau ") };
+  return { next, percent, missing: parts.join(tr(" sau ")) };
 }

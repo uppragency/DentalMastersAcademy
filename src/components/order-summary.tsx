@@ -94,7 +94,7 @@ export function OrderSummary({
               className="min-h-11 w-full min-w-0 rounded-2xl border border-line bg-background px-4 text-sm uppercase tracking-wider outline-none focus:border-gold"
             />
             <button type="button" onClick={apply} disabled={checking || !code.trim()} className="min-h-11 shrink-0 rounded-full border border-line px-5 text-sm font-medium transition-colors hover:border-foreground/30 disabled:opacity-50">
-              {checking ? "..." : "Aplică"}
+              {checking ? "..." : tr("Aplică")}
             </button>
           </div>
           {checking && !preview ? <p className="mt-2 text-sm text-muted">{tr("Se verifică codul...")}</p> : null}

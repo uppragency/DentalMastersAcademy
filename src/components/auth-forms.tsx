@@ -24,7 +24,7 @@ export function LoginForm({ next }: { next?: string }) {
       <Field label={tr("Email")} name="email" type="email" autoComplete="email" required error={state?.errors?.email?.[0]} />
       <Field label={tr("Parolă")} name="password" type="password" autoComplete="current-password" required error={state?.errors?.password?.[0]} />
       <Message state={state} />
-      <Button type="submit" disabled={pending} className="w-full">{pending ? "Se verifică..." : "Intră în cont"}</Button>
+      <Button type="submit" disabled={pending} className="w-full">{pending ? tr("Se verifică...") : tr("Intră în cont")}</Button>
       <p className="text-center text-sm text-muted">
         {tr("Nu ai cont?")}{" "}<Link href={`/inregistrare${next ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-medium text-foreground underline underline-offset-4">{tr("Creează unul")}</Link>
       </p>
@@ -45,7 +45,7 @@ export function SignupForm({ next }: { next?: string }) {
       <Field label={tr("Specializare (opțional)")} name="specialization" error={e?.specialization?.[0]} />
       <Field label={tr("Parolă")} name="password" type="password" autoComplete="new-password" required minLength={8} error={e?.password?.[0]} />
       <Message state={state} />
-      <Button type="submit" disabled={pending} className="w-full">{pending ? "Se creează contul..." : "Creează cont"}</Button>
+      <Button type="submit" disabled={pending} className="w-full">{pending ? tr("Se creează contul...") : tr("Creează cont")}</Button>
       <p className="text-center text-sm text-muted">
         {tr("Ai deja cont?")}{" "}<Link href="/autentificare" className="font-medium text-foreground underline underline-offset-4">{tr("Intră în cont")}</Link>
       </p>

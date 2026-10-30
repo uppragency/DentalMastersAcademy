@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import { EmptyState } from "@/components/empty-state";
 import type { Metadata } from "next";
 import { markAllNotificationsRead } from "@/actions/notifications";
@@ -6,7 +6,10 @@ import { NotificationItem } from "@/components/notification-item";
 import { Button } from "@/components/ui";
 import { getCurrentProfile, getNotifications } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Notificări", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Notificări"), robots: { index: false } };
+}
 
 const fmt = new Intl.DateTimeFormat("ro-RO", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Bucharest" });
 

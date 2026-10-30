@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
@@ -30,13 +31,13 @@ export async function processWaitlist(courseId: string): Promise<number> {
     const expires = new Date(now + OFFER_HOURS * 3_600_000);
     const ok = await sendMail({
       to: w.email,
-      subject: `S-a eliberat un loc: ${course.title}`,
-      heading: "Un loc s-a eliberat",
+      subject: tr("S-a eliberat un loc: {title}", { title: course.title }),
+      heading: tr("Un loc s-a eliberat"),
       paragraphs: [
-        `${w.name ? `Bună, ${w.name}.` : "Bună."} Un loc la ${course.title} s-a eliberat și ți l-am oferit primul, pentru că ești pe lista de așteptare.`,
-        `Ai ${OFFER_HOURS} de ore să te înscrii. După acest termen oferim locul următoarei persoane de pe listă.`,
+        tr("{v1} Un loc la {title} s-a eliberat și ți l-am oferit primul, pentru că ești pe lista de așteptare.", { v1: w.name ? tr("Bună, {name}.", { name: w.name }) : tr("Bună."), title: course.title }),
+        tr("Ai {oFFER_HOURS} de ore să te înscrii. După acest termen oferim locul următoarei persoane de pe listă.", { oFFER_HOURS: OFFER_HOURS }),
       ],
-      cta: { label: "Rezervă locul", href: `/cursuri/${course.slug}` },
+      cta: { label: tr("Rezervă locul"), href: `/cursuri/${course.slug}` },
       kind: "waitlist",
     });
     if (!ok) continue;

@@ -30,6 +30,7 @@ function Segmented<T extends string>({
   onChange: (v: T) => void;
   options: { value: T; label: string }[];
 }) {
+  const tr = useT();
   return (
     <div role="radiogroup" aria-label={label} className="grid auto-cols-fr grid-flow-col gap-1 rounded-full border border-line bg-background p-1">
       {options.map((o) => (
@@ -39,9 +40,7 @@ function Segmented<T extends string>({
           role="radio"
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
-          className={`min-h-11 rounded-full px-4 text-sm font-medium transition-all duration-300 ${
-            value === o.value ? "bg-ink text-white shadow" : "text-muted hover:text-foreground"
-          }`}
+          className={tr("min-h-11 rounded-full px-4 text-sm font-medium transition-all duration-300 {v1}", { v1: value === o.value ? "bg-ink text-white shadow" : "text-muted hover:text-foreground" })}
         >
           {o.label}
         </button>
@@ -74,7 +73,7 @@ export function BillingSection({
       const r = await lookupCui(values.cui);
       if (!r.ok) return setCuiNote({ ok: false, text: r.message });
       setValues((v) => ({ ...v, name: r.name || v.name, reg_com: r.reg_com || v.reg_com, address: r.address || v.address, city: r.city || v.city, county: r.county || v.county }));
-      setCuiNote({ ok: true, text: "Datele firmei au fost completate. Verifică-le înainte de plată." });
+      setCuiNote({ ok: true, text: tr("Datele firmei au fost completate. Verifică-le înainte de plată.") });
     });
 
   const isSaved = mode === "saved" && selected;
@@ -115,7 +114,7 @@ export function BillingSection({
           >
             {profiles.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.kind === "company" ? "Firmă" : "Persoană fizică"}: {p.name}
+                {p.kind === "company" ? tr("Firmă") : tr("Persoană fizică")}: {p.name}
               </option>
             ))}
           </select>
@@ -128,14 +127,14 @@ export function BillingSection({
         value={currentKind}
         onChange={(k) => !readOnly && setKind(k)}
         options={[
-          { value: "individual", label: "Persoană fizică" },
-          { value: "company", label: "Firmă" },
+          { value: "individual", label: tr("Persoană fizică") },
+          { value: "company", label: tr("Firmă") },
         ]}
       />
       <input type="hidden" name="billing_kind" value={currentKind} />
       {readOnly ? <p className="-mt-2 text-xs text-muted">{tr("Datele sunt din profilul salvat. Alege „Profil nou” pentru a introduce altele.")}</p> : null}
 
-      <Field label={currentKind === "company" ? "Denumire firmă" : "Nume și prenume"} name="billing_name" autoComplete="organization" value={current.name} onChange={set("name")} readOnly={readOnly} required error={err("name")} />
+      <Field label={currentKind === "company" ? tr("Denumire firmă") : tr("Nume și prenume")} name="billing_name" autoComplete="organization" value={current.name} onChange={set("name")} readOnly={readOnly} required error={err("name")} />
       {currentKind === "company" ? (
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="CUI / CIF" name="billing_cui" placeholder="RO12345678" value={current.cui} onChange={set("cui")} readOnly={readOnly} required error={err("cui")} />
@@ -143,7 +142,7 @@ export function BillingSection({
           {!readOnly ? (
             <div className="sm:col-span-2">
               <button type="button" onClick={fetchCui} disabled={lookingUp || values.cui.replace(/\D/g, "").length < 2} className="min-h-11 rounded-full border border-line px-5 text-sm font-medium transition-colors hover:border-foreground/30 disabled:opacity-50">
-                {lookingUp ? "Se caută..." : "Completează automat după CUI"}
+                {lookingUp ? tr("Se caută...") : tr("Completează automat după CUI")}
               </button>
               {cuiNote ? <p role="status" className={`mt-2 text-sm ${cuiNote.ok ? "text-gold" : "text-red-700"}`}>{cuiNote.text}</p> : null}
             </div>

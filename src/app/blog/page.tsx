@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Container } from "@/components/ui";
@@ -7,7 +7,10 @@ import { Reveal } from "@/components/reveal";
 import { getPosts } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Blog", description: "Articole scurte despre implantologie, parodontologie și protetică, scrise de echipa academiei." };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Blog"), description: tr("Articole scurte despre implantologie, parodontologie și protetică, scrise de echipa academiei.") };
+}
 
 export default async function BlogPage() {
   const posts = await getPosts();

@@ -31,7 +31,7 @@ export function PhotoGallery({ albums }: { albums: (GalleryAlbum & { courseTitle
           <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {a.gallery_photos.map((p, pi) => (
               <li key={p.id}>
-                <button type="button" onClick={() => setOpen({ album: ai, photo: pi })} className="block w-full overflow-hidden rounded-2xl" aria-label={`Deschide fotografia ${pi + 1} din ${a.gallery_photos.length}`}>
+                <button type="button" onClick={() => setOpen({ album: ai, photo: pi })} className="block w-full overflow-hidden rounded-2xl" aria-label={tr("Deschide fotografia {v1} din {v2}", { v1: pi + 1, v2: a.gallery_photos.length })}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={p.url} alt={p.caption ?? a.title} loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-500 hover:scale-105" />
                 </button>

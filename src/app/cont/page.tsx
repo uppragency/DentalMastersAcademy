@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Eyebrow } from "@/components/ui";
@@ -11,7 +11,10 @@ import { CourseCard } from "@/components/course-card";
 import { Badges, JourneyMap, type JourneyNode } from "@/components/journey-map";
 import { isEnded } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Contul meu", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Contul meu"), robots: { index: false } };
+}
 
 function daysUntil(iso: string) {
   return Math.ceil((new Date(iso).getTime() - nowMs()) / 86_400_000);
@@ -64,7 +67,7 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
 
       {gold.expiringSoon > 0 ? (
         <p role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gold-soft px-5 py-4 text-sm">
-          <span>{gold.expiringSoon} {" "}{tr("puncte expiră")}{" "}{gold.expiringAt ? `până la ${formatDate(gold.expiringAt)}` : "în curând"}{tr(". Le poți folosi la următoarea achiziție.")}</span>
+          <span>{gold.expiringSoon} {" "}{tr("puncte expiră")}{" "}{gold.expiringAt ? tr("până la {v1}", { v1: formatDate(gold.expiringAt) }) : tr("în curând")}{tr(". Le poți folosi la următoarea achiziție.")}</span>
           <Link href="/cursuri" className="font-semibold underline underline-offset-4">{tr("Vezi cursurile")}</Link>
         </p>
       ) : null}
@@ -78,7 +81,7 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
               <p className="mt-2 text-sm text-white/60">{formatDate(next.starts_at)}{next.location ? ` · ${next.location}` : ""}</p>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-gold-bright px-3.5 py-1.5 text-xs font-bold text-ink">
-                  {daysUntil(next.starts_at!) <= 0 ? "Astăzi" : `În ${daysUntil(next.starts_at!)} ${daysUntil(next.starts_at!) === 1 ? "zi" : "zile"}`}
+                  {daysUntil(next.starts_at!) <= 0 ? tr("Astăzi") : tr("În {v1} {v2}", { v1: daysUntil(next.starts_at!), v2: daysUntil(next.starts_at!) === 1 ? "zi" : "zile" })}
                 </span>
                 <Link href={`/cont/cursuri/${next.slug}`} className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">{tr("Detalii curs")}</Link>
               </div>
@@ -109,19 +112,19 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
         <Link href="/cont/notificari" className="rounded-[2rem] border border-line bg-card p-7 transition-colors hover:bg-background">
           <p className="text-sm text-muted">{tr("Notificări necitite")}</p>
           <p className="font-display mt-3 text-5xl">{unread}</p>
-          <p className="mt-2 text-sm text-muted">{unread > 0 ? "Deschide notificările" : "Totul la zi"}</p>
+          <p className="mt-2 text-sm text-muted">{unread > 0 ? tr("Deschide notificările") : tr("Totul la zi")}</p>
         </Link>
       </section>
 
       <section aria-labelledby="gold-title" className={`rounded-[2rem] p-8 sm:p-10 ${isGold ? "bg-gradient-to-br from-[#14100a] to-[#2e220d] text-white" : "border border-line bg-card"}`}>
         <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isGold ? "text-[#d9b873]" : "text-gold"}`}>{tr("Program Gold")}</p>
         <h2 id="gold-title" className="mt-2 font-display text-3xl">
-          {isGold ? `Ești membru ${perk.name}` : "Drumul tău spre Gold"}
+          {isGold ? tr("Ești membru {name}", { name: perk.name }) : tr("Drumul tău spre Gold")}
         </h2>
         <p className={`mt-2 max-w-xl text-sm leading-relaxed ${isGold ? "text-white/70" : "text-muted"}`}>
           {isGold
-            ? `Ai reducere ${perk.discountPercent}% la cursuri, ${perk.multiplier}x puncte la fiecare achiziție și acces gratuit la activitățile marcate Gold.`
-            : "Statusul Gold aduce reduceri, puncte în plus și acces gratuit la activități selectate."}
+            ? tr("Ai reducere {discountPercent}% la cursuri, {multiplier}x puncte la fiecare achiziție și acces gratuit la activitățile marcate Gold.", { discountPercent: perk.discountPercent, multiplier: perk.multiplier })
+            : tr("Statusul Gold aduce reduceri, puncte în plus și acces gratuit la activități selectate.")}
         </p>
         <Link href="/cont/program" className={`mt-5 inline-flex min-h-11 items-center rounded-full px-6 text-sm font-medium ${isGold ? "bg-white text-ink" : "bg-ink text-white"}`}>{tr("Vezi programul și punctele")}</Link>
       </section>

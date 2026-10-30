@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { lredirect as redirect } from "@/lib/i18n/server";
+import { lredirect as redirect, getLocale, tr } from "@/lib/i18n/server";
 import { ThankYouView, thanksCourseSelect, type ThanksCourse } from "@/components/thank-you";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Mulțumim pentru înscriere", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Mulțumim pentru înscriere"), robots: { index: false } };
+}
 
 export default async function FreeThankYou({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

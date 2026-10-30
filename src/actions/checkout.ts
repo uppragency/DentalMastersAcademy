@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, tr } from "@/lib/i18n/server";
 import { headers } from "next/headers";
 import { lredirect as redirect } from "@/lib/i18n/server";
 import * as z from "zod";
@@ -15,14 +15,14 @@ import { readBilling, type BillingInput } from "@/lib/billing";
 
 const guestSchema = z.object({
   full_name: z.string().trim().min(2, { error: "Introdu numele complet." }).max(120),
-  email: z.email({ error: "Introdu o adresă de email validă." }).trim().toLowerCase(),
+  email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
   phone: z.string().trim().max(40).optional(),
   specialization: z.string().trim().max(120).optional(),
   password: z
     .string()
-    .min(8, { error: "Parola trebuie să aibă minimum 8 caractere." })
-    .regex(/[a-zA-Z]/, { error: "Parola trebuie să conțină o literă." })
-    .regex(/[0-9]/, { error: "Parola trebuie să conțină o cifră." }),
+    .min(8, { error: () => tr("Parola trebuie să aibă minimum 8 caractere.") })
+    .regex(/[a-zA-Z]/, { error: () => tr("Parola trebuie să conțină o literă.") })
+    .regex(/[0-9]/, { error: () => tr("Parola trebuie să conțină o cifră.") }),
 });
 
 export async function startCheckout(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
@@ -39,13 +39,13 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     .eq("id", courseId)
     .eq("status", "published")
     .maybeSingle();
-  if (!course) return { message: "Cursul nu mai este disponibil." };
+  if (!course) return { message: tr("Cursul nu mai este disponibil.") };
   const method: PayMethod = formData.get("payment_method") === "transfer" ? "transfer" : "card";
-  if (!courseMethods(course.payment_methods).includes(method)) return { message: "Metoda de plată aleasă nu este disponibilă pentru acest curs." };
+  if (!courseMethods(course.payment_methods).includes(method)) return { message: tr("Metoda de plată aleasă nu este disponibilă pentru acest curs.") };
   const endRef = course.ends_at ?? course.starts_at;
-  if (endRef && new Date(endRef).getTime() < Date.now()) return { message: "Înscrierile pentru această ediție sunt închise. Scrie-ne pentru următoarea ediție." };
-  if (!course.starts_at && course.format !== "online") return { message: "Data ediției nu a fost anunțată încă. Te poți înscrie pe lista de așteptare." };
-  if (course.registration_opens_at && new Date(course.registration_opens_at).getTime() > Date.now()) return { message: "Înscrierile pentru această ediție nu s-au deschis încă." };
+  if (endRef && new Date(endRef).getTime() < Date.now()) return { message: tr("Înscrierile pentru această ediție sunt închise. Scrie-ne pentru următoarea ediție.") };
+  if (!course.starts_at && course.format !== "online") return { message: tr("Data ediției nu a fost anunțată încă. Te poți înscrie pe lista de așteptare.") };
+  if (course.registration_opens_at && new Date(course.registration_opens_at).getTime() > Date.now()) return { message: tr("Înscrierile pentru această ediție nu s-au deschis încă.") };
 
   // Billing details: a saved profile (owned by the signed-in user) or the submitted fields.
   const savedId = formData.get("billing_profile_id");
@@ -58,7 +58,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
       .eq("id", savedId)
       .eq("user_id", userId)
       .maybeSingle();
-    if (!saved) return { message: "Profilul de facturare selectat nu a fost găsit." };
+    if (!saved) return { message: tr("Profilul de facturare selectat nu a fost găsit.") };
     billing = { ...saved, cui: saved.cui ?? "", reg_com: saved.reg_com ?? undefined } as BillingInput;
   } else {
     const parsedBilling = readBilling(formData);
@@ -91,12 +91,12 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
       const exists = /already|registered|exists/i.test(createError.message);
       return {
         message: exists
-          ? "Există deja un cont cu acest email. Intră în cont pentru a continua achiziția."
-          : "Nu am putut crea contul. Încearcă din nou.",
+          ? tr("Există deja un cont cu acest email. Intră în cont pentru a continua achiziția.")
+          : tr("Nu am putut crea contul. Încearcă din nou."),
       };
     }
     const { data: signedIn, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError || !signedIn.user) return { message: "Contul a fost creat, dar autentificarea a eșuat. Intră în cont și reia comanda." };
+    if (signInError || !signedIn.user) return { message: tr("Contul a fost creat, dar autentificarea a eșuat. Intră în cont și reia comanda.") };
     userId = signedIn.user.id;
     newAccount = true;
   }
@@ -139,14 +139,14 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
   if (orderError) {
     const m = orderError.message;
     if (m.includes("already_enrolled")) redirect(`/cont/cursuri/${course.slug}`);
-    if (m.includes("invalid_code")) return { message: "Codul de reducere nu este valid sau a expirat." };
-    if (m.includes("sold_out")) return { message: "Ediția este completă. Te putem anunța la următoarea ediție." };
-    if (m.includes("registration_closed")) return { message: "Înscrierile pentru această ediție sunt închise." };
-    if (m.includes("registration_not_open")) return { message: "Înscrierile pentru această ediție nu s-au deschis încă." };
-    return { message: "Comanda nu a putut fi creată. Încearcă din nou." };
+    if (m.includes("invalid_code")) return { message: tr("Codul de reducere nu este valid sau a expirat.") };
+    if (m.includes("sold_out")) return { message: tr("Ediția este completă. Te putem anunța la următoarea ediție.") };
+    if (m.includes("registration_closed")) return { message: tr("Înscrierile pentru această ediție sunt închise.") };
+    if (m.includes("registration_not_open")) return { message: tr("Înscrierile pentru această ediție nu s-au deschis încă.") };
+    return { message: tr("Comanda nu a putut fi creată. Încearcă din nou.") };
   }
   const order = (rows as { order_id: string | null; total_cents: number; currency: string; is_free: boolean }[])[0];
-  if (!order) return { message: "Comanda nu a putut fi creată." };
+  if (!order) return { message: tr("Comanda nu a putut fi creată.") };
   if (order.is_free || !order.order_id) redirect(`/multumim/gratuit/${course.slug}`);
 
   await admin.from("orders").update({ billing }).eq("id", order.order_id);
@@ -174,7 +174,7 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
     redirect(`/multumim/${order.order_id}`);
   }
 
-  if (!paymentsEnabled()) return { message: "Plata online nu este încă activată. Încearcă din nou în curând." };
+  if (!paymentsEnabled()) return { message: tr("Plata online nu este încă activată. Încearcă din nou în curând.") };
   const stripe = getStripe()!;
   const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const { data: profile } = await admin.from("profiles").select("email").eq("id", userId).single();
@@ -200,6 +200,6 @@ export async function startCheckout(courseId: string, _: FormState, formData: Fo
   });
 
   await admin.from("orders").update({ stripe_session_id: session.id }).eq("id", order.order_id);
-  if (!session.url) return { message: "Nu am putut inițializa plata. Încearcă din nou." };
+  if (!session.url) return { message: tr("Nu am putut inițializa plata. Încearcă din nou.") };
   redirect(session.url);
 }

@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Arrow } from "@/components/ui";
@@ -9,7 +9,10 @@ import { getCompletedLessonIds, getCurrentProfile, getMyEnrollments } from "@/li
 import { formatDateRange, formatLabels, isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 
-export const metadata: Metadata = { title: "Cursurile mele", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Cursurile mele"), robots: { index: false } };
+}
 
 const sourceLabel = { purchase: "Achiziționat", gold_free: "Acces Gold", admin: "Acordat" } as const;
 
@@ -49,9 +52,9 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
     { key: "finalizate", label: "Finalizate", n: counts.finalizate },
   ];
   const empty = {
-    viitoare: { title: "Nu ai cursuri viitoare", text: "Alege următorul curs din catalog și îți păstrăm locul în grup." },
-    online: { title: "Nu ai cursuri online", text: "Cursurile online se urmăresc în ritmul tău, cu lecții și materiale." },
-    finalizate: { title: "Niciun curs finalizat încă", text: "După curs, aici găsești adeverința, materialele și evaluarea." },
+    viitoare: { title: tr("Nu ai cursuri viitoare"), text: tr("Alege următorul curs din catalog și îți păstrăm locul în grup.") },
+    online: { title: tr("Nu ai cursuri online"), text: tr("Cursurile online se urmăresc în ritmul tău, cu lecții și materiale.") },
+    finalizate: { title: tr("Niciun curs finalizat încă"), text: tr("După curs, aici găsești adeverința, materialele și evaluarea.") },
   }[active];
 
   return (

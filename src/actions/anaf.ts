@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, tr } from "@/lib/i18n/server";
 export type CuiLookup = { ok: true; name: string; reg_com: string; address: string; city: string; county: string } | { ok: false; message: string };
 
 const title = (s: string) => s.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, a: string, b: string) => a + b.toUpperCase());
@@ -10,7 +10,7 @@ const clean = (s: unknown) => (typeof s === "string" ? s.trim() : "");
 export async function lookupCui(raw: string): Promise<CuiLookup> {
   await getLocale();
   const digits = raw.toUpperCase().replace(/^RO/, "").replace(/\D/g, "");
-  if (digits.length < 2 || digits.length > 10) return { ok: false, message: "Introdu un CUI valid." };
+  if (digits.length < 2 || digits.length > 10) return { ok: false, message: tr("Introdu un CUI valid.") };
   try {
     const res = await fetch("https://webservicesp.anaf.ro/api/PlatitorTvaRest/v9/tva", {
       method: "POST",
@@ -19,11 +19,11 @@ export async function lookupCui(raw: string): Promise<CuiLookup> {
       signal: AbortSignal.timeout(8000),
       cache: "no-store",
     });
-    if (!res.ok) return { ok: false, message: "Serviciul ANAF nu răspunde acum. Completează datele manual." };
+    if (!res.ok) return { ok: false, message: tr("Serviciul ANAF nu răspunde acum. Completează datele manual.") };
     const json = (await res.json()) as { found?: { date_generale?: Record<string, unknown>; adresa_sediu_social?: Record<string, unknown> }[] };
     const hit = json.found?.[0];
     const g = hit?.date_generale;
-    if (!g) return { ok: false, message: "Nu am găsit firma după acest CUI. Verifică numărul sau completează manual." };
+    if (!g) return { ok: false, message: tr("Nu am găsit firma după acest CUI. Verifică numărul sau completează manual.") };
     const s = hit?.adresa_sediu_social ?? {};
     const street = [clean(s.sdenumire_Strada), clean(s.snumar_Strada) ? `nr. ${clean(s.snumar_Strada)}` : ""].filter(Boolean).join(" ");
     const address = street ? title(street) : title(clean(g.adresa));
@@ -40,6 +40,6 @@ export async function lookupCui(raw: string): Promise<CuiLookup> {
       county: bucharest ? (sector ? `Sector ${sector}` : "București") : title(county.replace(/^(Județul|Judetul)\s+/i, "")),
     };
   } catch {
-    return { ok: false, message: "Serviciul ANAF nu răspunde acum. Completează datele manual." };
+    return { ok: false, message: tr("Serviciul ANAF nu răspunde acum. Completează datele manual.") };
   }
 }

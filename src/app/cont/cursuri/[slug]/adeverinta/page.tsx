@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { lredirect as redirect } from "@/lib/i18n/server";
@@ -9,7 +9,10 @@ import { formatDateRange } from "@/lib/format";
 import { contact } from "@/content/site";
 import { PrintButton } from "@/components/print-button";
 
-export const metadata: Metadata = { title: "Adeverință de participare", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Adeverință de participare"), robots: { index: false } };
+}
 
 export default async function CertificatePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

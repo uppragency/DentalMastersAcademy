@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Container } from "@/components/ui";
@@ -7,7 +7,10 @@ import { Reveal } from "@/components/reveal";
 import { getEvents } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Evenimente", description: "Ediții anterioare ale cursurilor Dental Masters Academy." };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Evenimente"), description: tr("Ediții anterioare ale cursurilor Dental Masters Academy.") };
+}
 
 export default async function EventsPage() {
   const events = await getEvents();

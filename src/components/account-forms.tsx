@@ -27,7 +27,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       <Field label={tr("Ani de experiență")} name="experience_years" type="number" min="0" max="70" defaultValue={profile.experience_years ?? ""} error={e?.experience_years?.[0]} />
       <p className="text-xs text-muted">{tr("Specializarea și experiența ne ajută să îți recomandăm cursurile potrivite.")}</p>
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? tr("Se salvează...") : tr("Salvează")}</Button>
     </form>
   );
 }
@@ -41,7 +41,7 @@ export function PasswordForm() {
       <Field label={tr("Parolă nouă")} name="password" type="password" autoComplete="new-password" minLength={8} required error={e?.password?.[0]} />
       <Field label={tr("Confirmă parola")} name="confirm" type="password" autoComplete="new-password" required error={e?.confirm?.[0]} />
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Schimbă parola"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? tr("Se salvează...") : tr("Schimbă parola")}</Button>
     </form>
   );
 }
@@ -54,7 +54,7 @@ export function EmailForm({ current }: { current: string }) {
     <form action={action} className="space-y-5">
       <Field label={tr("Email nou")} name="email" type="email" autoComplete="email" placeholder={current} required error={e?.email?.[0]} />
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending}>{pending ? "Se trimite..." : "Schimbă emailul"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? "Se trimite..." : tr("Schimbă emailul")}</Button>
     </form>
   );
 }
@@ -75,7 +75,7 @@ export function DeleteAccountForm() {
     <form action={action} className="space-y-5">
       <Field label={tr("Scrie ȘTERGE pentru confirmare")} name="confirm" autoComplete="off" required />
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending} className="bg-red-700 hover:bg-red-800">{pending ? "Se șterge..." : "Șterge contul"}</Button>
+      <Button type="submit" disabled={pending} className="bg-red-700 hover:bg-red-800">{pending ? tr("Se șterge...") : tr("Șterge contul")}</Button>
     </form>
   );
 }

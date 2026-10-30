@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { ButtonLink, Container } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";
@@ -9,10 +9,13 @@ import { getCourses } from "@/lib/data";
 import { isEnded } from "@/lib/format";
 import { nowMs } from "@/lib/time";
 
-export const metadata: Metadata = {
-  title: "Cursuri",
-  description: "Catalogul de cursuri Dental Masters Academy pentru medici stomatologi.",
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return {
+  title: tr("Cursuri"),
+  description: tr("Catalogul de cursuri Dental Masters Academy pentru medici stomatologi."),
 };
+}
 
 type Props = { searchParams: Promise<{ format?: string; perioada?: string }> };
 
@@ -24,8 +27,8 @@ export default async function CoursesPage({ searchParams }: Props) {
   const courses = all.filter((c) => (when === "viitoare" ? !isEnded(c, now) : when === "incheiate" ? isEnded(c, now) : true));
 
   const groups = [
-    { key: "dma", title: "Cursurile DMA", lead: "Programele principale, susținute de Dr. Ovidiu Dumitru și Dr. Gabriel Mușețescu.", items: courses.filter((c) => c.kind !== "hosted") },
-    { key: "hosted", title: "Cursuri găzduite", lead: "Cursuri susținute de invitați și parteneri, în spațiul Dental Masters Academy.", items: courses.filter((c) => c.kind === "hosted") },
+    { key: "dma", title: "Cursurile DMA", lead: tr("Programele principale, susținute de Dr. Ovidiu Dumitru și Dr. Gabriel Mușețescu."), items: courses.filter((c) => c.kind !== "hosted") },
+    { key: "hosted", title: tr("Cursuri găzduite"), lead: tr("Cursuri susținute de invitați și parteneri, în spațiul Dental Masters Academy."), items: courses.filter((c) => c.kind === "hosted") },
   ].filter((g) => g.items.length > 0);
 
   return (

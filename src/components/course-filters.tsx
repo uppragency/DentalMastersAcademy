@@ -38,9 +38,9 @@ export function CourseFilters({ format, perioada, upcoming }: Props) {
     `rounded-full border px-5 py-2.5 text-sm transition-all duration-300 ${active ? "border-ink bg-ink text-white" : "border-line bg-card text-muted hover:border-foreground/30 hover:text-foreground"}`;
 
   const tabs: { key: Key; label: string; value?: string }[] = [
-    { key: "perioada", label: "Perioadă", value: periodNames[perioada] },
+    { key: "perioada", label: tr("Perioadă"), value: periodNames[perioada] },
     { key: "format", label: "Format", value: format ? formatNames[format] : undefined },
-    { key: "calendar", label: "Calendar ediții" },
+    { key: "calendar", label: tr("Calendar ediții") },
   ];
   const active = [perioada, format].filter(Boolean).length;
 

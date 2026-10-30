@@ -34,10 +34,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
               <div className="relative mt-5"><TierPill tier={profile.tier} /></div>
               {progress.next ? (
                 <div className="relative mt-5">
-                  <div className="h-1.5 overflow-hidden rounded-full bg-white/15" role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100} aria-label={`Progres către ${tierNames[progress.next]}`}>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/15" role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100} aria-label={tr("Progres către {v1}", { v1: tierNames[progress.next] })}>
                     <div className="h-full rounded-full bg-gold-bright" style={{ width: `${progress.percent}%` }} />
                   </div>
-                  <p className="mt-2 text-xs text-white/60">{progress.percent}{tr("% spre")}{" "}{tierNames[progress.next]}{progress.missing ? `, mai ai ${progress.missing}` : ""}</p>
+                  <p className="mt-2 text-xs text-white/60">{progress.percent}{tr("% spre")}{" "}{tierNames[progress.next]}{progress.missing ? tr(", mai ai {missing}", { missing: progress.missing }) : ""}</p>
                 </div>
               ) : profile.tier === "platinum" ? <p className="relative mt-4 text-xs text-white/60">{tr("Nivelul maxim")}</p> : null}
             </div>

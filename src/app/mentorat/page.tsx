@@ -1,13 +1,16 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { ButtonLink, Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 
-export const metadata: Metadata = {
-  title: "Mentorat clinic",
-  description: "Vino cu propriul pacient în cabinetul DMA și beneficiază de experiența echipei noastre, cu îndrumare în timpul intervenției sau în format over-the-shoulder.",
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return {
+  title: tr("Mentorat clinic"),
+  description: tr("Vino cu propriul pacient în cabinetul DMA și beneficiază de experiența echipei noastre, cu îndrumare în timpul intervenției sau în format over-the-shoulder."),
 };
+}
 
 export default function MentorshipPage() {
   return (
@@ -23,7 +26,7 @@ export default function MentorshipPage() {
           </Reveal>
           <Reveal className="lg:col-span-5" delay={120}>
             <ol className="space-y-5 rounded-[2rem] border border-line bg-card p-8">
-              {["Ne trimiți cazul și investigațiile disponibile.", "Echipa analizează informațiile și discută cu tine opțiunile.", "Stabilim împreună planul de tratament și rolul tău în intervenție.", "Intervenția are loc în cabinetul DMA."].map((t, i) => (
+              {[tr("Ne trimiți cazul și investigațiile disponibile."), tr("Echipa analizează informațiile și discută cu tine opțiunile."), tr("Stabilim împreună planul de tratament și rolul tău în intervenție."), tr("Intervenția are loc în cabinetul DMA.")].map((t, i) => (
                 <li key={t} className="flex gap-4"><span className="font-display text-3xl text-gold">{i + 1}</span><span className="pt-1.5">{t}</span></li>
               ))}
             </ol>

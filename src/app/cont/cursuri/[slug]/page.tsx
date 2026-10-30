@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
@@ -18,7 +18,10 @@ import { contact, directions } from "@/content/site";
 import { parseVideo } from "@/lib/video";
 import type { Course } from "@/lib/types";
 
-export const metadata: Metadata = { title: "Cursul meu", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Cursul meu"), robots: { index: false } };
+}
 
 export default async function MyCoursePage({
   params,
@@ -66,7 +69,7 @@ export default async function MyCoursePage({
   const dayFmt = new Intl.DateTimeFormat("ro-RO", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Bucharest" });
   const address = course.location || contact.address;
   const parking = course.parking_info || directions.parking;
-  const mapQ = encodeURIComponent(address.includes("București") ? address : `${address}, București`);
+  const mapQ = encodeURIComponent(address.includes("București") ? address : tr("{address}, București", { address: address }));
   const chapters = lessons.reduce<{ name: string | null; items: typeof lessons }[]>((acc, l) => {
     const last = acc[acc.length - 1];
     if (last && last.name === (l.chapter ?? null)) last.items.push(l);
@@ -86,11 +89,11 @@ export default async function MyCoursePage({
               <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright">{course.title}</p>
               <h1 id="event-title" className="font-display mt-3 text-balance text-4xl font-medium leading-tight sm:text-5xl">
-                {course.starts_at ? dayFmt.format(new Date(course.starts_at)) : "Data se anunță"}
+                {course.starts_at ? dayFmt.format(new Date(course.starts_at)) : tr("Data se anunță")}
               </h1>
               {course.starts_at ? (
                 <p className="mt-3 text-lg text-white/75">
-                  {timeFmt.format(new Date(course.starts_at))}{course.ends_at ? ` până la ${timeFmt.format(new Date(course.ends_at))}` : ""}
+                  {timeFmt.format(new Date(course.starts_at))}{course.ends_at ? tr(" până la {v1}", { v1: timeFmt.format(new Date(course.ends_at)) }) : ""}
                   {course.ends_at && dayFmt.format(new Date(course.ends_at)) !== dayFmt.format(new Date(course.starts_at)) ? `, ${dayFmt.format(new Date(course.ends_at))}` : ""}
                 </p>
               ) : null}
@@ -139,10 +142,10 @@ export default async function MyCoursePage({
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-8 text-white sm:p-12">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright">
-                    {lessons.length === 0 ? "Materiale în pregătire" : "Lecție fără video"}
+                    {lessons.length === 0 ? tr("Materiale în pregătire") : tr("Lecție fără video")}
                   </p>
                   <p className="font-display mt-3 max-w-xl text-2xl leading-snug sm:text-4xl">
-                    {lessons.length === 0 ? "Materialele video și suportul de curs vor apărea aici." : current?.title}
+                    {lessons.length === 0 ? tr("Materialele video și suportul de curs vor apărea aici.") : current?.title}
                   </p>
                 </div>
               </>
@@ -158,7 +161,7 @@ export default async function MyCoursePage({
               <div className="flex flex-wrap gap-2">
                 <form action={setLessonDone.bind(null, current.id, slug, !done.has(current.id))}>
                   <Button type="submit" variant={done.has(current.id) ? "ghost" : "gold"}>
-                    {done.has(current.id) ? "Marcată ca terminată" : "Marchează ca terminată"}
+                    {done.has(current.id) ? tr("Marcată ca terminată") : tr("Marchează ca terminată")}
                   </Button>
                 </form>
                 {next ? <ButtonLink href={`/cont/cursuri/${slug}?lectia=${next.id}`} variant="primary">{tr("Următoarea lecție")}</ButtonLink> : null}
@@ -176,8 +179,8 @@ export default async function MyCoursePage({
             {[
               ["Data", formatDateRange(course.starts_at, course.ends_at)],
               ["Format", formatLabels[course.format]],
-              ["Locație", course.location ?? "Se anunță"],
-              ["Limba", course.language ?? "Română"],
+              [tr("Locație"), course.location ?? tr("Se anunță")],
+              ["Limba", course.language ?? tr("Română")],
             ].map(([k, v]) => (
               <div key={k} className="bg-card p-6"><dt className="text-muted">{k}</dt><dd className="mt-1 font-medium">{v}</dd></div>
             ))}

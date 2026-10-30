@@ -1,11 +1,14 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { EmptyState } from "@/components/empty-state";
 import { getCurrentProfile, getMyOrders } from "@/lib/data";
 import { formatDate, formatPrice } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Comenzi", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Comenzi"), robots: { index: false } };
+}
 
 const statusLabel: Record<string, string> = { pending: "În așteptare", paid: "Plătită", failed: "Eșuată", refunded: "Rambursată", cancelled: "Anulată" };
 

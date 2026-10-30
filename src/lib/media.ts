@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -6,11 +7,11 @@ const allowed: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png
 /** Uploads an image to the public "media" bucket. Caller must have verified admin. Returns the public URL or an error text. */
 export async function uploadImage(file: File, folder: string, maxMb = 6): Promise<{ url: string } | { error: string }> {
   const ext = allowed[file.type];
-  if (!ext) return { error: "Format imagine neacceptat (JPG, PNG, WebP sau AVIF)." };
-  if (file.size > maxMb * 1024 * 1024) return { error: `Imaginea depășește ${maxMb} MB.` };
+  if (!ext) return { error: tr("Format imagine neacceptat (JPG, PNG, WebP sau AVIF).") };
+  if (file.size > maxMb * 1024 * 1024) return { error: tr("Imaginea depășește {maxMb} MB.", { maxMb: maxMb }) };
   const path = `${folder}/${crypto.randomUUID()}.${ext}`;
   const admin = createAdminClient();
   const { error } = await admin.storage.from("media").upload(path, await file.arrayBuffer(), { contentType: file.type, cacheControl: "31536000" });
-  if (error) return { error: "Încărcarea a eșuat." };
+  if (error) return { error: tr("Încărcarea a eșuat.") };
   return { url: admin.storage.from("media").getPublicUrl(path).data.publicUrl };
 }

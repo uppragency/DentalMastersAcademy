@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/server";
 import * as z from "zod";
 
 export type BillingProfile = {
@@ -24,10 +25,10 @@ export function validCui(raw: string) {
 }
 
 const base = {
-  name: z.string().trim().min(2, { error: "Completează numele." }).max(200),
-  address: z.string().trim().min(3, { error: "Completează adresa." }).max(300),
-  city: z.string().trim().min(2, { error: "Completează localitatea." }).max(100),
-  county: z.string().trim().min(2, { error: "Completează județul." }).max(100),
+  name: z.string().trim().min(2, { error: () => tr("Completează numele.") }).max(200),
+  address: z.string().trim().min(3, { error: () => tr("Completează adresa.") }).max(300),
+  city: z.string().trim().min(2, { error: () => tr("Completează localitatea.") }).max(100),
+  county: z.string().trim().min(2, { error: () => tr("Completează județul.") }).max(100),
 };
 
 export const billingSchema = z.discriminatedUnion("kind", [
@@ -39,7 +40,7 @@ export const billingSchema = z.discriminatedUnion("kind", [
       .string()
       .trim()
       .toUpperCase()
-      .refine(validCui, { error: "CUI invalid. Verifică cifrele (ex. RO12345678)." }),
+      .refine(validCui, { error: () => tr("CUI invalid. Verifică cifrele (ex. RO12345678).") }),
     reg_com: z.string().trim().max(40).optional(),
   }),
 ]);

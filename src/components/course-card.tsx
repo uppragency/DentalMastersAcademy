@@ -34,13 +34,13 @@ export function CourseCard({ course, ended = false }: { course: Course; ended?: 
         <h3 className="font-display mt-3 text-balance text-2xl font-medium leading-tight">{course.title}</h3>
         {course.powered_by ? <p className="mt-1 text-xs font-medium text-gold">{tr("Powered by")}{" "}{course.powered_by}</p> : null}
         {course.summary ? <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-muted">{course.summary}</p> : null}
-        <p className="mt-auto pt-6 text-sm text-muted">{course.starts_at ? formatDateRange(course.starts_at, course.ends_at) : "Data va fi anunțată"}</p>
+        <p className="mt-auto pt-6 text-sm text-muted">{course.starts_at ? formatDateRange(course.starts_at, course.ends_at) : tr("Data va fi anunțată")}</p>
         <div className="mt-4 flex items-end justify-between border-t border-line pt-5">
           <div>
             {course.old_price_cents ? (
               <span className="mr-2 text-sm text-muted line-through">{formatPrice(course.old_price_cents, course.currency)}</span>
             ) : null}
-            <span className="text-xl font-semibold tracking-tight">{isDateTbd(course) && course.price_cents === 0 ? "Preț în curând" : formatPrice(course.price_cents, course.currency)}</span>
+            <span className="text-xl font-semibold tracking-tight">{isDateTbd(course) && course.price_cents === 0 ? tr("Preț în curând") : formatPrice(course.price_cents, course.currency)}</span>
           </div>
           {ended ? <span className="sr-only">{tr("Înscrierile sunt închise")}</span> : null}
           <span className="inline-flex size-10 items-center justify-center rounded-full bg-ink text-white transition-all duration-300 group-hover:bg-gold group-hover:pl-0.5">

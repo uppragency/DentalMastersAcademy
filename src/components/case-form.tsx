@@ -49,10 +49,10 @@ export function CaseForm({ kind }: { kind: Kind }) {
     startTransition(async () => {
       let uploaded: { path: string; name: string; size: number }[] = [];
       if (files.length > 0) {
-        if (files.length > MAX_CASE_FILES) return setError(`Poți atașa cel mult ${MAX_CASE_FILES} fișiere.`);
+        if (files.length > MAX_CASE_FILES) return setError(tr("Poți atașa cel mult {mAX_CASE_FILES} fișiere.", { mAX_CASE_FILES: MAX_CASE_FILES }));
         const big = files.find((x) => x.size > MAX_CASE_FILE_BYTES);
-        if (big) return setError(`Fișierul ${big.name} depășește 50 MB.`);
-        setProgress("Se pregătește încărcarea...");
+        if (big) return setError(tr("Fișierul {name} depășește 50 MB.", { name: big.name }));
+        setProgress(tr("Se pregătește încărcarea..."));
         const prep = await prepareCaseUploads(files.map((x) => ({ name: x.name, size: x.size })), String((f.elements.namedItem("website") as HTMLInputElement).value));
         if (!prep.ok) {
           setProgress(null);
@@ -60,11 +60,11 @@ export function CaseForm({ kind }: { kind: Kind }) {
         }
         const supabase = createClient();
         for (const [i, u] of prep.uploads.entries()) {
-          setProgress(`Se încarcă fișierul ${i + 1} din ${files.length}...`);
+          setProgress(tr("Se încarcă fișierul {v1} din {v2}...", { v1: i + 1, v2: files.length }));
           const { error: upErr } = await supabase.storage.from("cases").uploadToSignedUrl(u.path, u.token, files[i]!);
           if (upErr) {
             setProgress(null);
-            return setError(`Fișierul ${u.name} nu a putut fi încărcat. Încearcă din nou.`);
+            return setError(tr("Fișierul {name} nu a putut fi încărcat. Încearcă din nou.", { name: u.name }));
           }
           uploaded = [...uploaded, { path: u.path, name: u.name, size: files[i]!.size }];
         }

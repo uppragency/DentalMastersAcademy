@@ -95,7 +95,7 @@ export function CheckoutForm({
                 <span>
                   <span className="block font-medium">{m === "card" ? "Card bancar" : "Transfer bancar"}</span>
                   <span className="mt-0.5 block text-sm text-muted">
-                    {m === "card" ? "Plată securizată prin Stripe. Locul este confirmat imediat. Apple Pay și Google Pay apar pe dispozitivele care le suportă." : "Primești datele bancare după comandă. Înscrierea se activează după ce confirmăm plata."}
+                    {m === "card" ? tr("Plată securizată prin Stripe. Locul este confirmat imediat. Apple Pay și Google Pay apar pe dispozitivele care le suportă.") : tr("Primești datele bancare după comandă. Înscrierea se activează după ce confirmăm plata.")}
                   </span>
                 </span>
               </label>
@@ -112,17 +112,17 @@ export function CheckoutForm({
       {state?.message ? (
         <p role="status" className="rounded-xl bg-gold-soft px-4 py-3 text-sm">
           {state.message}{" "}
-          {state.message.includes("Există deja un cont") ? (
+          {state.message.includes(tr("Există deja un cont")) ? (
             <Link href={`/autentificare?next=${encodeURIComponent(next)}`} className="font-medium underline underline-offset-4">{tr("Intră în cont")}</Link>
           ) : null}
         </p>
       ) : null}
 
       <Button type="submit" variant="gold" disabled={pending || (!free && method === "card" && !enabled)} className="w-full">
-        {pending ? "Se procesează..." : free ? "Confirmă înscrierea" : method === "transfer" ? "Plasează comanda" : totals && !totals.free ? `Plătește ${formatPrice(totals.total, totals.currency)}` : "Continuă către plată"}
+        {pending ? tr("Se procesează...") : free ? tr("Confirmă înscrierea") : method === "transfer" ? tr("Plasează comanda") : totals && !totals.free ? tr("Plătește {v1}", { v1: formatPrice(totals.total, totals.currency) }) : tr("Continuă către plată")}
       </Button>
       <ul className="grid gap-2 text-xs text-muted sm:grid-cols-2" aria-label={tr("Garanții")}>
-        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> {method === "card" ? "Plată securizată prin Stripe" : "Locul se rezervă imediat"}</li>
+        <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> {method === "card" ? tr("Plată securizată prin Stripe") : tr("Locul se rezervă imediat")}</li>
         <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> {" "}{tr("Factură fiscală după confirmarea plății")}</li>
         <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> <Link href="/rambursare" className="underline underline-offset-4 hover:text-foreground">{tr("Politica de rambursare și transfer")}</Link></li>
         <li className="flex items-center gap-2"><span aria-hidden="true" className="text-gold">✓</span> {" "}{tr("Întrebări?")}{" "}<a href={contact.phoneHref} className="underline underline-offset-4 hover:text-foreground">{contact.phone}</a></li>

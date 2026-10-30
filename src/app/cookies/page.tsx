@@ -1,10 +1,13 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { contact } from "@/content/site";
 import { LegalShell, LegalText } from "@/components/legal-text";
 import { getLegalText } from "@/lib/site-content";
 
-export const metadata: Metadata = { title: "Politica de cookies", description: "Ce cookie-uri folosește Dental Masters Academy, în ce scop și cât timp sunt păstrate, plus cum le poți controla.", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Politica de cookies"), description: tr("Ce cookie-uri folosește Dental Masters Academy, în ce scop și cât timp sunt păstrate, plus cum le poți controla."), robots: { index: false } };
+}
 
 const rows = [
   { name: "sb-*-auth-token", purpose: "Menține sesiunea ta autentificată în cont.", duration: "Sesiune, reînnoit la autentificare", kind: "Strict necesar" },

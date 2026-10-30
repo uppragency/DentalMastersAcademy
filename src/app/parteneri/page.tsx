@@ -1,14 +1,17 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { getPartnerRows } from "@/lib/data";
 
-export const metadata: Metadata = {
-  title: "Partenerii noștri",
-  description: "Companiile și laboratorul care susțin educația clinică din Dental Masters Academy: Straumann, iDentical Lab, DÜRR Dental, Invictus și G-Diff.",
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return {
+  title: tr("Partenerii noștri"),
+  description: tr("Companiile și laboratorul care susțin educația clinică din Dental Masters Academy: Straumann, iDentical Lab, DÜRR Dental, Invictus și G-Diff."),
 };
+}
 
 export default async function PartnersPage() {
   const partners = await getPartnerRows();

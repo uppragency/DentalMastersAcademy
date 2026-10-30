@@ -20,7 +20,7 @@ export async function SiteHeader() {
   const userId = data?.claims?.sub as string | undefined;
   const [unread, courses, profile, trainers] = await Promise.all([userId ? getUnreadCount(userId) : Promise.resolve(0), getCourses(), userId ? getCurrentProfile() : Promise.resolve(null), getTrainers()]);
   const now = nowMs();
-  const line = (c: (typeof courses)[number]) => (c.starts_at ? formatDateRange(c.starts_at, c.ends_at) : "Data va fi anunțată");
+  const line = (c: (typeof courses)[number]) => (c.starts_at ? formatDateRange(c.starts_at, c.ends_at) : tr("Data va fi anunțată"));
   const hostedLine = (c: (typeof courses)[number]) => [c.trainer_name, c.powered_by ? `powered by ${c.powered_by}` : null].filter(Boolean).join(" · ");
   const open = courses.filter((c) => !isEnded(c, now));
   const navData = {
@@ -31,10 +31,10 @@ export async function SiteHeader() {
   };
   const faculty = trainers.filter((t) => !t.is_founder);
   const mobileItems = [
-    { href: "/cine-suntem", label: "Cine suntem", children: [{ href: "/cine-suntem", label: "Conceptul DMA" }, ...trainers.filter((t) => t.is_founder).map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/lectori", label: "Lectorii noștri" }, ...faculty.map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/parteneri", label: "Partenerii noștri" }] },
-    { href: "/cursuri", label: "Cursuri și workshopuri", children: [...navData.dma.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), ...navData.hosted.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), { href: "/mentorat", label: "Mentorat clinic" }] },
+    { href: "/cine-suntem", label: "Cine suntem", children: [{ href: "/cine-suntem", label: "Conceptul DMA" }, ...trainers.filter((t) => t.is_founder).map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/lectori", label: tr("Lectorii noștri") }, ...faculty.map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/parteneri", label: tr("Partenerii noștri") }] },
+    { href: "/cursuri", label: tr("Cursuri și workshopuri"), children: [...navData.dma.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), ...navData.hosted.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), { href: "/mentorat", label: "Mentorat clinic" }] },
     { href: "/testimoniale", label: "Testimoniale", children: [{ href: "/testimoniale#t-foto", label: "Galerii foto" }, { href: "/testimoniale#t-text", label: "Testimoniale text" }, { href: "/testimoniale#t-video", label: "Testimoniale video" }] },
-    { href: "/contact", label: "Contact", children: [{ href: "/contact#medici", label: "Pentru medici" }, { href: "/contact#pacienti", label: "Pentru pacienți" }] },
+    { href: "/contact", label: "Contact", children: [{ href: "/contact#medici", label: tr("Pentru medici") }, { href: "/contact#pacienti", label: tr("Pentru pacienți") }] },
     { href: "/blog", label: "Blog" },
   ];
 

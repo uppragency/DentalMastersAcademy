@@ -1,9 +1,11 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useState } from "react";
 import { Button } from "@/components/ui";
 
-export function CopyButton({ value, label = "Copiază linkul" }: { value: string; label?: string }) {
+export function CopyButton({ value, label = tr("Copiază linkul") }: { value: string; label?: string }) {
+  const tr = useT();
   const [done, setDone] = useState(false);
   return (
     <Button
@@ -20,7 +22,7 @@ export function CopyButton({ value, label = "Copiază linkul" }: { value: string
         }
       }}
     >
-      {done ? "Copiat" : label}
+      {done ? tr("Copiat") : tr(label)}
     </Button>
   );
 }

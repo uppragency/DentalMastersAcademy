@@ -26,20 +26,20 @@ export function OrderStepper({
   const transfer = source === "transfer";
 
   const steps: Step[] = [
-    { label: "Comandă plasată", note: formatDate(createdAt), state: "done" },
+    { label: tr("Comandă plasată"), note: formatDate(createdAt), state: "done" },
     {
-      label: dead ? (status === "failed" ? "Plata a eșuat" : "Comandă anulată") : "Plată primită",
-      note: paid && paidAt ? formatDate(paidAt) : dead ? undefined : transfer && expiresAt ? `Așteptăm transferul până ${formatDeadline(expiresAt)}` : "Așteptăm confirmarea plății",
+      label: dead ? (status === "failed" ? tr("Plata a eșuat") : tr("Comandă anulată")) : tr("Plată primită"),
+      note: paid && paidAt ? formatDate(paidAt) : dead ? undefined : transfer && expiresAt ? tr("Așteptăm transferul până {v1}", { v1: formatDeadline(expiresAt) }) : tr("Așteptăm confirmarea plății"),
       state: paid ? "done" : dead ? "failed" : "current",
     },
-    { label: "Înscriere activată", note: paid && paidAt ? formatDate(paidAt) : undefined, state: paid ? "done" : "todo" },
+    { label: tr("Înscriere activată"), note: paid && paidAt ? formatDate(paidAt) : undefined, state: paid ? "done" : "todo" },
     {
-      label: "Factură emisă",
-      note: invoiceNumber ?? (paid ? "Se emite în curând" : undefined),
+      label: tr("Factură emisă"),
+      note: invoiceNumber ?? (paid ? tr("Se emite în curând") : undefined),
       state: invoiceNumber ? "done" : paid ? "current" : "todo",
     },
   ];
-  if (status === "refunded") steps.push({ label: "Rambursată", state: "done" });
+  if (status === "refunded") steps.push({ label: tr("Rambursată"), state: "done" });
 
   const dot: Record<State, string> = {
     done: "border-gold bg-gold text-white",

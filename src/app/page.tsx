@@ -69,7 +69,7 @@ export default async function HomePage() {
                 style={{ ["--r" as string]: "-1deg", animationDelay: "-3s" }}
               >
                 <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold-bright">
-                  {isEnded(next, now) ? "Ultima ediție" : "Următorul curs"}
+                  {isEnded(next, now) ? tr("Ultima ediție") : tr("Următorul curs")}
                 </span>
                 <span className="font-display mt-2 block text-xl leading-snug">{next.title}</span>
                 <span className="mt-3 flex items-center justify-between text-sm text-white/70">
@@ -253,10 +253,10 @@ export default async function HomePage() {
                   </div>
                   <ul className="grid gap-4 sm:grid-cols-2">
                     {[
-                      [`${Number(loyalty.gold_discount_percent)}%`, "reducere automată la cursurile viitoare"],
-                      ["Gratuit", "acces la activitățile marcate Gold"],
-                      ["Automat", "statusul se acordă pe baza istoricului tău"],
-                      ["Vizibil", "progresul către Gold, în contul tău"],
+                      [`${Number(loyalty.gold_discount_percent)}%`, tr("reducere automată la cursurile viitoare")],
+                      ["Gratuit", tr("acces la activitățile marcate Gold")],
+                      ["Automat", tr("statusul se acordă pe baza istoricului tău")],
+                      ["Vizibil", tr("progresul către Gold, în contul tău")],
                     ].map(([a, b]) => (
                       <li key={a} className="glass rounded-3xl p-6">
                         <p className="font-display text-3xl text-gold-bright">{a}</p>

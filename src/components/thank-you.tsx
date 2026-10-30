@@ -36,18 +36,18 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
   const link = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/r/${me?.referral_code ?? ""}`;
 
   const transferSteps = [
-    { t: "Fă plata prin transfer bancar", d: "Folosește datele din cardul de mai jos și scrie numărul comenzii la detalii, ca să o recunoaștem imediat." },
-    { t: "Trimite dovada de plată", d: `Răspunde la emailul primit sau scrie-ne la ${contact.ordersEmail}, cu o captură a transferului.` },
-    { t: "Îți activăm înscrierea", d: "După ce vedem banii în cont, primești confirmarea pe email și cursul apare în contul tău. Factura se emite la confirmare." },
+    { t: tr("Fă plata prin transfer bancar"), d: tr("Folosește datele din cardul de mai jos și scrie numărul comenzii la detalii, ca să o recunoaștem imediat.") },
+    { t: tr("Trimite dovada de plată"), d: tr("Răspunde la emailul primit sau scrie-ne la {ordersEmail}, cu o captură a transferului.", { ordersEmail: contact.ordersEmail }) },
+    { t: tr("Îți activăm înscrierea"), d: tr("După ce vedem banii în cont, primești confirmarea pe email și cursul apare în contul tău. Factura se emite la confirmare.") },
   ];
   const steps = isTransfer ? transferSteps : [
-    { t: "Confirmarea ajunge pe email", d: `Am trimis detaliile la ${profile.email}. Dacă nu o găsești în câteva minute, verifică și Spam.` },
+    { t: "Confirmarea ajunge pe email", d: tr("Am trimis detaliile la {email}. Dacă nu o găsești în câteva minute, verifică și Spam.", { email: profile.email }) },
     physical
-      ? { t: "Te pregătim pentru curs", d: "Cu 7 zile înainte primești un email cu programul pe zile, parcarea și ce să aduci." }
-      : { t: "Cursul este în contul tău", d: "Lecțiile și materialele sunt disponibile imediat în Cursurile mele, în ritmul tău." },
+      ? { t: tr("Te pregătim pentru curs"), d: tr("Cu 7 zile înainte primești un email cu programul pe zile, parcarea și ce să aduci.") }
+      : { t: tr("Cursul este în contul tău"), d: tr("Lecțiile și materialele sunt disponibile imediat în Cursurile mele, în ritmul tău.") },
     free
-      ? { t: "Totul rămâne în contul tău", d: "Găsești cursul, programul și notificările în Cursurile mele, oricând." }
-      : { t: "Factura și dovada de plată", d: "Le găsești oricând în contul tău, la Achiziții. Factura fiscală apare acolo imediat ce este emisă." },
+      ? { t: tr("Totul rămâne în contul tău"), d: tr("Găsești cursul, programul și notificările în Cursurile mele, oricând.") }
+      : { t: tr("Factura și dovada de plată"), d: tr("Le găsești oricând în contul tău, la Achiziții. Factura fiscală apare acolo imediat ce este emisă.") },
   ];
 
   return (
@@ -62,21 +62,21 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
             <svg viewBox="0 0 24 24" className="size-8" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
           </div>
           <p className="rise mt-8 text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright" style={{ ["--d" as string]: "80ms" }}>
-            {isTransfer ? "Loc rezervat" : free ? "Înscriere confirmată" : paid ? "Plată confirmată" : waiting ? "Confirmăm plata" : "Comandă înregistrată"}
+            {isTransfer ? "Loc rezervat" : free ? tr("Înscriere confirmată") : paid ? tr("Plată confirmată") : waiting ? tr("Confirmăm plata") : tr("Comandă înregistrată")}
           </p>
           <h1 className="rise font-display mt-4 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "140ms" }}>
-            {tr("Mulțumim")}{first ? `, ${first}` : ""}. <span className="text-gold-sheen">{isTransfer ? "Mai ai un singur pas." : "Ne vedem la curs."}</span>
+            {tr("Mulțumim")}{first ? `, ${first}` : ""}. <span className="text-gold-sheen">{isTransfer ? tr("Mai ai un singur pas.") : tr("Ne vedem la curs.")}</span>
           </h1>
           <p className="rise mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-white/65" style={{ ["--d" as string]: "220ms" }}>
             {isTransfer
-              ? `Locul tău este rezervat până ${formatDeadline(transfer!.deadline)}. Finalizează plata prin transfer bancar, iar înscrierea se activează imediat ce o confirmăm.`
+              ? tr("Locul tău este rezervat până {v1}. Finalizează plata prin transfer bancar, iar înscrierea se activează imediat ce o confirmăm.", { v1: formatDeadline(transfer!.deadline) })
               : free
-              ? "Locul tău este rezervat, fără nimic de plătit. Echipa Dental Masters Academy te așteaptă cu drag."
+              ? tr("Locul tău este rezervat, fără nimic de plătit. Echipa Dental Masters Academy te așteaptă cu drag.")
               : paid
-              ? "Locul tău este rezervat. Ai făcut un pas important pentru practica ta, iar echipa Dental Masters Academy este alături de tine de acum înainte."
+              ? tr("Locul tău este rezervat. Ai făcut un pas important pentru practica ta, iar echipa Dental Masters Academy este alături de tine de acum înainte.")
               : waiting
-                ? "Banca ne confirmă plata, de obicei în câteva secunde. Pagina se actualizează singură, nu este nevoie să o reîncarci."
-                : "Comanda ta a fost înregistrată. Dacă ai întrebări, ne poți scrie oricând."}
+                ? tr("Banca ne confirmă plata, de obicei în câteva secunde. Pagina se actualizează singură, nu este nevoie să o reîncarci.")
+                : tr("Comanda ta a fost înregistrată. Dacă ai întrebări, ne poți scrie oricând.")}
           </p>
         </Container>
       </section>
@@ -108,7 +108,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
                   <dt className="text-muted">{tr("Detalii plată")}</dt><dd className="font-medium">{tr("Comanda")}{" "}{o.id.slice(0, 8).toUpperCase()}</dd>
                   <dt className="text-muted">{tr("Termen")}</dt><dd className="font-medium">{formatDeadline(transfer!.deadline)}</dd>
                 </dl>
-                {ibans.length > 0 ? <div className="mt-5 flex flex-wrap gap-3">{ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? `Copiază IBAN ${i.label}` : "Copiază IBAN"} />)}</div> : null}
+                {ibans.length > 0 ? <div className="mt-5 flex flex-wrap gap-3">{ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? tr("Copiază IBAN {label}", { label: i.label }) : tr("Copiază IBAN")} />)}</div> : null}
                 <p className="mt-5 text-xs leading-relaxed text-muted">{tr("Am trimis aceste date și pe email. Dacă plata nu ajunge până la termen, comanda se anulează automat, iar locul se eliberează.")}</p>
               </section>
           </div>
@@ -124,16 +124,16 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
               </div>
               <div className="p-7 sm:p-9">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{o ? `Comanda ${o.id.slice(0, 8).toUpperCase()}` : "Înscriere gratuită"}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{o ? tr("Comanda {v1}", { v1: o.id.slice(0, 8).toUpperCase() }) : tr("Înscriere gratuită")}</p>
                 <h2 className="font-display mt-3 text-3xl leading-snug">{course.title}</h2>
                 <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
                   {course.starts_at ? (<><dt className="text-muted">{tr("Data")}</dt><dd>{formatDateRange(course.starts_at, course.ends_at)}</dd></>) : null}
                   <dt className="text-muted">{tr("Format")}</dt><dd>{formatLabels[course.format]}</dd>
                   {course.location ? (<><dt className="text-muted">{tr("Locație")}</dt><dd>{course.location}</dd></>) : null}
-                  <dt className="text-muted">{isTransfer ? "De plată" : o ? "Total plătit" : "Preț"}</dt><dd className="font-semibold">{o ? formatPrice(o.total_cents, o.currency.trim()) : "Gratuit"}</dd>
+                  <dt className="text-muted">{isTransfer ? tr("De plată") : o ? tr("Total plătit") : tr("Preț")}</dt><dd className="font-semibold">{o ? formatPrice(o.total_cents, o.currency.trim()) : "Gratuit"}</dd>
                 </dl>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  {isTransfer ? <ButtonLink href="/cont">{tr("Mergi în contul meu")}</ButtonLink> : <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? "Vezi detaliile cursului" : "Începe cursul"}</ButtonLink>}
+                  {isTransfer ? <ButtonLink href="/cont">{tr("Mergi în contul meu")}</ButtonLink> : <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? "Vezi detaliile cursului" : tr("Începe cursul")}</ButtonLink>}
                   {!isTransfer && course.starts_at ? <a href={`/cont/cursuri/${course.slug}/calendar.ics`} className="inline-flex min-h-12 items-center rounded-full border border-line px-6 text-sm font-medium hover:border-foreground/30">{tr("Adaugă în calendar")}</a> : null}
                   {o && !isTransfer ? <ButtonLink href={`/cont/comenzi/${o.id}`} variant="ghost">{tr("Dovadă de plată")}</ButtonLink> : null}
                 </div>

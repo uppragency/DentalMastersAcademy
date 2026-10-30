@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useSyncExternalStore } from "react";
 import { saveTheme } from "@/actions/account";
 
@@ -11,6 +12,7 @@ const subscribe = (cb: () => void) => {
 const snapshot = () => document.documentElement.dataset.theme === "dark";
 
 export function ThemeToggle() {
+  const tr = useT();
   const dark = useSyncExternalStore(subscribe, snapshot, () => false);
   const toggle = () => {
     const next = dark ? "light" : "dark";
@@ -19,7 +21,7 @@ export function ThemeToggle() {
     void saveTheme(next);
   };
   return (
-    <button type="button" onClick={toggle} aria-pressed={dark} aria-label={dark ? "Comută la tema deschisă" : "Comută la tema închisă"} className="flex size-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white">
+    <button type="button" onClick={toggle} aria-pressed={dark} aria-label={dark ? tr("Comută la tema deschisă") : tr("Comută la tema închisă")} className="flex size-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white">
       {dark ? (
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600l1.400 1.400M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400" /></svg>
       ) : (

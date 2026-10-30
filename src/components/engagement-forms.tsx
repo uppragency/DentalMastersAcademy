@@ -25,7 +25,7 @@ export function MaterialForm({ courseId, slug }: { courseId: string; slug: strin
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="notify" defaultChecked className="size-4 accent-[#a9833d]" /> {" "}{tr("Notifică cursanții în cont")}</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="email" className="size-4 accent-[#a9833d]" /> {" "}{tr("Trimite și email")}</label>
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Adaugă materialul"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? tr("Se salvează...") : tr("Adaugă materialul")}</Button>
     </form>
   );
 }
@@ -44,7 +44,7 @@ export function AnnounceForm({ courseId, slug }: { courseId: string; slug: strin
       </div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="email" defaultChecked className="size-4 accent-[#a9833d]" /> {" "}{tr("Trimite și email")}</label>
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending}>{pending ? "Se trimite..." : "Trimite anunțul"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? "Se trimite..." : tr("Trimite anunțul")}</Button>
     </form>
   );
 }

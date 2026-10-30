@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { Container, SectionTitle } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
@@ -9,7 +9,10 @@ import { getAlbums, getTestimonials, getTestimonialVideos } from "@/lib/data";
 import { drName } from "@/lib/names";
 import { parseVideo } from "@/lib/video";
 
-export const metadata: Metadata = { title: "Testimoniale", description: "Ce spun medicii stomatologi care au participat la cursurile Dental Masters Academy: fotografii din ediții, mărturii scrise și video." };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Testimoniale"), description: tr("Ce spun medicii stomatologi care au participat la cursurile Dental Masters Academy: fotografii din ediții, mărturii scrise și video.") };
+}
 
 export default async function TestimonialsPage() {
   const [items, albums, videos] = await Promise.all([getTestimonials(), getAlbums(), getTestimonialVideos()]);

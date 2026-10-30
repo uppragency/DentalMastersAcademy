@@ -25,7 +25,7 @@ export function JourneyMap({ nodes }: { nodes: JourneyNode[] }) {
             {i < nodes.length - 1 ? <span aria-hidden="true" className="absolute bottom-0 left-3.5 top-7 w-px bg-line lg:bottom-auto lg:left-7 lg:right-0 lg:top-3.5 lg:h-px lg:w-auto" /> : null}
             <Link href={n.state === "open" ? `/cursuri/${n.course.slug}` : `/cont/cursuri/${n.course.slug}`} className="block rounded-2xl pr-4 hover:text-gold">
               <span className="block text-sm font-medium leading-snug">{n.course.title}</span>
-              <span className="mt-1 block text-xs text-muted">{n.state === "done" ? "Parcurs" : n.state === "booked" ? "Înscris" : "Disponibil"}</span>
+              <span className="mt-1 block text-xs text-muted">{n.state === "done" ? "Parcurs" : n.state === "booked" ? tr("Înscris") : "Disponibil"}</span>
             </Link>
           </li>
         ))}
@@ -36,10 +36,10 @@ export function JourneyMap({ nodes }: { nodes: JourneyNode[] }) {
 
 export function Badges({ courses, gold, platinum = false }: { courses: number; gold: boolean; platinum?: boolean }) {
   const list = [
-    { label: "Cursant", on: courses >= 1, hint: "Prima înscriere la un curs" },
-    { label: "Master în curs", on: courses >= 2, hint: "Cel puțin două cursuri" },
+    { label: "Cursant", on: courses >= 1, hint: tr("Prima înscriere la un curs") },
+    { label: tr("Master în curs"), on: courses >= 2, hint: tr("Cel puțin două cursuri") },
     { label: "Gold", on: gold, hint: "Membru al programului Gold" },
-    { label: "Platinum", on: platinum, hint: "Cel mai înalt nivel al programului" },
+    { label: "Platinum", on: platinum, hint: tr("Cel mai înalt nivel al programului") },
   ];
   return (
     <ul className="flex flex-wrap gap-2" aria-label={tr("Insigne")}>

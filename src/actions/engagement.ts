@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, tr } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -25,8 +25,8 @@ async function notifyEnrolled(courseId: string, opts: { title: string; body: str
         to: r.profiles.email,
         subject: opts.subject ?? opts.title,
         heading: opts.title,
-        paragraphs: [`${r.profiles.full_name ? `Bună, ${r.profiles.full_name}.` : "Bună."} ${opts.body}`],
-        cta: { label: "Deschide în cont", href: opts.href },
+        paragraphs: [tr("{v1} {body}", { v1: r.profiles.full_name ? tr("Bună, {full_name}.", { full_name: r.profiles.full_name }) : tr("Bună."), body: opts.body })],
+        cta: { label: tr("Deschide în cont"), href: opts.href },
         kind: "announcement",
       });
     }
@@ -45,13 +45,13 @@ export async function announceToEnrolled(courseId: string, slug: string, _: Form
   const parsed = announceSchema.safeParse({ title: formData.get("title"), body: formData.get("body") });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   const n = await notifyEnrolled(courseId, { ...parsed.data, href: `/cont/cursuri/${slug}`, email: formData.get("email") === "on" });
-  return { message: n ? `Anunț trimis către ${n} cursanți.` : "Nu există cursanți înscriși." };
+  return { message: n ? tr("Anunț trimis către {n} cursanți.", { n: n }) : tr("Nu există cursanți înscriși.") };
 }
 
 const materialSchema = z.object({
   title: z.string().trim().min(2, { error: "Introdu titlul." }).max(200),
   description: z.string().trim().max(500).optional(),
-  url: z.string().trim().url({ error: "Link invalid." }).startsWith("https://", { error: "Linkul trebuie să înceapă cu https://" }).optional(),
+  url: z.string().trim().url({ error: "Link invalid." }).startsWith("https://", { error: () => tr("Linkul trebuie să înceapă cu https://") }).optional(),
 });
 
 export async function addMaterial(courseId: string, slug: string, _: FormState, formData: FormData): Promise<FormState> {
@@ -62,19 +62,19 @@ export async function addMaterial(courseId: string, slug: string, _: FormState, 
   const file = formData.get("file");
   let file_path: string | null = null;
   if (file instanceof File && file.size > 0) {
-    if (file.size > 4 * 1024 * 1024) return { message: "Fișierul depășește 4 MB. Folosește un link pentru fișiere mari." };
+    if (file.size > 4 * 1024 * 1024) return { message: tr("Fișierul depășește 4 MB. Folosește un link pentru fișiere mari.") };
     const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "bin";
     file_path = `${courseId}/${crypto.randomUUID()}.${ext}`;
     const up = await createAdminClient().storage.from("materials").upload(file_path, await file.arrayBuffer(), { contentType: file.type || "application/octet-stream" });
-    if (up.error) return { message: "Încărcarea fișierului a eșuat." };
+    if (up.error) return { message: tr("Încărcarea fișierului a eșuat.") };
   }
-  if (!file_path && !parsed.data.url) return { errors: { url: ["Adaugă un fișier sau un link."] } };
+  if (!file_path && !parsed.data.url) return { errors: { url: [tr("Adaugă un fișier sau un link.")] } };
   const { error } = await supabase.from("course_materials").insert({ course_id: courseId, ...parsed.data, url: parsed.data.url ?? null, file_path });
-  if (error) return { message: "Materialul nu a putut fi salvat." };
-  let msg = "Material adăugat.";
+  if (error) return { message: tr("Materialul nu a putut fi salvat.") };
+  let msg = tr("Material adăugat.");
   if (formData.get("notify") === "on") {
-    const n = await notifyEnrolled(courseId, { title: `Material nou: ${parsed.data.title}`, body: "A fost adăugat un material nou la cursul tău.", href: `/cont/cursuri/${slug}`, email: formData.get("email") === "on" });
-    msg += ` Cursanți notificați: ${n}.`;
+    const n = await notifyEnrolled(courseId, { title: `Material nou: ${parsed.data.title}`, body: tr("A fost adăugat un material nou la cursul tău."), href: `/cont/cursuri/${slug}`, email: formData.get("email") === "on" });
+    msg += tr(" Cursanți notificați: {n}.", { n: n });
   }
   revalidatePath(`/cont/cursuri/${slug}`);
   return { message: msg };
@@ -109,14 +109,14 @@ export async function sendConfirmationLetters(courseId: string): Promise<void> {
   const list = (rows ?? []) as unknown as { user_id: string; profiles: { email: string; full_name: string | null } | null }[];
   if (!course) return;
   for (const r of list) {
-    await admin.from("notifications").insert({ user_id: r.user_id, kind: "info", title: "Adeverința de participare este disponibilă", body: course.title, href: `/cont/cursuri/${course.slug}/adeverinta` });
+    await admin.from("notifications").insert({ user_id: r.user_id, kind: "info", title: tr("Adeverința de participare este disponibilă"), body: course.title, href: `/cont/cursuri/${course.slug}/adeverinta` });
     if (r.profiles?.email) {
       await sendMail({
         to: r.profiles.email,
-        subject: `Adeverință de participare: ${course.title}`,
-        heading: "Adeverința ta de participare",
-        paragraphs: [`Mulțumim că ai participat la ${course.title}. Adeverința poate fi deschisă și printată din contul tău.`],
-        cta: { label: "Deschide adeverința", href: `/cont/cursuri/${course.slug}/adeverinta` },
+        subject: tr("Adeverință de participare: {title}", { title: course.title }),
+        heading: tr("Adeverința ta de participare"),
+        paragraphs: [tr("Mulțumim că ai participat la {title}. Adeverința poate fi deschisă și printată din contul tău.", { title: course.title })],
+        cta: { label: tr("Deschide adeverința"), href: `/cont/cursuri/${course.slug}/adeverinta` },
         kind: "certificate",
         userId: r.user_id,
       });
@@ -126,24 +126,24 @@ export async function sendConfirmationLetters(courseId: string): Promise<void> {
 }
 
 /* Verified review */
-const reviewSchema = z.object({ quote: z.string().trim().min(20, { error: "Scrie cel puțin 20 de caractere." }).max(1200) });
+const reviewSchema = z.object({ quote: z.string().trim().min(20, { error: () => tr("Scrie cel puțin 20 de caractere.") }).max(1200) });
 
 export async function submitReview(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
   await getLocale();
   const profile = await getCurrentProfile();
-  if (!profile) return { message: "Autentifică-te pentru a trimite o recenzie." };
+  if (!profile) return { message: tr("Autentifică-te pentru a trimite o recenzie.") };
   const parsed = reviewSchema.safeParse({ quote: formData.get("quote") });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
   const supabase = await createClient();
   const { data: enr } = await supabase.from("enrollments").select("id, courses(starts_at, ends_at, title)").eq("user_id", profile.id).eq("course_id", courseId).maybeSingle();
   const course = (enr as unknown as { courses: { starts_at: string | null; ends_at: string | null; title: string } | null } | null)?.courses;
-  if (!enr || !course) return { message: "Poți recenza doar cursurile la care ești înscris." };
-  if (!isEnded(course, Date.now())) return { message: "Recenzia se poate trimite după încheierea cursului." };
+  if (!enr || !course) return { message: tr("Poți recenza doar cursurile la care ești înscris.") };
+  if (!isEnded(course, Date.now())) return { message: tr("Recenzia se poate trimite după încheierea cursului.") };
 
   const admin = createAdminClient();
   const { count } = await admin.from("testimonials").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("course_id", courseId);
-  if ((count ?? 0) > 0) return { message: "Ai trimis deja o recenzie pentru acest curs." };
+  if ((count ?? 0) > 0) return { message: tr("Ai trimis deja o recenzie pentru acest curs.") };
   const { error } = await admin.from("testimonials").insert({
     author_name: profile.full_name ?? "Cursant",
     author_title: [profile.specialization, course.title].filter(Boolean).join(", "),
@@ -154,6 +154,6 @@ export async function submitReview(courseId: string, _: FormState, formData: For
     course_id: courseId,
     sort_order: 100,
   });
-  if (error) return { message: "Recenzia nu a putut fi trimisă." };
-  return { message: "Mulțumim! Recenzia va apărea pe site după aprobarea echipei." };
+  if (error) return { message: tr("Recenzia nu a putut fi trimisă.") };
+  return { message: tr("Mulțumim! Recenzia va apărea pe site după aprobarea echipei.") };
 }

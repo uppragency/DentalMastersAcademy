@@ -34,7 +34,7 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
         type="button"
         aria-expanded={open}
         aria-controls="mobile-nav"
-        aria-label={open ? "Închide meniul" : "Deschide meniul"}
+        aria-label={open ? tr("Închide meniul") : "Deschide meniul"}
         onClick={() => setOpen((v) => !v)}
         className="relative flex size-11 items-center justify-center rounded-full text-white hover:bg-white/10"
       >
@@ -80,7 +80,7 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
           onClick={() => setOpen(false)}
           className="mt-8 flex min-h-12 items-center justify-center rounded-full bg-gold-bright text-base font-semibold text-ink"
         >
-          {signedIn ? "Contul meu" : "Intră în cont"}
+          {signedIn ? "Contul meu" : tr("Intră în cont")}
         </Link>
         <div className="mt-8"><LanguageSwitch variant="mobile" /></div>
         </div>

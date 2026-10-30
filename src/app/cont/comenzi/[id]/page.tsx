@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
@@ -14,7 +14,10 @@ import { PrintButton } from "@/components/print-button";
 import { OrderStepper } from "@/components/order-stepper";
 import { nowMs } from "@/lib/time";
 
-export const metadata: Metadata = { title: "Comandă", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Comandă"), robots: { index: false } };
+}
 
 type Billing = { kind?: string; name?: string; cui?: string; reg_com?: string; address?: string; city?: string; county?: string } | null;
 type Order = {
@@ -56,12 +59,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const cur = o.currency.trim();
   const paid = o.status === "paid" || o.status === "refunded";
   const isTransfer = o.source === "transfer" || o.provider === "transfer" || o.provider === "bank";
-  const method = o.provider === "manual" || o.source === "manual" ? "Înscriere manuală" : isTransfer ? "Transfer bancar" : "Card bancar (Stripe)";
+  const method = o.provider === "manual" || o.source === "manual" ? tr("Înscriere manuală") : isTransfer ? "Transfer bancar" : "Card bancar (Stripe)";
   const course = o.order_items[0]?.courses;
   const activeTransfer = o.status === "pending" && o.source === "transfer" && o.expires_at && Date.parse(o.expires_at) > nowMs();
   const cardPending = o.status === "pending" && o.source !== "transfer";
   const codeOrTier = o.discount_cents - o.points_discount_cents;
-  const discountLabel = o.discount_code ? `Cod ${o.discount_code}` : o.tier_at_purchase && tierLabel[o.tier_at_purchase] ? `Reducere ${tierLabel[o.tier_at_purchase]}` : "Reducere";
+  const discountLabel = o.discount_code ? tr("Cod {discount_code}", { discount_code: o.discount_code }) : o.tier_at_purchase && tierLabel[o.tier_at_purchase] ? tr("Reducere {v1}", { v1: tierLabel[o.tier_at_purchase] }) : "Reducere";
 
   let bank = "";
   if (activeTransfer) {
@@ -78,9 +81,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <Link href="/cont/comenzi" className="text-sm text-muted hover:text-foreground print:hidden">{tr("← Înapoi la achiziții")}</Link>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <h1 className="font-display text-4xl font-medium">{tr("Comanda")}{" "}{shortId}</h1>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone[o.status] ?? "bg-card"}`}>{statusLabel[o.status] ?? o.status}</span>
+        <span className={tr("rounded-full px-3 py-1 text-xs font-semibold {v1}", { v1: statusTone[o.status] ?? "bg-card" })}>{statusLabel[o.status] ?? o.status}</span>
       </div>
-      <p className="mt-2 text-sm text-muted">{tr("Plasată pe")}{" "}{formatDate(o.created_at)}{paid && o.paid_at ? `, plătită pe ${formatDate(o.paid_at)}` : ""}.</p>
+      <p className="mt-2 text-sm text-muted">{tr("Plasată pe")}{" "}{formatDate(o.created_at)}{paid && o.paid_at ? tr(", plătită pe {v1}", { v1: formatDate(o.paid_at) }) : ""}.</p>
 
       <OrderStepper status={o.status} source={o.source} createdAt={o.created_at} paidAt={o.paid_at} expiresAt={o.expires_at} invoiceNumber={o.invoice_number} />
 
@@ -104,7 +107,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 <li><span className="font-semibold">{tr("3. Îți activăm înscrierea")}</span> {" "}{tr("după ce vedem banii în cont. Factura se emite la confirmare.")}</li>
               </ol>
               <div className="mt-5 flex flex-wrap gap-3 print:hidden">
-                {ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? `Copiază IBAN ${i.label}` : "Copiază IBAN"} />)}
+                {ibans.map((i) => <CopyButton key={i.value} value={i.value} label={i.label ? tr("Copiază IBAN {label}", { label: i.label }) : tr("Copiază IBAN")} />)}
                 {canCard && course ? <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="ghost">{tr("Plătește cu cardul")}</ButtonLink> : null}
               </div>
               {canCard ? <p className="mt-3 text-xs text-muted print:hidden">{tr("Dacă plata cu cardul reușește, această comandă se anulează automat.")}</p> : null}
@@ -141,7 +144,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               {codeOrTier > 0 ? <div className="flex justify-between gap-6 py-1.5 text-sm text-gold"><dt>{discountLabel}</dt><dd className="font-medium">−{formatPrice(codeOrTier, cur)}</dd></div> : null}
               {o.points_discount_cents > 0 ? <div className="flex justify-between gap-6 py-1.5 text-sm text-gold"><dt>{tr("Plătit cu")}{" "}{o.points_used} {" "}{tr("puncte")}</dt><dd className="font-medium">−{formatPrice(o.points_discount_cents, cur)}</dd></div> : null}
               {o.refunded_cents ? <Row k={tr("Rambursat")} v={formatPrice(o.refunded_cents, cur)} /> : null}
-              <div className="flex justify-between gap-6 border-t border-line pt-3 text-lg font-semibold"><dt>{paid ? "Total plătit" : "Total de plată"}</dt><dd>{formatPrice(o.total_cents, cur)}</dd></div>
+              <div className="flex justify-between gap-6 border-t border-line pt-3 text-lg font-semibold"><dt>{paid ? tr("Total plătit") : tr("Total de plată")}</dt><dd>{formatPrice(o.total_cents, cur)}</dd></div>
               {o.discount_cents > 0 ? <p className="pt-1 text-right text-xs font-semibold text-gold">{tr("Ai economisit")}{" "}{formatPrice(o.discount_cents, cur)}</p> : null}
             </dl>
           </Card>
@@ -160,11 +163,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <Card title={tr("Date de facturare")}>
             {o.billing?.name ? (
               <dl className="text-sm">
-                <Row k={tr("Tip client")} v={o.billing.kind === "company" ? "Persoană juridică" : "Persoană fizică"} />
-                <Row k={o.billing.kind === "company" ? "Denumire firmă" : "Nume și prenume"} v={o.billing.name} />
+                <Row k={tr("Tip client")} v={o.billing.kind === "company" ? tr("Persoană juridică") : tr("Persoană fizică")} />
+                <Row k={o.billing.kind === "company" ? tr("Denumire firmă") : tr("Nume și prenume")} v={o.billing.name} />
                 {o.billing.cui ? <Row k="CUI" v={o.billing.cui} /> : null}
                 {o.billing.reg_com ? <Row k={tr("Nr. Reg. Com.")} v={o.billing.reg_com} /> : null}
-                {o.billing.address ? <Row k={o.billing.kind === "company" ? "Adresa sediului" : "Adresă"} v={o.billing.address} /> : null}
+                {o.billing.address ? <Row k={o.billing.kind === "company" ? "Adresa sediului" : tr("Adresă")} v={o.billing.address} /> : null}
                 {o.billing.city ? <Row k={tr("Localitate")} v={o.billing.city} /> : null}
                 {o.billing.county ? <Row k={tr("Județ / Sector")} v={o.billing.county} /> : null}
               </dl>

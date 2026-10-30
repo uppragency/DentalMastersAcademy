@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/empty-state";
 import { PrintButton } from "@/components/print-button";
@@ -7,7 +7,10 @@ import { getCurrentProfile } from "@/lib/data";
 import { formatDateRange } from "@/lib/format";
 import { contact } from "@/content/site";
 
-export const metadata: Metadata = { title: "Portofoliu de formare", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Portofoliu de formare"), robots: { index: false } };
+}
 
 type Row = {
   id: string;
@@ -56,7 +59,7 @@ export default async function PortfolioPage() {
                     {formatDateRange(c.starts_at, c.ends_at)}
                     {c.location ? `, ${c.location}` : ""}
                     {c.duration_hours ? `, ${c.duration_hours} ore` : ""}
-                    {ce?.days_attended ? `, ${ce.days_attended} ${ce.days_attended === 1 ? "zi" : "zile"} de prezență` : ""}
+                    {ce?.days_attended ? tr(", {days_attended} {v2} de prezență", { days_attended: ce.days_attended, v2: ce.days_attended === 1 ? "zi" : "zile" }) : ""}
                   </p>
                   {c.trainer_name ? <p className="mt-1 text-sm text-muted">{tr("Lector:")}{" "}{c.trainer_name}</p> : null}
                   {ce?.number ? <p className="mt-1 text-xs text-muted">{tr("Adeverință")}{" "}{ce.number}</p> : null}

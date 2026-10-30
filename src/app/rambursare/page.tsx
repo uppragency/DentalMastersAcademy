@@ -1,14 +1,17 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { contact } from "@/content/site";
 import { LegalShell, LegalText } from "@/components/legal-text";
 import { getLegalText } from "@/lib/site-content";
 
-export const metadata: Metadata = {
-  title: "Politica de rambursare și transfer de loc",
-  description: "Cum poți anula o înscriere, cum se returnează banii și cum îți transferi locul unui coleg.",
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return {
+  title: tr("Politica de rambursare și transfer de loc"),
+  description: tr("Cum poți anula o înscriere, cum se returnează banii și cum îți transferi locul unui coleg."),
   alternates: { canonical: "/rambursare" },
 };
+}
 
 const sections = [
   {

@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { Container } from "@/components/ui";
@@ -7,7 +7,10 @@ import { Reveal } from "@/components/reveal";
 import { TrainerAvatar } from "@/components/trainer-avatar";
 import { getTrainers } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Lectorii noștri", description: "Echipa de lectori Dental Masters Academy: clinicieni care practică zilnic ceea ce predau." };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Lectorii noștri"), description: tr("Echipa de lectori Dental Masters Academy: clinicieni care practică zilnic ceea ce predau.") };
+}
 
 export default async function TrainersPage() {
   const trainers = (await getTrainers()).filter((t) => !t.is_founder);

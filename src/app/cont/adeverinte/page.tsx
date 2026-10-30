@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n/server";
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
 import { EmptyState } from "@/components/empty-state";
@@ -7,7 +7,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data";
 import { formatDateRange } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Adeverințe", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Adeverințe"), robots: { index: false } };
+}
 
 type Row = { id: string; courses: { slug: string; title: string; starts_at: string | null; ends_at: string | null } | null; certificates: { number: string }[] | { number: string } | null };
 

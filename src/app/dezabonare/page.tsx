@@ -1,9 +1,13 @@
+import { tr, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validUnsubToken } from "@/lib/unsub";
 
-export const metadata: Metadata = { title: "Dezabonare", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Dezabonare"), robots: { index: false } };
+}
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -16,9 +20,9 @@ export default async function Unsubscribe({ searchParams }: { searchParams: Prom
   }
   return (
     <Container className="max-w-xl py-24 text-center">
-      <h1 className="font-display text-4xl font-medium">{ok ? "Te-ai dezabonat" : "Link invalid"}</h1>
+      <h1 className="font-display text-4xl font-medium">{ok ? tr("Te-ai dezabonat") : "Link invalid"}</h1>
       <p className="mt-4 text-muted">
-        {ok ? "Nu vei mai primi emailuri cu recomandări de cursuri. Vei primi în continuare mesajele despre comenzile și cursurile tale." : "Linkul de dezabonare nu este valid sau a expirat. Scrie-ne și te dezabonăm manual."}
+        {ok ? tr("Nu vei mai primi emailuri cu recomandări de cursuri. Vei primi în continuare mesajele despre comenzile și cursurile tale.") : tr("Linkul de dezabonare nu este valid sau a expirat. Scrie-ne și te dezabonăm manual.")}
       </p>
     </Container>
   );
