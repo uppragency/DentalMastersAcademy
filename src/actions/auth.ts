@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { getLocale } from "@/lib/i18n/server";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -18,6 +19,7 @@ const loginSchema = z.object({
 });
 
 export async function login(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = loginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
@@ -41,6 +43,7 @@ const signupSchema = z.object({
 });
 
 export async function signup(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = signupSchema.safeParse({
     full_name: formData.get("full_name"),
     email: formData.get("email"),
@@ -66,6 +69,7 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
 }
 
 export async function logout() {
+  await getLocale();
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/");

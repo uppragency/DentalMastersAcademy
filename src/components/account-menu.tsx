@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
 import type { Tier } from "@/lib/types";
 

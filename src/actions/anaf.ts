@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 export type CuiLookup = { ok: true; name: string; reg_com: string; address: string; city: string; county: string } | { ok: false; message: string };
 
 const title = (s: string) => s.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, a: string, b: string) => a + b.toUpperCase());
@@ -7,6 +8,7 @@ const clean = (s: unknown) => (typeof s === "string" ? s.trim() : "");
 
 /** Looks up a company in ANAF's public VAT registry (no credentials needed) to prefill billing details. */
 export async function lookupCui(raw: string): Promise<CuiLookup> {
+  await getLocale();
   const digits = raw.toUpperCase().replace(/^RO/, "").replace(/\D/g, "");
   if (digits.length < 2 || digits.length > 10) return { ok: false, message: "Introdu un CUI valid." };
   try {

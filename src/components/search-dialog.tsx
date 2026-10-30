@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
 
 type Hit = { type: "curs" | "lector" | "articol"; title: string; href: string; sub?: string };

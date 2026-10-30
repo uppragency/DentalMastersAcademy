@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { after } from "next/server";
@@ -22,6 +23,7 @@ async function ipHash() {
 
 /** Issues signed upload URLs so files go straight to private storage (no server body limit). */
 export async function prepareCaseUploads(files: { name: string; size: number }[], honeypot: string): Promise<PrepareResult> {
+  await getLocale();
   if (honeypot) return { ok: false, message: "Nu am putut încărca fișierele." };
   if (files.length === 0) return { ok: true, prefix: "", uploads: [] };
   if (files.length > MAX_CASE_FILES) return { ok: false, message: `Poți atașa cel mult ${MAX_CASE_FILES} fișiere.` };
@@ -62,6 +64,7 @@ const schema = z.object({
 export type CaseState = { message?: string; done?: boolean; errors?: Record<string, string[]> } | undefined;
 
 export async function submitCase(_: CaseState, formData: FormData): Promise<CaseState> {
+  await getLocale();
   const parsed = schema.safeParse({
     kind: formData.get("kind"),
     name: formData.get("name"),

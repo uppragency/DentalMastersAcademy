@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { ButtonLink, Container, Eyebrow, SectionTitle, Arrow } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";
 import { CourseArt } from "@/components/course-art";

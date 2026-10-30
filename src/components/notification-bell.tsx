@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useRef, useState, useTransition } from "react";
 import { loadLatestNotifications, markAllNotificationsRead, markNotificationRead } from "@/actions/notifications";
 import type { Notification } from "@/lib/types";

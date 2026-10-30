@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import { Container } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Verificare adeverință", robots: { index: false } };

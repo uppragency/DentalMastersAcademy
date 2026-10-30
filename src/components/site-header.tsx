@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { createClient } from "@/lib/supabase/server";
 import { getCourses, getCurrentProfile, getTrainers, getUnreadCount } from "@/lib/data";
 import { AccountMenu } from "@/components/account-menu";
@@ -11,6 +11,7 @@ import { MobileMenu } from "@/components/mobile-menu";
 import { NotificationBell } from "@/components/notification-bell";
 import { SearchDialog } from "@/components/search-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitch } from "@/components/language-switch";
 
 export async function SiteHeader() {
   const supabase = await createClient();
@@ -47,6 +48,7 @@ export async function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <Link href="/contact#medici" className="hidden min-h-11 items-center rounded-full border border-white/25 px-5 text-sm text-white/85 transition-colors hover:border-gold-bright hover:text-white 2xl:inline-flex">Trimite un caz</Link>
+          <div className="hidden lg:block"><LanguageSwitch /></div>
           <SearchDialog />
           <ThemeToggle />
           {userId ? <NotificationBell key={unread} unread={unread} /> : null}

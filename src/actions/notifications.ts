@@ -1,9 +1,11 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 export async function markNotificationRead(id: string) {
+  await getLocale();
   const supabase = await createClient();
   await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("id", id).is("read_at", null);
   revalidatePath("/cont/notificari");
@@ -11,6 +13,7 @@ export async function markNotificationRead(id: string) {
 }
 
 export async function markAllNotificationsRead() {
+  await getLocale();
   const supabase = await createClient();
   await supabase.from("notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
   revalidatePath("/cont/notificari");
@@ -18,6 +21,7 @@ export async function markAllNotificationsRead() {
 }
 
 export async function loadLatestNotifications() {
+  await getLocale();
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;

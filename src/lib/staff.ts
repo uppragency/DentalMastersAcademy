@@ -1,5 +1,5 @@
 import "server-only";
-import { redirect } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import { getCurrentProfile } from "@/lib/data";
 import { createAdminClient } from "@/lib/supabase/admin";
 

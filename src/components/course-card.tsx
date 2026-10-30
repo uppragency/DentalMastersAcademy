@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import type { Course } from "@/lib/types";
 import { dayNum, formatDateRange, formatPrice, isDateTbd, monthShort } from "@/lib/format";
 import { CourseImage } from "@/components/course-image";

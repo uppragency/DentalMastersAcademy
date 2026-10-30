@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import type { FormState } from "@/actions/auth";
@@ -15,6 +16,7 @@ const emailSchema = z.string().trim().toLowerCase().email({ error: "Introdu un e
 
 /** Student asks to hand a seat to a colleague. Staff approves from the admin. */
 export async function requestTransfer(enrollmentId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const profile = await getCurrentProfile();
   if (!profile) return { message: "Sesiunea a expirat. Intră din nou în cont." };
   const email = emailSchema.safeParse(formData.get("email"));
@@ -43,6 +45,7 @@ export async function requestTransfer(enrollmentId: string, _: FormState, formDa
 }
 
 export async function cancelTransfer(id: string) {
+  await getLocale();
   const profile = await getCurrentProfile();
   if (!profile) return;
   await createAdminClient().from("seat_transfers").update({ status: "cancelled", decided_at: new Date().toISOString() }).eq("id", id).eq("from_user", profile.id).eq("status", "pending");
@@ -58,6 +61,7 @@ async function load(id: string) {
 }
 
 export async function approveTransfer(id: string): Promise<void> {
+  await getLocale();
   const { profile } = await requireStaff();
   const { admin, t } = await load(id);
   if (!t || t.status !== "pending") return;
@@ -89,6 +93,7 @@ export async function approveTransfer(id: string): Promise<void> {
 }
 
 export async function rejectTransfer(id: string, formData: FormData): Promise<void> {
+  await getLocale();
   const { profile } = await requireStaff();
   const { admin, t } = await load(id);
   if (!t || t.status !== "pending") return;

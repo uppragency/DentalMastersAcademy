@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useState, type ReactNode } from "react";
 import { EditionsTimeline } from "@/components/editions-timeline";
 import type { Course } from "@/lib/types";

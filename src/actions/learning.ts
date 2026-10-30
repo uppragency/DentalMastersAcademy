@@ -1,10 +1,12 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 /** RLS guarantees a user only writes progress for themselves; lesson visibility requires enrollment. */
 export async function setLessonDone(lessonId: string, slug: string, done: boolean) {
+  await getLocale();
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;

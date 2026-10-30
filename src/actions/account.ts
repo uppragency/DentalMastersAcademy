@@ -1,7 +1,8 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { anonymizeAccount } from "@/lib/anonymize";
 import { getCurrentProfile } from "@/lib/data";
@@ -20,6 +21,7 @@ const profileSchema = z.object({
 });
 
 export async function updateProfile(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = profileSchema.safeParse({
     full_name: formData.get("full_name"),
     phone: formData.get("phone") || undefined,
@@ -52,6 +54,7 @@ export async function updateProfile(_: FormState, formData: FormData): Promise<F
 }
 
 export async function saveTheme(theme: "light" | "dark") {
+  await getLocale();
   if (theme !== "light" && theme !== "dark") return;
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
@@ -72,6 +75,7 @@ const passwordSchema = z
   .refine((v) => v.password === v.confirm, { path: ["confirm"], error: "Parolele nu coincid." });
 
 export async function changePassword(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = passwordSchema.safeParse({ password: formData.get("password"), confirm: formData.get("confirm") });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
@@ -82,6 +86,7 @@ export async function changePassword(_: FormState, formData: FormData): Promise<
 }
 
 export async function deleteBillingProfile(id: string) {
+  await getLocale();
   const supabase = await createClient();
   // RLS restricts deletion to the owner's rows
   await supabase.from("billing_profiles").delete().eq("id", id);
@@ -89,6 +94,7 @@ export async function deleteBillingProfile(id: string) {
 }
 
 export async function addBillingProfile(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = readBilling(formData);
   if (!parsed.success) {
     const fe = z.flattenError(parsed.error).fieldErrors as Record<string, string[]>;
@@ -115,6 +121,7 @@ export async function addBillingProfile(_: FormState, formData: FormData): Promi
 }
 
 export async function changeEmail(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = z.string().trim().toLowerCase().email({ error: "Introdu un email valid." }).safeParse(formData.get("email"));
   if (!parsed.success) return { errors: { email: [parsed.error.issues[0]!.message] } };
   const supabase = await createClient();
@@ -126,6 +133,7 @@ export async function changeEmail(_: FormState, formData: FormData): Promise<For
 
 /** Ends every session of this account, on all devices. */
 export async function signOutEverywhere() {
+  await getLocale();
   const supabase = await createClient();
   await supabase.auth.signOut({ scope: "global" });
   redirect("/autentificare");
@@ -133,6 +141,7 @@ export async function signOutEverywhere() {
 
 /** Self-service erasure. Orders and invoices are kept as required by law; everything personal is scrubbed. */
 export async function deleteMyAccount(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const profile = await getCurrentProfile();
   if (!profile) return { message: "Sesiunea a expirat. Intră din nou în cont." };
   if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "ȘTERGE") return { message: "Scrie ȘTERGE pentru confirmare." };

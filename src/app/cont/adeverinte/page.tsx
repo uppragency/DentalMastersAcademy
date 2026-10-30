@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { EmptyState } from "@/components/empty-state";
 import { CopyButton } from "@/components/copy-button";
 import { createClient } from "@/lib/supabase/server";

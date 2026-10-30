@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
 import { Container, Eyebrow } from "@/components/ui";
 import { CourseCard } from "@/components/course-card";

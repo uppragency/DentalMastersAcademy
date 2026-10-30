@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/actions/auth";
@@ -15,6 +16,7 @@ const schema = z.object({
 });
 
 export async function sendContact(_: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = schema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),

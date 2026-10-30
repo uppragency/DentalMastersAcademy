@@ -1,6 +1,7 @@
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { Container } from "@/components/ui";
 import { contact } from "@/content/site";
+import { LanguageSwitch } from "@/components/language-switch";
 
 export function SiteFooter() {
   return (
@@ -44,8 +45,9 @@ export function SiteFooter() {
           <a className="block transition-colors hover:text-white" href={contact.socialHref} rel="noopener noreferrer" target="_blank">{contact.social}</a>
         </div>
       </Container>
-      <div className="border-t border-white/10 py-6 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} Dental Masters Academy. Toate drepturile rezervate.
+      <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 px-5 py-6 text-xs text-white/40 sm:flex-row sm:px-8 lg:px-12">
+        <span>© {new Date().getFullYear()} Dental Masters Academy. Toate drepturile rezervate.</span>
+        <LanguageSwitch variant="footer" />
       </div>
     </footer>
   );

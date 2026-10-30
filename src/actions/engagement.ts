@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -39,6 +40,7 @@ const announceSchema = z.object({
 });
 
 export async function announceToEnrolled(courseId: string, slug: string, _: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   await requireAdminClient();
   const parsed = announceSchema.safeParse({ title: formData.get("title"), body: formData.get("body") });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -53,6 +55,7 @@ const materialSchema = z.object({
 });
 
 export async function addMaterial(courseId: string, slug: string, _: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const { supabase } = await requireAdminClient();
   const parsed = materialSchema.safeParse({ title: formData.get("title"), description: formData.get("description") || undefined, url: formData.get("url") || undefined });
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -78,6 +81,7 @@ export async function addMaterial(courseId: string, slug: string, _: FormState, 
 }
 
 export async function deleteMaterial(id: string, courseId: string) {
+  await getLocale();
   const { supabase } = await requireAdminClient();
   await supabase.from("course_materials").delete().eq("id", id);
   revalidatePath(`/admin/cursuri/${courseId}`);
@@ -85,6 +89,7 @@ export async function deleteMaterial(id: string, courseId: string) {
 
 /* Attendance and confirmation letters */
 export async function setAttendance(enrollmentId: string, courseId: string, attended: boolean) {
+  await getLocale();
   await requireAdminClient();
   const admin = createAdminClient();
   const { data: course } = await admin.from("courses").select("starts_at, ends_at").eq("id", courseId).maybeSingle();
@@ -96,6 +101,7 @@ export async function setAttendance(enrollmentId: string, courseId: string, atte
 }
 
 export async function sendConfirmationLetters(courseId: string): Promise<void> {
+  await getLocale();
   await requireAdminClient();
   const admin = createAdminClient();
   const { data: course } = await admin.from("courses").select("title, slug").eq("id", courseId).single();
@@ -123,6 +129,7 @@ export async function sendConfirmationLetters(courseId: string): Promise<void> {
 const reviewSchema = z.object({ quote: z.string().trim().min(20, { error: "Scrie cel puțin 20 de caractere." }).max(1200) });
 
 export async function submitReview(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const profile = await getCurrentProfile();
   if (!profile) return { message: "Autentifică-te pentru a trimite o recenzie." };
   const parsed = reviewSchema.safeParse({ quote: formData.get("quote") });

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import type { Course } from "@/lib/types";
 
 export type JourneyNode = { course: Course; state: "done" | "booked" | "open" };

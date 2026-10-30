@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import { logout } from "@/actions/auth";
 import { AccountNav } from "@/components/account-nav";
 import { Avatar, TierPill } from "@/components/member-badge";

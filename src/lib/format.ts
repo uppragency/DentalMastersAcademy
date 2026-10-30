@@ -1,37 +1,49 @@
-export function formatPrice(cents: number, currency = "EUR") {
-  return new Intl.NumberFormat("ro-RO", {
+let resolver: () => string = () => "ro";
+/** Server only: lets format helpers follow the locale of the current request. */
+export function setLocaleResolver(fn: () => string) {
+  resolver = fn;
+}
+/** Intl locale tag for the active (or given) language. */
+export function fmtLocale(locale?: string) {
+  return (locale ?? resolver()) === "en" ? "en-GB" : "ro-RO";
+}
+const tbd = (locale?: string) => ((locale ?? resolver()) === "en" ? "Date to be announced" : "Data se anunță");
+
+export function formatPrice(cents: number, currency = "EUR", locale?: string) {
+  return new Intl.NumberFormat(fmtLocale(locale), {
     style: "currency",
     currency,
     maximumFractionDigits: cents % 100 === 0 ? 0 : 2,
   }).format(cents / 100);
 }
 
-export function formatDate(iso: string | null) {
-  if (!iso) return "Data se anunță";
-  return new Intl.DateTimeFormat("ro-RO", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Bucharest" }).format(new Date(iso));
+export function formatDate(iso: string | null, locale?: string) {
+  if (!iso) return tbd(locale);
+  return new Intl.DateTimeFormat(fmtLocale(locale), { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Bucharest" }).format(new Date(iso));
 }
 
 export const formatLabels = { physical: "Fizic", online: "Online", hybrid: "Hibrid" } as const;
+export const 
 
-export function formatDateRange(start: string | null, end: string | null) {
-  if (!start) return "Data se anunță";
-  if (!end) return formatDate(start);
+export function formatDateRange(start: string | null, end: string | null, locale?: string) {
+  if (!start) return tbd(locale);
+  if (!end) return formatDate(start, locale);
   const f = (d: string, o: Intl.DateTimeFormatOptions) =>
-    new Intl.DateTimeFormat("ro-RO", { ...o, timeZone: "Europe/Bucharest" }).format(new Date(d));
+    new Intl.DateTimeFormat(fmtLocale(locale), { ...o, timeZone: "Europe/Bucharest" }).format(new Date(d));
   const sameDay = f(start, { dateStyle: "short" }) === f(end, { dateStyle: "short" });
-  if (sameDay) return formatDate(start);
+  if (sameDay) return formatDate(start, locale);
   const sameMonth = f(start, { month: "numeric", year: "numeric" }) === f(end, { month: "numeric", year: "numeric" });
   if (sameMonth) return `${f(start, { day: "numeric" })}–${f(end, { day: "numeric", month: "long", year: "numeric" })}`;
-  return `${formatDate(start)} – ${formatDate(end)}`;
+  return `${formatDate(start, locale)} – ${formatDate(end, locale)}`;
 }
 
-export function monthShort(iso: string | null) {
+export function monthShort(iso: string | null, locale?: string) {
   if (!iso) return "";
-  return new Intl.DateTimeFormat("ro-RO", { month: "short", timeZone: "Europe/Bucharest" }).format(new Date(iso)).replace(".", "");
+  return new Intl.DateTimeFormat(fmtLocale(locale), { month: "short", timeZone: "Europe/Bucharest" }).format(new Date(iso)).replace(".", "");
 }
-export function dayNum(iso: string | null) {
+export function dayNum(iso: string | null, locale?: string) {
   if (!iso) return "";
-  return new Intl.DateTimeFormat("ro-RO", { day: "numeric", timeZone: "Europe/Bucharest" }).format(new Date(iso));
+  return new Intl.DateTimeFormat(fmtLocale(locale), { day: "numeric", timeZone: "Europe/Bucharest" }).format(new Date(iso));
 }
 
 export function isEnded(c: { starts_at: string | null; ends_at: string | null }, now: number) {

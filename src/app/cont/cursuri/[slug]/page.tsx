@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import Link from "@/components/locale-link";
+import { notFound } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import { setLessonDone } from "@/actions/learning";
 import { Button, ButtonLink } from "@/components/ui";
 import { CourseImage } from "@/components/course-image";

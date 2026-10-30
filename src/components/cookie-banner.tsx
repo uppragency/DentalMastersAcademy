@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useSyncExternalStore } from "react";
 
 const KEY = "dma-cookies";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { Eyebrow } from "@/components/ui";
 import { getCourses, getCurrentProfile, getLoyaltyState, getLoyaltySettings, getMyEnrollments, getMyOrders, getUnreadCount } from "@/lib/data";
 import { EmptyState } from "@/components/empty-state";

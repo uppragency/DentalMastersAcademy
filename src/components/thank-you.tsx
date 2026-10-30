@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { ClearCheckoutDraft } from "@/components/checkout-draft";
 import { CopyButton } from "@/components/copy-button";

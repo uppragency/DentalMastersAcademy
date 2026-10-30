@@ -1,6 +1,6 @@
 import { courseMethods, formatDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";

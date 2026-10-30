@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
 import { ButtonLink, Container } from "@/components/ui";
 import { getPostBySlug } from "@/lib/data";

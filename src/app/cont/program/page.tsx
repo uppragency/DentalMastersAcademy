@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { getCurrentProfile, getLoyaltySettings, getLoyaltyState } from "@/lib/data";
 import { formatDate, formatPrice } from "@/lib/format";
 import { tierNames, tierPerks } from "@/lib/loyalty";

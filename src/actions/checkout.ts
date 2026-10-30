@@ -1,7 +1,8 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -25,6 +26,7 @@ const guestSchema = z.object({
 });
 
 export async function startCheckout(courseId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   let userId = claims?.claims?.sub ?? null;

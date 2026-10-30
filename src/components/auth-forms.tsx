@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useActionState } from "react";
 import { login, signup, type FormState } from "@/actions/auth";
 import { Button, Field } from "@/components/ui";

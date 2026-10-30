@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
 
 export type NavCourse = { title: string; slug: string; line: string };

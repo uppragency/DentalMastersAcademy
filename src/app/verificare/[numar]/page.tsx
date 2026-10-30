@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { Container } from "@/components/ui";
 import { formatDateRange } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";

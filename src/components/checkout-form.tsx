@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useActionState, useState, useSyncExternalStore } from "react";
 import { startCheckout } from "@/actions/checkout";
 import { Button, Field } from "@/components/ui";

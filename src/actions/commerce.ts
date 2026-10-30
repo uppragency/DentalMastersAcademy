@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale } from "@/lib/i18n/server";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -11,6 +12,7 @@ export type DiscountPreview = { ok: boolean; message: string; discountCents?: nu
 
 /** Read-only preview of what the checkout RPC will apply. The RPC stays the source of truth. */
 export async function previewDiscount(courseId: string, rawCode: string): Promise<DiscountPreview> {
+  await getLocale();
   const code = rawCode.trim().toUpperCase();
   if (!code) return { ok: false, message: "Introdu un cod." };
   const admin = createAdminClient();
@@ -66,6 +68,7 @@ const waitSchema = z.object({
 });
 
 export async function joinWaitlist(courseId: string | null, _: FormState, formData: FormData): Promise<FormState> {
+  await getLocale();
   const parsed = waitSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),

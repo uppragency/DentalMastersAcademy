@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import { ThankYouView, thanksCourseSelect, type ThanksCourse } from "@/components/thank-you";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data";

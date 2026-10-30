@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useEffect, useRef, useState } from "react";
+import { LanguageSwitch } from "@/components/language-switch";
 
 export function MobileMenu({ items, signedIn }: { items: { href: string; label: string; children?: { href: string; label: string }[] }[]; signedIn: boolean }) {
   const [open, setOpen] = useState(false);
@@ -79,6 +80,7 @@ export function MobileMenu({ items, signedIn }: { items: { href: string; label: 
         >
           {signedIn ? "Contul meu" : "Intră în cont"}
         </Link>
+        <div className="mt-8"><LanguageSwitch variant="mobile" /></div>
         </div>
       </div>
     </div>

@@ -1,7 +1,8 @@
 import { courseMethods, formatDeadline, transferDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { lredirect as redirect } from "@/lib/i18n/server";
 import { Container } from "@/components/ui";
 import { CourseImage } from "@/components/course-image";
 import { CheckoutForm } from "@/components/checkout-form";
