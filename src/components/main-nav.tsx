@@ -145,7 +145,7 @@ export function MainNav({ data }: { data: NavData }) {
         <ul className="grid gap-4 lg:grid-cols-3">
           {[
             { href: "/testimoniale#t-foto", title: tr("Galerii foto"), text: tr("Din edițiile anterioare, pe cursuri și ediții.") },
-            { href: "/testimoniale#t-text", title: tr("Testimoniale text"), text: tr("Cu numele participantului și cursul urmat.") },
+            { href: "/testimoniale#t-text", title: tr("Testimoniale"), text: tr("Cu numele participantului și cursul urmat.") },
             { href: "/testimoniale#t-video", title: tr("Testimoniale video"), text: tr("Impresii despre cursuri, experiența practică și interacțiunea cu lectorii.") },
           ].map((a) => (
             <li key={a.href}><Link href={a.href} onClick={close} className={tile}><span className={tileTitle}>{a.title}</span><span className={tileText}>{a.text}</span></Link></li>
