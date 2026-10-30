@@ -47,9 +47,9 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
   const rows = valid.filter((e) => (active === "viitoare" ? !isEnded(e.courses!, now) : active === "online" ? isOnline(e) : isEnded(e.courses!, now)));
 
   const tabs = [
-    { key: "viitoare", label: "Viitoare", n: counts.viitoare },
-    { key: "online", label: "Online", n: counts.online },
-    { key: "finalizate", label: "Finalizate", n: counts.finalizate },
+    { key: "viitoare", label: tr("Viitoare"), n: counts.viitoare },
+    { key: "online", label: tr("Online"), n: counts.online },
+    { key: "finalizate", label: tr("Finalizate"), n: counts.finalizate },
   ];
   const empty = {
     viitoare: { title: tr("Nu ai cursuri viitoare"), text: tr("Alege următorul curs din catalog și îți păstrăm locul în grup.") },
@@ -85,7 +85,7 @@ export default async function MyCourses({ searchParams }: { searchParams: Promis
                 <Link href={`/cont/cursuri/${c.slug}`} className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-line bg-card transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_30px_60px_-30px_rgba(8,13,23,.4)]">
                   <div className="relative aspect-[16/7] bg-ink">
                     <CourseImage course={c} variant="thumb" sizes="(min-width: 1280px) 40vw, 100vw" className="size-full transition-transform duration-700 group-hover:scale-105" />
-                    <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-ink">{sourceLabel[e.source]}</span>
+                    <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-ink">{tr(sourceLabel[e.source])}</span>
                   </div>
                   <div className="flex flex-1 flex-col p-7">
                     <h2 className="font-display text-2xl leading-snug">{c.title}</h2>

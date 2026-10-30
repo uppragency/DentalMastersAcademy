@@ -29,7 +29,7 @@ export function ContactForm() {
         <label>{tr("Website")}<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       {state?.message ? <p role="status" className="rounded-xl bg-gold-soft px-4 py-3 text-sm">{state.message}</p> : null}
-      <Button type="submit" disabled={pending} className="w-full sm:w-auto">{pending ? "Se trimite..." : "Trimite mesajul"}</Button>
+      <Button type="submit" disabled={pending} className="w-full sm:w-auto">{pending ? tr("Se trimite...") : tr("Trimite mesajul")}</Button>
     </form>
   );
 }

@@ -52,15 +52,15 @@ export async function previewDiscount(courseId: string, rawCode: string): Promis
       if ((count ?? 0) > 0) return { ok: false, message: tr("Codul de recomandare se aplică doar la prima achiziție.") };
     }
     disc = Math.round((course.price_cents * Number(settings?.referral_friend_percent ?? 0)) / 100);
-    label = "Recomandare";
+    label = tr("Recomandare");
     if (disc <= 0) return { ok: false, message: tr("Codul nu este activ momentan.") };
   }
   if (disc <= goldDisc) return { ok: false, message: tr("Reducerea de nivel din contul tău este deja mai avantajoasă. Reducerile nu se cumulează.") };
-  return { ok: true, message: "Cod aplicat.", discountCents: disc, label };
+  return { ok: true, message: tr("Cod aplicat."), discountCents: disc, label };
 }
 
 const waitSchema = z.object({
-  name: z.string().trim().min(2, { error: "Introdu numele." }).max(120),
+  name: z.string().trim().min(2, { error: () => tr("Introdu numele.") }).max(120),
   email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
   phone: z.string().trim().max(40).optional(),
   desired_course: z.string().trim().max(200).optional(),

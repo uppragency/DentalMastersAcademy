@@ -70,12 +70,12 @@ export default async function CoursePage({ params }: Props) {
   const soldOut = Boolean(course.capacity && taken >= course.capacity);
   const promo = parseVideo(course.promo_video_url);
   const navItems = [
-    ...(promo ? [["promo", "Video"]] : []),
-    ...(paragraphsOf(course).length ? [["desc", "Despre"]] : []),
-    ...(course.outcomes.length ? [["out", "Rezultate"]] : []),
-    ...(course.sections.length ? [["prog", "Programa"]] : []),
+    ...(promo ? [["promo", tr("Video")]] : []),
+    ...(paragraphsOf(course).length ? [["desc", tr("Despre")]] : []),
+    ...(course.outcomes.length ? [["out", tr("Rezultate")]] : []),
+    ...(course.sections.length ? [["prog", tr("Programa")]] : []),
     ...(course.audience.length ? [["aud", tr("Pentru cine")]] : []),
-    ["lect", "Lectori"],
+    ["lect", tr("Lectori")],
     ...(course.faqs.length ? [["faq", tr("Întrebări")]] : []),
   ];
 
@@ -87,11 +87,11 @@ export default async function CoursePage({ params }: Props) {
   const paragraphs = paragraphsOf(course);
 
   const facts = [
-    { k: "Data", v: course.starts_at ? formatDateRange(course.starts_at, course.ends_at) : tr("Va fi anunțată") },
-    ...(course.trainer_name ? [{ k: "Lectori", v: course.trainer_name }] : []),
-    { k: "Format", v: formatLabels[course.format] },
+    { k: tr("Data"), v: course.starts_at ? formatDateRange(course.starts_at, course.ends_at) : tr("Va fi anunțată") },
+    ...(course.trainer_name ? [{ k: tr("Lectori"), v: course.trainer_name }] : []),
+    { k: tr("Format"), v: formatLabels[course.format] },
     ...(course.location ? [{ k: tr("Locație"), v: course.location }] : []),
-    ...(course.language ? [{ k: "Limba", v: course.language }] : []),
+    ...(course.language ? [{ k: tr("Limba"), v: course.language }] : []),
   ];
 
   return (
@@ -238,9 +238,9 @@ export default async function CoursePage({ params }: Props) {
           <aside className="lg:sticky lg:top-28 lg:z-40 lg:self-start" aria-label={tr("Înscriere")}>
             <div className="overflow-hidden rounded-[2rem] border border-line bg-card shadow-[0_40px_80px_-40px_rgba(8,13,23,.5)]">
               <div className="p-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{enrolled ? "Status" : ended ? tr("Preț ediție") : tr("Investiție")}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{enrolled ? tr("Status") : ended ? tr("Preț ediție") : tr("Investiție")}</p>
                 <p className="font-display mt-2 text-5xl font-medium tracking-tight">
-                  {enrolled ? tr("Achiziționat") : free ? "Gratuit" : dateTbd && course.price_cents === 0 ? tr("Preț în curând") : formatPrice(finalPrice, course.currency)}
+                  {enrolled ? tr("Achiziționat") : free ? tr("Gratuit") : dateTbd && course.price_cents === 0 ? tr("Preț în curând") : formatPrice(finalPrice, course.currency)}
                 </p>
                 {!enrolled && !free && (discount > 0 || course.old_price_cents) ? (
                   <p className="mt-2 text-sm text-muted">
@@ -320,8 +320,8 @@ export default async function CoursePage({ params }: Props) {
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-background/90 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
             <div>
-              <p className="text-[11px] uppercase tracking-widest text-muted">{free ? "Acces" : tr("Investiție")}</p>
-              <p className="text-xl font-semibold tracking-tight">{free ? "Gratuit" : dateTbd && course.price_cents === 0 ? tr("Preț în curând") : formatPrice(finalPrice, course.currency)}</p>
+              <p className="text-[11px] uppercase tracking-widest text-muted">{free ? tr("Acces") : tr("Investiție")}</p>
+              <p className="text-xl font-semibold tracking-tight">{free ? tr("Gratuit") : dateTbd && course.price_cents === 0 ? tr("Preț în curând") : formatPrice(finalPrice, course.currency)}</p>
             </div>
             <ButtonLink href={`/cursuri/${course.slug}/achizitie`} variant="gold" className="px-6">{tr("Înscrie-te")}{" "}<Arrow /></ButtonLink>
           </div>

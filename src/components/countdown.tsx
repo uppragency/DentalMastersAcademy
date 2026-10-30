@@ -14,7 +14,7 @@ function parts(target: number, now: number) {
   };
 }
 
-export function Countdown({ to, label = tr("Timp rămas până la deschiderea înscrierilor") }: { to: string; label?: string }) {
+export function Countdown({ to, label = "Timp rămas până la deschiderea înscrierilor" }: { to: string; label?: string }) {
   const tr = useT();
   const target = new Date(to).getTime();
   const [now, setNow] = useState<number | null>(null);

@@ -12,7 +12,7 @@ import type { FormState } from "@/actions/auth";
 import { readBilling } from "@/lib/billing";
 
 const profileSchema = z.object({
-  full_name: z.string().trim().min(2, { error: "Introdu numele complet." }).max(120),
+  full_name: z.string().trim().min(2, { error: () => tr("Introdu numele complet.") }).max(120),
   phone: z.string().trim().max(40).optional(),
   specialization: z.string().trim().max(120).optional(),
   city: z.string().trim().max(80).optional(),
@@ -50,7 +50,7 @@ export async function updateProfile(_: FormState, formData: FormData): Promise<F
     .eq("id", userId);
   if (error) return { message: tr("Datele nu au putut fi salvate.") };
   revalidatePath("/cont", "layout");
-  return { message: "Datele au fost salvate." };
+  return { message: tr("Datele au fost salvate.") };
 }
 
 export async function saveTheme(theme: "light" | "dark") {

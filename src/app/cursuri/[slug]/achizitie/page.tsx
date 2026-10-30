@@ -63,7 +63,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
         <Container className="py-6 sm:py-8">
           <h1 className="sr-only">{tr("Finalizare comandă:")}{" "}{course.title}</h1>
           <ol aria-label={tr("Pașii comenzii")} className="flex items-center gap-3 text-sm sm:gap-5">
-            {["Date", tr("Plată"), "Confirmare"].map((label, i) => (
+            {[tr("Date"), tr("Plată"), tr("Confirmare")].map((label, i) => (
               <li key={label} className="flex items-center gap-3 sm:gap-5" aria-current={i === 0 ? "step" : undefined}>
                 <span className={`flex items-center gap-2.5 ${i === 0 ? "text-white" : "text-white/45"}`}>
                   <span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${i === 0 ? "bg-gold-bright text-ink" : "border border-white/25"}`}>{i + 1}</span>

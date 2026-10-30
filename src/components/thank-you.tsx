@@ -41,7 +41,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
     { t: tr("Îți activăm înscrierea"), d: tr("După ce vedem banii în cont, primești confirmarea pe email și cursul apare în contul tău. Factura se emite la confirmare.") },
   ];
   const steps = isTransfer ? transferSteps : [
-    { t: "Confirmarea ajunge pe email", d: tr("Am trimis detaliile la {email}. Dacă nu o găsești în câteva minute, verifică și Spam.", { email: profile.email }) },
+    { t: tr("Confirmarea ajunge pe email"), d: tr("Am trimis detaliile la {email}. Dacă nu o găsești în câteva minute, verifică și Spam.", { email: profile.email }) },
     physical
       ? { t: tr("Te pregătim pentru curs"), d: tr("Cu 7 zile înainte primești un email cu programul pe zile, parcarea și ce să aduci.") }
       : { t: tr("Cursul este în contul tău"), d: tr("Lecțiile și materialele sunt disponibile imediat în Cursurile mele, în ritmul tău.") },
@@ -62,7 +62,7 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
             <svg viewBox="0 0 24 24" className="size-8" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
           </div>
           <p className="rise mt-8 text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-bright" style={{ ["--d" as string]: "80ms" }}>
-            {isTransfer ? "Loc rezervat" : free ? tr("Înscriere confirmată") : paid ? tr("Plată confirmată") : waiting ? tr("Confirmăm plata") : tr("Comandă înregistrată")}
+            {isTransfer ? tr("Loc rezervat") : free ? tr("Înscriere confirmată") : paid ? tr("Plată confirmată") : waiting ? tr("Confirmăm plata") : tr("Comandă înregistrată")}
           </p>
           <h1 className="rise font-display mt-4 max-w-4xl text-balance text-5xl font-medium leading-[1.02] sm:text-7xl" style={{ ["--d" as string]: "140ms" }}>
             {tr("Mulțumim")}{first ? `, ${first}` : ""}. <span className="text-gold-sheen">{isTransfer ? tr("Mai ai un singur pas.") : tr("Ne vedem la curs.")}</span>
@@ -130,10 +130,10 @@ export async function ThankYouView({ profile, course, order, status, transfer }:
                   {course.starts_at ? (<><dt className="text-muted">{tr("Data")}</dt><dd>{formatDateRange(course.starts_at, course.ends_at)}</dd></>) : null}
                   <dt className="text-muted">{tr("Format")}</dt><dd>{formatLabels[course.format]}</dd>
                   {course.location ? (<><dt className="text-muted">{tr("Locație")}</dt><dd>{course.location}</dd></>) : null}
-                  <dt className="text-muted">{isTransfer ? tr("De plată") : o ? tr("Total plătit") : tr("Preț")}</dt><dd className="font-semibold">{o ? formatPrice(o.total_cents, o.currency.trim()) : "Gratuit"}</dd>
+                  <dt className="text-muted">{isTransfer ? tr("De plată") : o ? tr("Total plătit") : tr("Preț")}</dt><dd className="font-semibold">{o ? formatPrice(o.total_cents, o.currency.trim()) : tr("Gratuit")}</dd>
                 </dl>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  {isTransfer ? <ButtonLink href="/cont">{tr("Mergi în contul meu")}</ButtonLink> : <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? "Vezi detaliile cursului" : tr("Începe cursul")}</ButtonLink>}
+                  {isTransfer ? <ButtonLink href="/cont">{tr("Mergi în contul meu")}</ButtonLink> : <ButtonLink href={`/cont/cursuri/${course.slug}`}>{physical ? tr("Vezi detaliile cursului") : tr("Începe cursul")}</ButtonLink>}
                   {!isTransfer && course.starts_at ? <a href={`/cont/cursuri/${course.slug}/calendar.ics`} className="inline-flex min-h-12 items-center rounded-full border border-line px-6 text-sm font-medium hover:border-foreground/30">{tr("Adaugă în calendar")}</a> : null}
                   {o && !isTransfer ? <ButtonLink href={`/cont/comenzi/${o.id}`} variant="ghost">{tr("Dovadă de plată")}</ButtonLink> : null}
                 </div>

@@ -59,12 +59,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const cur = o.currency.trim();
   const paid = o.status === "paid" || o.status === "refunded";
   const isTransfer = o.source === "transfer" || o.provider === "transfer" || o.provider === "bank";
-  const method = o.provider === "manual" || o.source === "manual" ? tr("Înscriere manuală") : isTransfer ? "Transfer bancar" : "Card bancar (Stripe)";
+  const method = o.provider === "manual" || o.source === "manual" ? tr("Înscriere manuală") : isTransfer ? tr("Transfer bancar") : tr("Card bancar (Stripe)");
   const course = o.order_items[0]?.courses;
   const activeTransfer = o.status === "pending" && o.source === "transfer" && o.expires_at && Date.parse(o.expires_at) > nowMs();
   const cardPending = o.status === "pending" && o.source !== "transfer";
   const codeOrTier = o.discount_cents - o.points_discount_cents;
-  const discountLabel = o.discount_code ? tr("Cod {discount_code}", { discount_code: o.discount_code }) : o.tier_at_purchase && tierLabel[o.tier_at_purchase] ? tr("Reducere {v1}", { v1: tierLabel[o.tier_at_purchase] }) : "Reducere";
+  const discountLabel = o.discount_code ? tr("Cod {discount_code}", { discount_code: o.discount_code }) : o.tier_at_purchase && tierLabel[o.tier_at_purchase] ? tr("Reducere {v1}", { v1: tierLabel[o.tier_at_purchase] }) : tr("Reducere");
 
   let bank = "";
   if (activeTransfer) {
@@ -81,7 +81,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <Link href="/cont/comenzi" className="text-sm text-muted hover:text-foreground print:hidden">{tr("← Înapoi la achiziții")}</Link>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <h1 className="font-display text-4xl font-medium">{tr("Comanda")}{" "}{shortId}</h1>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone[o.status] ?? "bg-card"}`}>{statusLabel[o.status] ?? o.status}</span>
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone[o.status] ?? "bg-card"}`}>{tr(statusLabel[o.status] ?? o.status)}</span>
       </div>
       <p className="mt-2 text-sm text-muted">{tr("Plasată pe")}{" "}{formatDate(o.created_at)}{paid && o.paid_at ? tr(", plătită pe {v1}", { v1: formatDate(o.paid_at) }) : ""}.</p>
 
@@ -134,7 +134,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <ul className="divide-y divide-line">
               {o.order_items.map((i, k) => (
                 <li key={k} className="flex items-start justify-between gap-4 py-3 text-sm">
-                  <span>{i.courses ? <Link className="font-medium hover:text-gold" href={paid ? `/cont/cursuri/${i.courses.slug}` : `/cursuri/${i.courses.slug}`}>{i.courses.title}</Link> : "Curs"}</span>
+                  <span>{i.courses ? <Link className="font-medium hover:text-gold" href={paid ? `/cont/cursuri/${i.courses.slug}` : `/cursuri/${i.courses.slug}`}>{i.courses.title}</Link> : tr("Curs")}</span>
                   <span className="shrink-0 font-medium">{formatPrice(i.unit_price_cents, cur)}</span>
                 </li>
               ))}
@@ -154,7 +154,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <Card title={tr("Plată")}>
             <dl>
               <Row k={tr("Metodă")} v={method} />
-              <Row k={tr("Status")} v={statusLabel[o.status] ?? o.status} />
+              <Row k={tr("Status")} v={tr(statusLabel[o.status] ?? o.status)} />
               {o.paid_at ? <Row k={tr("Data plății")} v={formatDate(o.paid_at)} /> : null}
               {o.invoice_number ? <Row k={tr("Factură")} v={o.invoice_number} /> : null}
             </dl>
@@ -167,7 +167,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 <Row k={o.billing.kind === "company" ? tr("Denumire firmă") : tr("Nume și prenume")} v={o.billing.name} />
                 {o.billing.cui ? <Row k="CUI" v={o.billing.cui} /> : null}
                 {o.billing.reg_com ? <Row k={tr("Nr. Reg. Com.")} v={o.billing.reg_com} /> : null}
-                {o.billing.address ? <Row k={o.billing.kind === "company" ? "Adresa sediului" : tr("Adresă")} v={o.billing.address} /> : null}
+                {o.billing.address ? <Row k={o.billing.kind === "company" ? tr("Adresa sediului") : tr("Adresă")} v={o.billing.address} /> : null}
                 {o.billing.city ? <Row k={tr("Localitate")} v={o.billing.city} /> : null}
                 {o.billing.county ? <Row k={tr("Județ / Sector")} v={o.billing.county} /> : null}
               </dl>

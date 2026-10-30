@@ -254,9 +254,9 @@ export default async function HomePage() {
                   <ul className="grid gap-4 sm:grid-cols-2">
                     {[
                       [`${Number(loyalty.gold_discount_percent)}%`, tr("reducere automată la cursurile viitoare")],
-                      ["Gratuit", tr("acces la activitățile marcate Gold")],
-                      ["Automat", tr("statusul se acordă pe baza istoricului tău")],
-                      ["Vizibil", tr("progresul către Gold, în contul tău")],
+                      [tr("Gratuit"), tr("acces la activitățile marcate Gold")],
+                      [tr("Automat"), tr("statusul se acordă pe baza istoricului tău")],
+                      [tr("Vizibil"), tr("progresul către Gold, în contul tău")],
                     ].map(([a, b]) => (
                       <li key={a} className="glass rounded-3xl p-6">
                         <p className="font-display text-3xl text-gold-bright">{a}</p>

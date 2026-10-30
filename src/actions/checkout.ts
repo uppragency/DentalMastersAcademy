@@ -14,7 +14,7 @@ import { issueProforma } from "@/lib/invoicing";
 import { readBilling, type BillingInput } from "@/lib/billing";
 
 const guestSchema = z.object({
-  full_name: z.string().trim().min(2, { error: "Introdu numele complet." }).max(120),
+  full_name: z.string().trim().min(2, { error: () => tr("Introdu numele complet.") }).max(120),
   email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
   phone: z.string().trim().max(40).optional(),
   specialization: z.string().trim().max(120).optional(),

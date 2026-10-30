@@ -45,7 +45,7 @@ export function MainNav({ data }: { data: NavData }) {
   const chevron = (k: Key) => (
     <svg aria-hidden="true" viewBox="0 0 12 12" className={`size-3 transition-transform ${open === k ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4.500l4 4 4-4" /></svg>
   );
-  const labels: Record<Key, string> = { cine: "Cine suntem", cursuri: tr("Cursuri și workshopuri"), testimoniale: "Testimoniale", contact: "Contact" };
+  const labels: Record<Key, string> = { cine: tr("Cine suntem"), cursuri: tr("Cursuri și workshopuri"), testimoniale: tr("Testimoniale"), contact: tr("Contact") };
 
   const panel = (k: Key, children: React.ReactNode) => (
     <div id={`mega-${k}`} hidden={open !== k} onMouseEnter={() => show(k)} className={panelCls}>
@@ -58,7 +58,7 @@ export function MainNav({ data }: { data: NavData }) {
       {(Object.keys(labels) as Key[]).map((k) => (
         <div key={k} onMouseEnter={() => show(k)} className="flex items-center">
           <button type="button" aria-expanded={open === k} aria-controls={`mega-${k}`} onClick={() => setOpen(open === k ? null : k)} onFocus={() => show(k)} className={trigger}>
-            {labels[k]} {chevron(k)}
+            {tr(labels[k])} {chevron(k)}
           </button>
         </div>
       ))}
@@ -144,9 +144,9 @@ export function MainNav({ data }: { data: NavData }) {
       {panel("testimoniale", (
         <ul className="grid gap-4 lg:grid-cols-3">
           {[
-            { href: "/testimoniale#t-foto", title: "Galerii foto", text: tr("Din edițiile anterioare, pe cursuri și ediții.") },
-            { href: "/testimoniale#t-text", title: "Testimoniale text", text: tr("Cu numele participantului și cursul urmat.") },
-            { href: "/testimoniale#t-video", title: "Testimoniale video", text: tr("Impresii despre cursuri, experiența practică și interacțiunea cu lectorii.") },
+            { href: "/testimoniale#t-foto", title: tr("Galerii foto"), text: tr("Din edițiile anterioare, pe cursuri și ediții.") },
+            { href: "/testimoniale#t-text", title: tr("Testimoniale text"), text: tr("Cu numele participantului și cursul urmat.") },
+            { href: "/testimoniale#t-video", title: tr("Testimoniale video"), text: tr("Impresii despre cursuri, experiența practică și interacțiunea cu lectorii.") },
           ].map((a) => (
             <li key={a.href}><Link href={a.href} onClick={close} className={tile}><span className={tileTitle}>{a.title}</span><span className={tileText}>{a.text}</span></Link></li>
           ))}

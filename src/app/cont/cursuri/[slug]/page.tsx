@@ -177,10 +177,10 @@ export default async function MyCoursePage({
             <>
           <dl className="mt-10 grid gap-px overflow-hidden rounded-[2rem] border border-line bg-line text-sm sm:grid-cols-2 lg:grid-cols-4">
             {[
-              ["Data", formatDateRange(course.starts_at, course.ends_at)],
-              ["Format", formatLabels[course.format]],
+              [tr("Data"), formatDateRange(course.starts_at, course.ends_at)],
+              [tr("Format"), formatLabels[course.format]],
               [tr("Locație"), course.location ?? tr("Se anunță")],
-              ["Limba", course.language ?? tr("Română")],
+              [tr("Limba"), course.language ?? tr("Română")],
             ].map(([k, v]) => (
               <div key={k} className="bg-card p-6"><dt className="text-muted">{k}</dt><dd className="mt-1 font-medium">{v}</dd></div>
             ))}

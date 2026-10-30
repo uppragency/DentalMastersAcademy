@@ -53,7 +53,7 @@ export async function prepareCaseUploads(files: { name: string; size: number }[]
 
 const schema = z.object({
   kind: z.enum(["doctor", "patient"]),
-  name: z.string().trim().min(2, { error: "Introdu numele." }).max(120),
+  name: z.string().trim().min(2, { error: () => tr("Introdu numele.") }).max(120),
   email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim(),
   phone: z.string().trim().min(6, { error: () => tr("Introdu un număr de telefon.") }).max(40),
   message: z.string().trim().min(15, { error: () => tr("Descrie cazul în câteva rânduri.") }).max(5000),
@@ -113,14 +113,14 @@ export async function submitCase(_: CaseState, formData: FormData): Promise<Case
       subject: tr("{v1}: {name}", { v1: doctor ? tr("Caz nou de la medic") : tr("Solicitare de evaluare de la pacient"), name: d.name }),
       heading: doctor ? tr("Caz nou trimis de un medic") : tr("Solicitare nouă de evaluare"),
       paragraphs: [`Nume: ${d.name}`, `Email: ${d.email}`, `Telefon: ${d.phone}`, tr("Fișiere atașate: {v1}", { v1: files.length }), tr("Detaliile și fișierele se văd în administrare, la Solicitări cazuri.")],
-      cta: { label: "Deschide solicitarea", href: "/admin/solicitari" },
+      cta: { label: tr("Deschide solicitarea"), href: "/admin/solicitari" },
       kind: "alert",
       replyTo: d.email,
     });
     await sendMail({
       to: d.email,
-      subject: doctor ? tr("Am primit cazul tău") : "Am primit solicitarea ta",
-      heading: doctor ? tr("Am primit cazul tău") : "Am primit solicitarea ta",
+      subject: doctor ? tr("Am primit cazul tău") : tr("Am primit solicitarea ta"),
+      heading: doctor ? tr("Am primit cazul tău") : tr("Am primit solicitarea ta"),
       paragraphs: [
         tr("Mulțumim. Echipa Dental Masters Academy analizează informațiile și revine către tine cu pașii următori."),
         doctor ? tr("Dacă ai investigații suplimentare, le poți trimite răspunzând la acest email.") : tr("Pentru urgențe, sună-ne la +40 724 065 767."),

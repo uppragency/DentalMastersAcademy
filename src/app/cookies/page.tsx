@@ -40,9 +40,9 @@ export default async function Page() {
             {rows.map((r) => (
               <tr key={r.name} className="align-top">
                 <td className="p-4 font-mono text-xs">{r.name}</td>
-                <td className="p-4">{r.purpose}</td>
-                <td className="p-4">{r.duration}</td>
-                <td className="p-4">{r.kind}</td>
+                <td className="p-4">{tr(r.purpose)}</td>
+                <td className="p-4">{tr(r.duration)}</td>
+                <td className="p-4">{tr(r.kind)}</td>
               </tr>
             ))}
           </tbody>

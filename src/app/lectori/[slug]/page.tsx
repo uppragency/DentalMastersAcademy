@@ -35,7 +35,7 @@ export default async function TrainerPage({ params }: Props) {
       <JsonLd data={[personJsonLd(t)]} />
       <section className="grain relative isolate overflow-hidden bg-ink text-white">
         <Container className="py-20 sm:py-28">
-          <nav aria-label={tr("Breadcrumb")} className="text-sm text-white/55"><Link href={t.is_founder ? "/cine-suntem" : "/lectori"} className="hover:text-white">{t.is_founder ? "Cine suntem" : tr("Lectorii noștri")}</Link></nav>
+          <nav aria-label={tr("Breadcrumb")} className="text-sm text-white/55"><Link href={t.is_founder ? "/cine-suntem" : "/lectori"} className="hover:text-white">{t.is_founder ? tr("Cine suntem") : tr("Lectorii noștri")}</Link></nav>
           <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-center">
             <TrainerAvatar name={t.name} photo={t.photo_url} size={140} />
             <div>

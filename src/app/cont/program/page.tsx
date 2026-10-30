@@ -135,7 +135,7 @@ export default async function ProgramPage() {
                 {state.history.map((h) => (
                   <tr key={h.id}>
                     <td className="p-4 whitespace-nowrap">{formatDate(h.created_at)}</td>
-                    <td className="p-4">{kindLabel[h.kind]}</td>
+                    <td className="p-4">{tr(kindLabel[h.kind])}</td>
                     <td className="p-4 text-muted">{h.note ?? ""}{h.kind === "earn" && h.expires_at ? tr(" · expiră {v1}", { v1: formatDate(h.expires_at) }) : ""}</td>
                     <td className={`p-4 text-right font-semibold ${h.delta >= 0 ? "text-gold" : ""}`}>{h.delta > 0 ? "+" : ""}{h.delta}</td>
                   </tr>

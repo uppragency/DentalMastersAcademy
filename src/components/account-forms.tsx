@@ -54,7 +54,7 @@ export function EmailForm({ current }: { current: string }) {
     <form action={action} className="space-y-5">
       <Field label={tr("Email nou")} name="email" type="email" autoComplete="email" placeholder={current} required error={e?.email?.[0]} />
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending}>{pending ? "Se trimite..." : tr("Schimbă emailul")}</Button>
+      <Button type="submit" disabled={pending}>{pending ? tr("Se trimite...") : tr("Schimbă emailul")}</Button>
     </form>
   );
 }

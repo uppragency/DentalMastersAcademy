@@ -38,7 +38,7 @@ export async function requestTransfer(enrollmentId: string, _: FormState, formDa
   const { data: staff } = await admin.from("profiles").select("email").in("role", ["admin", "operator"]).is("disabled_at", null);
   const to = (staff ?? []).map((s) => s.email).filter(Boolean);
   if (to.length) {
-    await sendMail({ to, subject: tr("Cerere de transfer de loc"), heading: tr("Cerere de transfer de loc"), paragraphs: [tr("{v1} cere transferul locului la {title} către {data}.", { v1: profile.full_name ?? profile.email, title: course.title, data: email.data })], cta: { label: "Deschide cererile", href: "/admin/transferuri" }, kind: "alert" });
+    await sendMail({ to, subject: tr("Cerere de transfer de loc"), heading: tr("Cerere de transfer de loc"), paragraphs: [tr("{v1} cere transferul locului la {title} către {data}.", { v1: profile.full_name ?? profile.email, title: course.title, data: email.data })], cta: { label: tr("Deschide cererile"), href: "/admin/transferuri" }, kind: "alert" });
   }
   revalidatePath("/cont/cursuri", "layout");
   return { message: tr("Cererea a fost trimisă. Te anunțăm când este analizată.") };
@@ -85,10 +85,10 @@ export async function approveTransfer(id: string): Promise<void> {
   const { data: from } = await admin.from("profiles").select("email, full_name").eq("id", t.from_user).maybeSingle();
   await admin.from("notifications").insert([
     { user_id: target.id, kind: "info", title: tr("Ai primit un loc la {title}", { title: course.title }), body: tr("Un coleg ți-a transferat locul. Detaliile sunt în cont."), href: `/cont/cursuri/${course.slug}` },
-    { user_id: t.from_user, kind: "info", title: "Transferul a fost aprobat", body: tr("Locul tău la {title} a fost transferat.", { title: course.title }), href: "/cont/cursuri" },
+    { user_id: t.from_user, kind: "info", title: tr("Transferul a fost aprobat"), body: tr("Locul tău la {title} a fost transferat.", { title: course.title }), href: "/cont/cursuri" },
   ]);
-  if (target.email) await sendMail({ to: target.email, subject: tr("Ai un loc la {title}", { title: course.title }), heading: tr("Ai primit un loc"), paragraphs: [tr("{v1} {v2} ți-a transferat locul la {title}. Programul și detaliile sunt în contul tău.", { v1: target.full_name ? tr("Bună, {full_name}.", { full_name: target.full_name }) : tr("Bună."), v2: from?.full_name ?? tr("Un coleg"), title: course.title })], cta: { label: "Deschide cursul", href: `/cont/cursuri/${course.slug}` }, kind: "transfer", userId: target.id });
-  if (from?.email) await sendMail({ to: from.email, subject: tr("Transferul de loc a fost aprobat"), heading: "Transfer aprobat", paragraphs: [tr("Locul tău la {title} a fost transferat către {email}.", { title: course.title, email: target.email })], kind: "transfer", userId: t.from_user });
+  if (target.email) await sendMail({ to: target.email, subject: tr("Ai un loc la {title}", { title: course.title }), heading: tr("Ai primit un loc"), paragraphs: [tr("{v1} {v2} ți-a transferat locul la {title}. Programul și detaliile sunt în contul tău.", { v1: target.full_name ? tr("Bună, {full_name}.", { full_name: target.full_name }) : tr("Bună."), v2: from?.full_name ?? tr("Un coleg"), title: course.title })], cta: { label: tr("Deschide cursul"), href: `/cont/cursuri/${course.slug}` }, kind: "transfer", userId: target.id });
+  if (from?.email) await sendMail({ to: from.email, subject: tr("Transferul de loc a fost aprobat"), heading: tr("Transfer aprobat"), paragraphs: [tr("Locul tău la {title} a fost transferat către {email}.", { title: course.title, email: target.email })], kind: "transfer", userId: t.from_user });
   revalidatePath("/admin/transferuri");
 }
 
@@ -102,6 +102,6 @@ export async function rejectTransfer(id: string, formData: FormData): Promise<vo
   await logAudit(profile.id, "reject_transfer", t.enrollment_id, { reason });
   await admin.from("notifications").insert({ user_id: t.from_user, kind: "info", title: tr("Transferul nu a fost aprobat"), body: reason ?? tr("Scrie-ne pentru detalii."), href: "/cont/cursuri" });
   const { data: from } = await admin.from("profiles").select("email").eq("id", t.from_user).maybeSingle();
-  if (from?.email) await sendMail({ to: from.email, subject: tr("Transferul de loc nu a fost aprobat"), heading: "Transfer neaprobat", paragraphs: [reason ?? tr("Cererea ta de transfer nu a putut fi aprobată. Scrie-ne și găsim o soluție.")], kind: "transfer", userId: t.from_user });
+  if (from?.email) await sendMail({ to: from.email, subject: tr("Transferul de loc nu a fost aprobat"), heading: tr("Transfer neaprobat"), paragraphs: [reason ?? tr("Cererea ta de transfer nu a putut fi aprobată. Scrie-ne și găsim o soluție.")], kind: "transfer", userId: t.from_user });
   revalidatePath("/admin/transferuri");
 }

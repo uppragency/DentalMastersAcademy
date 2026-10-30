@@ -1,11 +1,14 @@
-import { tr } from "@/lib/i18n/server";
+import { getLocale, tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { CourseCard } from "@/components/course-card";
 import { ButtonLink, Container } from "@/components/ui";
 import { getCourses } from "@/lib/data";
 import type { Course } from "@/lib/types";
 
-export const metadata: Metadata = { title: "Pagina nu a fost găsită", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  await getLocale();
+  return { title: tr("Pagina nu a fost găsită"), robots: { index: false } };
+}
 
 export default async function NotFound() {
   let courses: Course[] = [];
@@ -15,10 +18,10 @@ export default async function NotFound() {
     courses = [];
   }
   const links = [
-    { href: "/cursuri", label: "Cursuri" },
-    { href: "/blog", label: "Blog" },
-    { href: "/lectori", label: "Lectori" },
-    { href: "/contact", label: "Contact" },
+    { href: "/cursuri", label: tr("Cursuri") },
+    { href: "/blog", label: tr("Blog") },
+    { href: "/lectori", label: tr("Lectori") },
+    { href: "/contact", label: tr("Contact") },
   ];
   return (
     <>

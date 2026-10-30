@@ -98,7 +98,7 @@ export function OrderSummary({
             </button>
           </div>
           {checking && !preview ? <p className="mt-2 text-sm text-muted">{tr("Se verifică codul...")}</p> : null}
-          {preview ? <p role="status" className={`mt-2 text-sm ${preview.ok ? "text-gold" : "text-red-700"}`}>{preview.ok ? "Cod aplicat." : preview.message}</p> : null}
+          {preview ? <p role="status" className={`mt-2 text-sm ${preview.ok ? "text-gold" : "text-red-700"}`}>{preview.ok ? tr("Cod aplicat.") : preview.message}</p> : null}
         </div>
       ) : null}
       {!free && pointsBalance > 0 ? (
@@ -135,7 +135,7 @@ export function OrderSummary({
       <dl className="mt-5 space-y-2 border-t border-line pt-5 text-sm">
         <div className="flex justify-between"><dt className="text-muted">{tr("Preț")}</dt><dd>{formatPrice(priceCents, currency)}</dd></div>
         {!free && codeOk > 0 ? (
-          <div className="flex justify-between text-gold"><dt>{preview?.label === "Recomandare" ? "Reducere recomandare" : `Cod ${preview?.label}`}</dt><dd>−{formatPrice(codeOk, currency)}</dd></div>
+          <div className="flex justify-between text-gold"><dt>{preview?.label === "Recomandare" ? tr("Reducere recomandare") : `Cod ${preview?.label}`}</dt><dd>−{formatPrice(codeOk, currency)}</dd></div>
         ) : tierPercent > 0 && !free ? (
           <div className="flex justify-between text-gold"><dt>{tr("Reducere")}{" "}{tierName} {tierPercent}%</dt><dd>−{formatPrice(tierDisc, currency)}</dd></div>
         ) : null}
@@ -143,7 +143,7 @@ export function OrderSummary({
           <div className="flex justify-between text-gold"><dt>{tr("Plătit cu")}{" "}{points} {" "}{tr("puncte")}</dt><dd>−{formatPrice(pointsDisc, currency)}</dd></div>
         ) : null}
         <div className="flex justify-between border-t border-line pt-3 text-lg font-semibold">
-          <dt>{tr("Total")}</dt><dd>{free ? "Gratuit" : formatPrice(total, currency)}</dd>
+          <dt>{tr("Total")}</dt><dd>{free ? tr("Gratuit") : formatPrice(total, currency)}</dd>
         </div>
         {savings > 0 ? (
           <div className="flex justify-end"><span className="rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-gold">{tr("Economisești")}{" "}{formatPrice(savings, currency)}</span></div>
@@ -156,7 +156,7 @@ export function OrderSummary({
           <div>
             <p className="text-xs text-muted">{tr("Total comandă")}</p>
             <p className="flex items-center gap-2 text-lg font-semibold">
-              {free ? "Gratuit" : formatPrice(total, currency)}
+              {free ? tr("Gratuit") : formatPrice(total, currency)}
               {savings > 0 ? <span className="rounded-full bg-gold-soft px-2 py-0.5 text-[11px] font-semibold text-gold">−{formatPrice(savings, currency)}</span> : null}
             </p>
           </div>

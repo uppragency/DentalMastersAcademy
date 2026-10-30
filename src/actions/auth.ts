@@ -15,7 +15,7 @@ function safeNext(value: FormDataEntryValue | null) {
 
 const loginSchema = z.object({
   email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
-  password: z.string().min(1, { error: "Introdu parola." }),
+  password: z.string().min(1, { error: () => tr("Introdu parola.") }),
 });
 
 export async function login(_: FormState, formData: FormData): Promise<FormState> {
@@ -31,7 +31,7 @@ export async function login(_: FormState, formData: FormData): Promise<FormState
 }
 
 const signupSchema = z.object({
-  full_name: z.string().trim().min(2, { error: "Introdu numele complet." }).max(120),
+  full_name: z.string().trim().min(2, { error: () => tr("Introdu numele complet.") }).max(120),
   email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim().toLowerCase(),
   phone: z.string().trim().max(40).optional(),
   specialization: z.string().trim().max(120).optional(),

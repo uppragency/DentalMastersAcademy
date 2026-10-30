@@ -44,7 +44,7 @@ export function AnnounceForm({ courseId, slug }: { courseId: string; slug: strin
       </div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="email" defaultChecked className="size-4 accent-[#a9833d]" /> {" "}{tr("Trimite și email")}</label>
       <Status message={state?.message} />
-      <Button type="submit" disabled={pending}>{pending ? "Se trimite..." : tr("Trimite anunțul")}</Button>
+      <Button type="submit" disabled={pending}>{pending ? tr("Se trimite...") : tr("Trimite anunțul")}</Button>
     </form>
   );
 }
@@ -74,7 +74,7 @@ export function FeedbackForm({ courseId }: { courseId: string }) {
       </div>
       <label className="flex items-start gap-2 text-sm"><input type="checkbox" name="allow_public" className="mt-1 size-4 accent-[#a9833d]" /> {" "}{tr("Sunt de acord ca acest comentariu să fie publicat pe site ca recenzie, după aprobarea echipei (minimum 20 de caractere).")}</label>
       <Status message={state?.message} />
-      <Button type="submit" variant="gold" disabled={pending}>{pending ? "Se trimite..." : "Trimite evaluarea"}</Button>
+      <Button type="submit" variant="gold" disabled={pending}>{pending ? tr("Se trimite...") : tr("Trimite evaluarea")}</Button>
     </form>
   );
 }

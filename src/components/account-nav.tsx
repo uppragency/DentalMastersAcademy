@@ -31,7 +31,7 @@ export function AccountNav() {
               active ? "bg-ink text-white shadow-lg shadow-ink/20" : "text-muted hover:bg-card hover:text-foreground"
             }`}
           >
-            {item.label}
+            {tr(item.label)}
           </Link>
         );
       })}

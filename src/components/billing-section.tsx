@@ -30,7 +30,6 @@ function Segmented<T extends string>({
   onChange: (v: T) => void;
   options: { value: T; label: string }[];
 }) {
-  const tr = useT();
   return (
     <div role="radiogroup" aria-label={label} className="grid auto-cols-fr grid-flow-col gap-1 rounded-full border border-line bg-background p-1">
       {options.map((o) => (
@@ -96,8 +95,8 @@ export function BillingSection({
             if (m === "new") setValues(empty(defaultName));
           }}
           options={[
-            { value: "saved", label: "Profil salvat" },
-            { value: "new", label: "Profil nou" },
+            { value: "saved", label: tr("Profil salvat") },
+            { value: "new", label: tr("Profil nou") },
           ]}
         />
       ) : null}

@@ -73,10 +73,10 @@ export default async function Page() {
           <div className="mt-10 space-y-10">
             {sections.map((s) => (
               <section key={s.title}>
-                <h2 className="text-xl font-semibold tracking-tight">{s.title}</h2>
+                <h2 className="text-xl font-semibold tracking-tight">{tr(s.title)}</h2>
                 <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed text-muted">
                   {s.items.map((i) => (
-                    <li key={i}>{i}</li>
+                    <li key={i}>{tr(i)}</li>
                   ))}
                 </ul>
               </section>

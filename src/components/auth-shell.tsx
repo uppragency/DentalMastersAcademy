@@ -14,7 +14,7 @@ export function AuthShell({ title, lead, children }: { title: string; lead: stri
           <p className="font-display max-w-md text-5xl leading-[1.05]">{tr("Învățarea ta,")}{" "}<span className="text-gold-sheen">{tr("la un clic distanță.")}</span></p>
           <ul className="mt-10 space-y-3 text-white/70">
             {perks.map((p) => (
-              <li key={p} className="flex items-center gap-3"><span className="size-1.5 rotate-45 bg-gold-bright" />{p}</li>
+              <li key={p} className="flex items-center gap-3"><span className="size-1.5 rotate-45 bg-gold-bright" />{tr(p)}</li>
             ))}
           </ul>
         </div>

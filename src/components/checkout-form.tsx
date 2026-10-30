@@ -93,7 +93,7 @@ export function CheckoutForm({
               <label key={m} className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${on ? "border-gold bg-gold-soft" : "border-line hover:border-foreground/30"}`}>
                 <input type="radio" name="payment_method" value={m} checked={on} onChange={() => setMethod(m)} className="mt-1 size-4 accent-[#a9833d]" />
                 <span>
-                  <span className="block font-medium">{m === "card" ? "Card bancar" : "Transfer bancar"}</span>
+                  <span className="block font-medium">{m === "card" ? tr("Card bancar") : tr("Transfer bancar")}</span>
                   <span className="mt-0.5 block text-sm text-muted">
                     {m === "card" ? tr("Plată securizată prin Stripe. Locul este confirmat imediat. Apple Pay și Google Pay apar pe dispozitivele care le suportă.") : tr("Primești datele bancare după comandă. Înscrierea se activează după ce confirmăm plata.")}
                   </span>

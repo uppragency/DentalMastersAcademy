@@ -8,7 +8,7 @@ import { sendMail } from "@/lib/email";
 import { inbox } from "@/content/mailboxes";
 
 const schema = z.object({
-  name: z.string().trim().min(2, { error: "Introdu numele." }).max(120),
+  name: z.string().trim().min(2, { error: () => tr("Introdu numele.") }).max(120),
   email: z.email({ error: () => tr("Introdu o adresă de email validă.") }).trim(),
   phone: z.string().trim().max(40).optional(),
   message: z.string().trim().min(5, { error: () => tr("Mesajul este prea scurt.") }).max(4000),

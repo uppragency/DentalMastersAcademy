@@ -27,7 +27,7 @@ export default async function CoursesPage({ searchParams }: Props) {
   const courses = all.filter((c) => (when === "viitoare" ? !isEnded(c, now) : when === "incheiate" ? isEnded(c, now) : true));
 
   const groups = [
-    { key: "dma", title: "Cursurile DMA", lead: tr("Programele principale, susținute de Dr. Ovidiu Dumitru și Dr. Gabriel Mușețescu."), items: courses.filter((c) => c.kind !== "hosted") },
+    { key: "dma", title: tr("Cursurile DMA"), lead: tr("Programele principale, susținute de Dr. Ovidiu Dumitru și Dr. Gabriel Mușețescu."), items: courses.filter((c) => c.kind !== "hosted") },
     { key: "hosted", title: tr("Cursuri găzduite"), lead: tr("Cursuri susținute de invitați și parteneri, în spațiul Dental Masters Academy."), items: courses.filter((c) => c.kind === "hosted") },
   ].filter((g) => g.items.length > 0);
 

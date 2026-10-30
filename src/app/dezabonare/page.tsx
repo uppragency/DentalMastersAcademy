@@ -20,7 +20,7 @@ export default async function Unsubscribe({ searchParams }: { searchParams: Prom
   }
   return (
     <Container className="max-w-xl py-24 text-center">
-      <h1 className="font-display text-4xl font-medium">{ok ? tr("Te-ai dezabonat") : "Link invalid"}</h1>
+      <h1 className="font-display text-4xl font-medium">{ok ? tr("Te-ai dezabonat") : tr("Link invalid")}</h1>
       <p className="mt-4 text-muted">
         {ok ? tr("Nu vei mai primi emailuri cu recomandări de cursuri. Vei primi în continuare mesajele despre comenzile și cursurile tale.") : tr("Linkul de dezabonare nu este valid sau a expirat. Scrie-ne și te dezabonăm manual.")}
       </p>

@@ -38,7 +38,7 @@ export default async function MyOrders() {
                   <td className="px-5 py-4">{formatDate(o.created_at)}</td>
                   <td className="px-5 py-4">{o.order_items.map((i) => i.courses?.title).filter(Boolean).join(", ")}</td>
                   <td className="px-5 py-4 font-medium">{formatPrice(o.total_cents, o.currency.trim())}</td>
-                  <td className="px-5 py-4">{statusLabel[o.status] ?? o.status}</td>
+                  <td className="px-5 py-4">{tr(statusLabel[o.status] ?? o.status)}</td>
                   <td className="px-5 py-4"><Link className="inline-flex min-h-9 items-center rounded-full border border-line px-4 font-medium transition-colors hover:bg-background" href={`/cont/comenzi/${o.id}`}>{tr("Deschide comanda")}</Link></td>
                 </tr>
               ))}

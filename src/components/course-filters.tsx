@@ -38,8 +38,8 @@ export function CourseFilters({ format, perioada, upcoming }: Props) {
     `rounded-full border px-5 py-2.5 text-sm transition-all duration-300 ${active ? "border-ink bg-ink text-white" : "border-line bg-card text-muted hover:border-foreground/30 hover:text-foreground"}`;
 
   const tabs: { key: Key; label: string; value?: string }[] = [
-    { key: "perioada", label: tr("Perioadă"), value: periodNames[perioada] },
-    { key: "format", label: "Format", value: format ? formatNames[format] : undefined },
+    { key: "perioada", label: tr("Perioadă"), value: periodNames[perioada] ? tr(periodNames[perioada]) : undefined },
+    { key: "format", label: tr("Format"), value: format ? tr(formatNames[format]) : undefined },
     { key: "calendar", label: tr("Calendar ediții") },
   ];
   const active = [perioada, format].filter(Boolean).length;
@@ -84,7 +84,7 @@ export function CourseFilters({ format, perioada, upcoming }: Props) {
           {open === "format" ? (
             <nav aria-label={tr("Filtrare după format")} className="flex flex-wrap gap-2">
               <Link href={href({ ...cur, f: undefined })} className={chip(!format)}>{tr("Orice format")}</Link>
-              {Object.entries(formatNames).map(([k, v]) => <Link key={k} href={href({ ...cur, f: k })} className={chip(format === k)}>{v}</Link>)}
+              {Object.entries(formatNames).map(([k, v]) => <Link key={k} href={href({ ...cur, f: k })} className={chip(format === k)}>{tr(v)}</Link>)}
             </nav>
           ) : null}
           {open === "calendar" ? (

@@ -35,8 +35,8 @@ async function notifyEnrolled(courseId: string, opts: { title: string; body: str
 }
 
 const announceSchema = z.object({
-  title: z.string().trim().min(3, { error: "Introdu titlul." }).max(160),
-  body: z.string().trim().min(3, { error: "Introdu mesajul." }).max(1000),
+  title: z.string().trim().min(3, { error: () => tr("Introdu titlul.") }).max(160),
+  body: z.string().trim().min(3, { error: () => tr("Introdu mesajul.") }).max(1000),
 });
 
 export async function announceToEnrolled(courseId: string, slug: string, _: FormState, formData: FormData): Promise<FormState> {
@@ -49,9 +49,9 @@ export async function announceToEnrolled(courseId: string, slug: string, _: Form
 }
 
 const materialSchema = z.object({
-  title: z.string().trim().min(2, { error: "Introdu titlul." }).max(200),
+  title: z.string().trim().min(2, { error: () => tr("Introdu titlul.") }).max(200),
   description: z.string().trim().max(500).optional(),
-  url: z.string().trim().url({ error: "Link invalid." }).startsWith("https://", { error: () => tr("Linkul trebuie să înceapă cu https://") }).optional(),
+  url: z.string().trim().url({ error: () => tr("Link invalid.") }).startsWith("https://", { error: () => tr("Linkul trebuie să înceapă cu https://") }).optional(),
 });
 
 export async function addMaterial(courseId: string, slug: string, _: FormState, formData: FormData): Promise<FormState> {
@@ -145,7 +145,7 @@ export async function submitReview(courseId: string, _: FormState, formData: For
   const { count } = await admin.from("testimonials").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("course_id", courseId);
   if ((count ?? 0) > 0) return { message: tr("Ai trimis deja o recenzie pentru acest curs.") };
   const { error } = await admin.from("testimonials").insert({
-    author_name: profile.full_name ?? "Cursant",
+    author_name: profile.full_name ?? tr("Cursant"),
     author_title: [profile.specialization, course.title].filter(Boolean).join(", "),
     quote: parsed.data.quote,
     is_published: false,

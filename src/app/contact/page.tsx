@@ -15,9 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function ContactPage() {
   const items = [
     { k: tr("Adresă"), v: contact.address, href: undefined },
-    { k: "Telefon", v: contact.phone, href: contact.phoneHref },
-    { k: "Email", v: contact.email, href: `mailto:${contact.email}` },
-    { k: "Social", v: contact.social, href: contact.socialHref },
+    { k: tr("Telefon"), v: contact.phone, href: contact.phoneHref },
+    { k: tr("Email"), v: contact.email, href: `mailto:${contact.email}` },
+    { k: tr("Social"), v: contact.social, href: contact.socialHref },
   ];
   return (
     <>

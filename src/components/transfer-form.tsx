@@ -14,7 +14,7 @@ export function TransferForm({ enrollmentId }: { enrollmentId: string }) {
       <Field label={tr("Emailul colegului (trebuie să aibă cont)")} name="email" type="email" required error={e?.email?.[0]} />
       <Field label={tr("Mesaj pentru organizator (opțional)")} name="note" />
       {state?.message ? <p role="status" className="rounded-xl bg-gold-soft px-4 py-3 text-sm">{state.message}</p> : null}
-      <Button type="submit" disabled={pending}>{pending ? "Se trimite..." : "Cere transferul"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? tr("Se trimite...") : tr("Cere transferul")}</Button>
     </form>
   );
 }

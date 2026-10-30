@@ -18,7 +18,7 @@ export function WaitlistForm({ courseId, tone = "light" }: { courseId: string | 
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       {state?.message ? <p role="status" className="rounded-xl bg-gold-soft px-4 py-3 text-sm text-foreground">{state.message}</p> : null}
       <Button type="submit" variant={tone === "dark" ? "gold" : "primary"} disabled={pending} className="w-full">
-        {pending ? "Se trimite..." : tr("Anunță-mă când se deschid înscrierile")}
+        {pending ? tr("Se trimite...") : tr("Anunță-mă când se deschid înscrierile")}
       </Button>
     </form>
   );

@@ -31,11 +31,11 @@ export async function SiteHeader() {
   };
   const faculty = trainers.filter((t) => !t.is_founder);
   const mobileItems = [
-    { href: "/cine-suntem", label: "Cine suntem", children: [{ href: "/cine-suntem", label: "Conceptul DMA" }, ...trainers.filter((t) => t.is_founder).map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/lectori", label: tr("Lectorii noștri") }, ...faculty.map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/parteneri", label: tr("Partenerii noștri") }] },
-    { href: "/cursuri", label: tr("Cursuri și workshopuri"), children: [...navData.dma.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), ...navData.hosted.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), { href: "/mentorat", label: "Mentorat clinic" }] },
-    { href: "/testimoniale", label: "Testimoniale", children: [{ href: "/testimoniale#t-foto", label: "Galerii foto" }, { href: "/testimoniale#t-text", label: "Testimoniale text" }, { href: "/testimoniale#t-video", label: "Testimoniale video" }] },
-    { href: "/contact", label: "Contact", children: [{ href: "/contact#medici", label: tr("Pentru medici") }, { href: "/contact#pacienti", label: tr("Pentru pacienți") }] },
-    { href: "/blog", label: "Blog" },
+    { href: "/cine-suntem", label: tr("Cine suntem"), children: [{ href: "/cine-suntem", label: tr("Conceptul DMA") }, ...trainers.filter((t) => t.is_founder).map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/lectori", label: tr("Lectorii noștri") }, ...faculty.map((t) => ({ href: `/lectori/${t.slug}`, label: t.name })), { href: "/parteneri", label: tr("Partenerii noștri") }] },
+    { href: "/cursuri", label: tr("Cursuri și workshopuri"), children: [...navData.dma.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), ...navData.hosted.map((c) => ({ href: `/cursuri/${c.slug}`, label: c.title })), { href: "/mentorat", label: tr("Mentorat clinic") }] },
+    { href: "/testimoniale", label: tr("Testimoniale"), children: [{ href: "/testimoniale#t-foto", label: tr("Galerii foto") }, { href: "/testimoniale#t-text", label: tr("Testimoniale text") }, { href: "/testimoniale#t-video", label: tr("Testimoniale video") }] },
+    { href: "/contact", label: tr("Contact"), children: [{ href: "/contact#medici", label: tr("Pentru medici") }, { href: "/contact#pacienti", label: tr("Pentru pacienți") }] },
+    { href: "/blog", label: tr("Blog") },
   ];
 
   return (
