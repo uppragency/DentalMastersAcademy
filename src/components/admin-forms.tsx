@@ -1,5 +1,7 @@
 "use client";
 
+import { EnglishFields } from "@/components/english-fields";
+import { courseEnFields } from "@/lib/translations";
 import { useActionState } from "react";
 import { addLesson, addTestimonial, createDiscountCode, deleteCourse, saveCourse, saveLoyalty, adjustPoints } from "@/actions/admin";
 import { Button, Field } from "@/components/ui";
@@ -156,6 +158,7 @@ export function CourseForm({ course, otherCourses = [] }: { course?: Course; oth
         <label className="flex items-center gap-2"><input type="checkbox" name="is_featured" defaultChecked={course?.is_featured} className="size-4 accent-[#a9833d]" /> Recomandat pe prima pagină</label>
         <label className="flex items-center gap-2"><input type="checkbox" name="gold_free" defaultChecked={course?.gold_free} className="size-4 accent-[#a9833d]" /> Acces gratuit pentru membrii Gold</label>
       </div>
+      <EnglishFields fields={courseEnFields} translations={course?.translations} />
       <Status message={state?.message} />
       <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează cursul"}</Button>
     </form>

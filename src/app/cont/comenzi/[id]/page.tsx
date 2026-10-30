@@ -45,6 +45,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
 }
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
+  await getLocale();
   const { id } = await params;
   const profile = await getCurrentProfile();
   const supabase = await createClient();

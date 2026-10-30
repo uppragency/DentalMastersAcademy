@@ -14,6 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const fmt = new Intl.DateTimeFormat("ro-RO", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Bucharest" });
 
 export default async function NotificationsPage() {
+  await getLocale();
   const profile = (await getCurrentProfile())!;
   const items = await getNotifications(profile.id);
   const unread = items.filter((n) => !n.read_at).length;

@@ -1,3 +1,4 @@
+import { getLocale } from "@/lib/i18n/server";
 import { tr } from "@/lib/i18n/server";
 import Link from "@/components/locale-link";
 import { ButtonLink, Container, Eyebrow, SectionTitle, Arrow } from "@/components/ui";
@@ -16,6 +17,7 @@ import { LocationMap } from "@/components/location-map";
 import { TrainerAvatar } from "@/components/trainer-avatar";
 
 export default async function HomePage() {
+  await getLocale();
   const [trainers, courses, testimonials, loyalty, faqs, partners] = await Promise.all([
     getTrainers(),
     getCourses(),
@@ -87,7 +89,7 @@ export default async function HomePage() {
               {stats.map((s, i) => (
                 <div key={s.label} className={`px-2 py-8 lg:px-8 ${i === 0 ? "lg:pl-0" : ""}`}>
                   <dd className="font-display text-5xl font-medium text-white sm:text-6xl"><Counter value={s.value} suffix={s.suffix} /></dd>
-                  <dt className="mt-2 max-w-[14rem] text-sm text-white/50">{s.label}</dt>
+                  <dt className="mt-2 max-w-[14rem] text-sm text-white/50">{tr(s.label)}</dt>
                 </div>
               ))}
             </dl>
@@ -100,7 +102,7 @@ export default async function HomePage() {
         <div className="marquee flex w-max gap-12 whitespace-nowrap">
           {[...topics, ...topics].map((t, i) => (
             <span key={i} className="font-display flex items-center gap-12 text-3xl text-foreground/80">
-              {t}
+              {tr(t)}
               <span className="size-2 rotate-45 bg-gold" />
             </span>
           ))}
@@ -139,8 +141,8 @@ export default async function HomePage() {
               <Reveal as="li" key={st.title} delay={i * 100}>
                 <div className="h-full rounded-[2rem] border border-line bg-card p-8">
                   <span className="font-display text-5xl text-gold">{String(i + 1).padStart(2, "0")}</span>
-                  <h3 className="font-display mt-6 text-2xl">{st.title}</h3>
-                  <p className="mt-3 text-[15px] leading-relaxed text-muted">{st.text}</p>
+                  <h3 className="font-display mt-6 text-2xl">{tr(st.title)}</h3>
+                  <p className="mt-3 text-[15px] leading-relaxed text-muted">{tr(st.text)}</p>
                 </div>
               </Reveal>
             ))}
@@ -163,9 +165,9 @@ export default async function HomePage() {
               <Reveal as="li" key={m.n} delay={i * 80} className="bg-ink-2">
                 <div className="group flex h-full flex-col p-8 transition-colors hover:bg-white/[0.04]">
                   <span className="font-display text-6xl text-gold-bright/40 transition-colors group-hover:text-gold-bright">{m.n}</span>
-                  <h3 className="font-display mt-8 text-xl leading-snug">{m.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/55">{m.text}</p>
-                  <p className="mt-auto pt-8 text-xs font-semibold uppercase tracking-widest text-gold-bright">{m.when}</p>
+                  <h3 className="font-display mt-8 text-xl leading-snug">{tr(m.title)}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/55">{tr(m.text)}</p>
+                  <p className="mt-auto pt-8 text-xs font-semibold uppercase tracking-widest text-gold-bright">{tr(m.when)}</p>
                 </div>
               </Reveal>
             ))}
@@ -186,7 +188,7 @@ export default async function HomePage() {
                 {advantages.map((a) => (
                   <li key={a} className="flex items-start gap-3 text-[15px]">
                     <svg aria-hidden="true" viewBox="0 0 20 20" className="mt-0.5 size-5 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="10" cy="10" r="8" /><path d="M6.500 10.200l2.400 2.400 4.600-5" /></svg>
-                    {a}
+                    {tr(a)}
                   </li>
                 ))}
               </ul>
@@ -199,8 +201,8 @@ export default async function HomePage() {
                       {i === 0 || i === 3 ? <CourseArt seed={`fac-${i}`} className="size-full scale-150" /> : null}
                     </div>
                     <span className="relative font-display text-5xl text-gold/80">0{i + 1}</span>
-                    <h3 className="font-display relative mt-4 text-2xl leading-snug">{f.title}</h3>
-                    <p className={`relative mt-3 text-sm leading-relaxed ${i === 0 || i === 3 ? "text-white/70" : "text-muted"}`}>{f.text}</p>
+                    <h3 className="font-display relative mt-4 text-2xl leading-snug">{tr(f.title)}</h3>
+                    <p className={`relative mt-3 text-sm leading-relaxed ${i === 0 || i === 3 ? "text-white/70" : "text-muted"}`}>{tr(f.text)}</p>
                   </article>
                 </Reveal>
               ))}

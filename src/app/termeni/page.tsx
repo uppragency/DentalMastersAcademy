@@ -10,6 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
+  await getLocale();
   const text = await getLegalText("legal_termeni");
   return <LegalShell title={tr("Termeni și condiții")} lead={tr("Regulile de utilizare a platformei și de achiziție a cursurilor.")}>{text ? <LegalText text={text} /> : <DefaultLegal doc={termeni} />}</LegalShell>;
 }

@@ -14,6 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PartnersPage() {
+  await getLocale();
   const partners = await getPartnerRows();
   return (
     <>

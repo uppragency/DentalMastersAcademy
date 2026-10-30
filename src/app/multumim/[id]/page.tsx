@@ -12,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ThankYou({ params }: { params: Promise<{ id: string }> }) {
+  await getLocale();
   const { id } = await params;
   const profile = await getCurrentProfile();
   if (!profile) redirect(`/autentificare?next=/multumim/${id}`);

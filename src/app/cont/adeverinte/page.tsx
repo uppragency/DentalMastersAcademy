@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type Row = { id: string; courses: { slug: string; title: string; starts_at: string | null; ends_at: string | null } | null; certificates: { number: string }[] | { number: string } | null };
 
 export default async function CertificatesPage() {
+  await getLocale();
   const profile = (await getCurrentProfile())!;
   const supabase = await createClient();
   const { data } = await supabase

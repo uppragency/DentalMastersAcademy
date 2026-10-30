@@ -14,6 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProfilePage() {
+  await getLocale();
   const profile = (await getCurrentProfile())!;
   const supabase = await createClient();
   const { data: billing } = await supabase

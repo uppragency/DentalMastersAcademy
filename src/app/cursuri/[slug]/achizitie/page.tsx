@@ -22,6 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CheckoutPage({ params }: { params: Promise<{ slug: string }> }) {
+  await getLocale();
   const { slug } = await params;
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();

@@ -3,6 +3,7 @@ export type CourseFormat = "physical" | "online" | "hybrid";
 
 
 export type Course = {
+  translations?: { en?: Record<string, unknown> } | null;
   id: string;
   slug: string;
   title: string;
@@ -123,6 +124,7 @@ export type Lesson = {
 };
 
 export type Trainer = {
+  translations?: { en?: Record<string, unknown> } | null;
   id: string;
   slug: string;
   name: string;
@@ -139,6 +141,7 @@ export type Trainer = {
 };
 
 export type BlogPost = {
+  translations?: { en?: Record<string, unknown> } | null;
   id: string;
   slug: string;
   title: string;
@@ -163,7 +166,8 @@ export type EventRow = {
   published: boolean;
 };
 
-export type Partner = { id: string; name: string; description: string | null; logo_url: string | null; url: string | null; sort_order: number; published: boolean };
+export type Partner = {
+  translations?: { en?: Record<string, unknown> } | null; id: string; name: string; description: string | null; logo_url: string | null; url: string | null; sort_order: number; published: boolean };
 export type ClinicalCase = { id: string; trainer_id: string; title: string; description: string | null; image_urls: string[]; sort_order: number; published: boolean };
 export type GalleryPhoto = { id: string; album_id: string; url: string; caption: string | null; sort_order: number };
 export type GalleryAlbum = { id: string; course_id: string | null; title: string; edition_label: string | null; sort_order: number; published: boolean; gallery_photos: GalleryPhoto[]; courses?: { title: string } | null };

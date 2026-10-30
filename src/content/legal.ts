@@ -1,14 +1,10 @@
-import { company, contact } from "@/content/site";
-
 export type LegalDoc = { updated: string; intro: string; sections: { title: string; paragraphs: string[] }[] };
-
-const operator = `${company.name}, CUI ${company.cui}, Nr. Reg. Com. ${company.regCom}, EUID ${company.euid}, cu sediul în ${company.address}`;
 
 export const termeni: LegalDoc = {
   updated: "8 octombrie 2026",
-  intro: `Acești termeni reglementează utilizarea platformei ${company.brand} și achiziția cursurilor de formare oferite prin ea. Prin crearea unui cont sau prin plasarea unei comenzi confirmi că i-ai citit și că îi accepți.`,
+  intro: `Acești termeni reglementează utilizarea platformei {brand} și achiziția cursurilor de formare oferite prin ea. Prin crearea unui cont sau prin plasarea unei comenzi confirmi că i-ai citit și că îi accepți.`,
   sections: [
-    { title: "1. Cine suntem", paragraphs: [`Platforma este operată de ${operator}. Ne poți contacta la ${contact.email} sau la ${contact.phone}.`] },
+    { title: "1. Cine suntem", paragraphs: [`Platforma este operată de {operator}. Ne poți contacta la {email} sau la {phone}.`] },
     { title: "2. Ce oferim", paragraphs: ["Oferim cursuri de formare profesională pentru medici stomatologi, în format fizic, online sau hibrid. Pagina fiecărui curs afișează data, locația, programul, numărul maxim de participanți, lectorii și prețul."] },
     { title: "3. Contul de utilizator", paragraphs: ["Pentru a te înscrie ai nevoie de un cont. Datele introduse trebuie să fie reale și actuale. Ești responsabil/ă pentru păstrarea parolei și pentru activitatea din contul tău. Ne poți cere oricând ștergerea contului din secțiunea Profil."] },
     { title: "4. Înscriere, preț și plată", paragraphs: [
@@ -30,7 +26,7 @@ export const termeni: LegalDoc = {
     { title: "12. Conduită", paragraphs: ["Te rugăm să te porți respectuos față de lectori și colegi. Ne rezervăm dreptul de a refuza accesul sau de a exclude de la curs persoanele care perturbă desfășurarea activității sau încalcă acești termeni."] },
     { title: "13. Limitarea răspunderii", paragraphs: ["În limitele permise de lege, răspunderea noastră se limitează la valoarea cursului plătit. Nu răspundem pentru întreruperi ale platformei din motive independente de noi, precum defecțiuni ale furnizorilor de internet sau de plată."] },
     { title: "14. Date personale", paragraphs: ["Prelucrăm datele tale conform Politicii de confidențialitate și Politicii de cookies, disponibile pe site."] },
-    { title: "15. Reclamații și soluționarea litigiilor", paragraphs: [`Poți trimite o reclamație la ${contact.email}. Revenim cu un răspuns în cel mult 30 de zile. Ca consumator, poți apela și la Autoritatea Națională pentru Protecția Consumatorilor (ANPC) sau la o entitate de soluționare alternativă a litigiilor (SAL).`] },
+    { title: "15. Reclamații și soluționarea litigiilor", paragraphs: [`Poți trimite o reclamație la {email}. Revenim cu un răspuns în cel mult 30 de zile. Ca consumator, poți apela și la Autoritatea Națională pentru Protecția Consumatorilor (ANPC) sau la o entitate de soluționare alternativă a litigiilor (SAL).`] },
     { title: "16. Legea aplicabilă", paragraphs: ["Acești termeni sunt guvernați de legea română. Litigiile se soluționează pe cale amiabilă, iar în caz contrar de instanțele competente conform legii."] },
     { title: "17. Modificări", paragraphs: ["Putem actualiza acești termeni. Versiunea în vigoare este cea publicată pe site, cu data ultimei actualizări afișată sus. Comenzile plasate anterior rămân supuse termenilor de la data comenzii."] },
   ],
@@ -40,7 +36,7 @@ export const confidentialitate: LegalDoc = {
   updated: "8 octombrie 2026",
   intro: "Această politică explică ce date personale prelucrăm, de ce, cât timp le păstrăm și ce drepturi ai, conform Regulamentului (UE) 2016/679 (GDPR) și legislației române.",
   sections: [
-    { title: "1. Operatorul datelor", paragraphs: [`${operator}. Contact pentru date personale: ${contact.email}, ${contact.phone}.`] },
+    { title: "1. Operatorul datelor", paragraphs: [`{operator}. Contact pentru date personale: {email}, {phone}.`] },
     { title: "2. Ce date prelucrăm", paragraphs: [
       "Date de cont: nume, email, telefon, specializare, oraș, clinică, ani de experiență, parolă (stocată criptat, nu o putem citi).",
       "Date de facturare: nume sau denumirea firmei, CUI, număr de înregistrare, adresă.",

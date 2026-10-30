@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const statusLabel: Record<string, string> = { pending: "În așteptare", paid: "Plătită", failed: "Eșuată", refunded: "Rambursată", cancelled: "Anulată" };
 
 export default async function MyOrders() {
+  await getLocale();
   const profile = (await getCurrentProfile())!;
   const orders = await getMyOrders(profile.id);
   return (

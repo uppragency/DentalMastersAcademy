@@ -16,7 +16,7 @@ export function LocationMap() {
       </div>
       <div className="flex flex-wrap items-center justify-between gap-4 p-6 sm:p-8">
         <div>
-          <p className="font-display text-xl">{contact.address}</p>
+          <p className="font-display text-xl">{tr(contact.address)}</p>
           {directions.parking ? <p className="mt-2 text-sm text-muted"><strong className="text-foreground">{tr("Parcare:")}</strong> {directions.parking}</p> : null}
           {directions.transport ? <p className="mt-1 text-sm text-muted"><strong className="text-foreground">{tr("Transport în comun:")}</strong> {directions.transport}</p> : null}
         </div>

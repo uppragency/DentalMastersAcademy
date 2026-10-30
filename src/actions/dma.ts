@@ -1,5 +1,6 @@
 "use server";
 
+import { partnerEnFields, readEnglish } from "@/lib/translations";
 import { revalidatePath } from "next/cache";
 import { requireAdminClient } from "@/lib/require-admin";
 import { uploadImage } from "@/lib/media";
@@ -35,6 +36,8 @@ export async function savePartner(formData: FormData) {
     const up = await uploadImage(logo, "partners");
     if ("url" in up) row.logo_url = up.url;
   }
+  const { data: prevPt } = id ? await supabase.from("partners").select("translations").eq("id", id).maybeSingle() : { data: null };
+  row.translations = readEnglish(formData, partnerEnFields, prevPt?.translations);
   if (id) await supabase.from("partners").update(row).eq("id", id);
   else await supabase.from("partners").insert(row);
   refresh();

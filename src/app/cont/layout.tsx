@@ -1,3 +1,4 @@
+import { getLocale } from "@/lib/i18n/server";
 import { tr } from "@/lib/i18n/server";
 import { lredirect as redirect } from "@/lib/i18n/server";
 import { logout } from "@/actions/auth";
@@ -9,6 +10,7 @@ import { getCurrentProfile, getLoyaltySettings, getLoyaltyState } from "@/lib/da
 import { tierProgress, tierNames } from "@/lib/loyalty";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
+  await getLocale();
   const profile = await getCurrentProfile();
   if (!profile) redirect("/autentificare?next=/cont");
   const name = profile.full_name ?? profile.email;

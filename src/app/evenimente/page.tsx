@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function EventsPage() {
+  await getLocale();
   const events = await getEvents();
   return (
     <>

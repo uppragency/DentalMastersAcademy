@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CertificatePage({ params }: { params: Promise<{ slug: string }> }) {
+  await getLocale();
   const { slug } = await params;
   const profile = await getCurrentProfile();
   if (!profile) redirect(`/autentificare?next=/cont/cursuri/${slug}/adeverinta`);
@@ -46,7 +47,7 @@ export default async function CertificatePage({ params }: { params: Promise<{ sl
           <span className="mt-1 block text-xs text-muted">{tr("Se verifică la")}{" "}{site.replace(/^https?:\/\//, "")}{tr("/verificare/")}{number}</span>
         </p>
       ) : null}
-      <p className="mt-10 text-center text-sm text-muted">{contact.address} · {contact.email}</p>
+      <p className="mt-10 text-center text-sm text-muted">{tr(contact.address)} · {contact.email}</p>
       <div className="mt-10 flex justify-center print:hidden"><PrintButton /></div>
     </div>
   );

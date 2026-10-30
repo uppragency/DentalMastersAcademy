@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { withEffectivePrice } from "@/lib/pricing";
+import { localize, localizeAll } from "@/lib/i18n/localize";
 import type { PointsRow, BlogPost, ClinicalCase, Course, EventRow, GalleryAlbum, Partner, TestimonialVideo, Trainer, Lesson, LoyaltySettings, Notification, Profile, Testimonial } from "@/lib/types";
 
 const courseSelect = "*";
@@ -14,7 +15,7 @@ export async function getCourses(opts: { format?: string; featured?: boolean; li
 
   const { data } = await query;
   const nowForPrice = Date.now();
-  const rows = ((data ?? []) as Course[]).map((c) => withEffectivePrice(c, nowForPrice));
+  const rows = localizeAll((data ?? []) as Course[]).map((c) => withEffectivePrice(c, nowForPrice));
   const counts = await getSeatCounts();
   const now = Date.now();
   // Open editions first (soonest first), then not yet open, then sold out, then ended (most recent first).
@@ -38,7 +39,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
-  return data ? withEffectivePrice(data as Course, Date.now()) : null;
+  return data ? withEffectivePrice(localize(data as Course), Date.now()) : null;
 }
 
 export async function getTestimonials(limit?: number): Promise<Testimonial[]> {
@@ -46,7 +47,7 @@ export async function getTestimonials(limit?: number): Promise<Testimonial[]> {
   let query = supabase.from("testimonials").select("*").eq("is_published", true).order("sort_order");
   if (limit) query = query.limit(limit);
   const { data } = await query;
-  return (data ?? []) as Testimonial[];
+  return localizeAll((data ?? []) as Testimonial[]);
 }
 
 export async function getLoyaltySettings(): Promise<LoyaltySettings | null> {
@@ -197,7 +198,7 @@ export async function getUnreadCount(userId: string): Promise<number> {
 export async function getLessons(courseId: string): Promise<Lesson[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("course_lessons").select("*").eq("course_id", courseId).order("position");
-  return (data ?? []) as Lesson[];
+  return localizeAll((data ?? []) as Lesson[]);
 }
 
 export async function getCompletedLessonIds(userId: string): Promise<string[]> {
@@ -215,13 +216,13 @@ export const getSeatCounts = cache(async (): Promise<Record<string, number>> => 
 export async function getTrainers(): Promise<Trainer[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("trainers").select("*").eq("published", true).order("sort_order");
-  return (data ?? []) as Trainer[];
+  return localizeAll((data ?? []) as Trainer[]);
 }
 
 export async function getTrainerBySlug(slug: string): Promise<Trainer | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("trainers").select("*").eq("slug", slug).eq("published", true).maybeSingle();
-  return (data as Trainer | null) ?? null;
+  return data ? localize(data as Trainer) : null;
 }
 
 export async function getPosts(limit?: number): Promise<BlogPost[]> {
@@ -229,19 +230,19 @@ export async function getPosts(limit?: number): Promise<BlogPost[]> {
   let q = supabase.from("blog_posts").select("*").eq("published", true).order("published_at", { ascending: false });
   if (limit) q = q.limit(limit);
   const { data } = await q;
-  return (data ?? []) as BlogPost[];
+  return localizeAll((data ?? []) as BlogPost[]);
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("blog_posts").select("*").eq("slug", slug).eq("published", true).maybeSingle();
-  return (data as BlogPost | null) ?? null;
+  return data ? localize(data as BlogPost) : null;
 }
 
 export async function getEvents(): Promise<EventRow[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("events").select("*").eq("published", true).order("event_date", { ascending: false });
-  return (data ?? []) as EventRow[];
+  return localizeAll((data ?? []) as EventRow[]);
 }
 
 export type LoyaltyState = {
@@ -290,23 +291,23 @@ export async function getCourseRating(courseId: string): Promise<{ avg: number; 
 export async function getPartnerRows(): Promise<Partner[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("partners").select("*").eq("published", true).order("sort_order");
-  return (data ?? []) as Partner[];
+  return localizeAll((data ?? []) as Partner[]);
 }
 
 export async function getClinicalCases(trainerId: string): Promise<ClinicalCase[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("clinical_cases").select("*").eq("trainer_id", trainerId).eq("published", true).order("sort_order");
-  return (data ?? []) as ClinicalCase[];
+  return localizeAll((data ?? []) as ClinicalCase[]);
 }
 
 export async function getAlbums(): Promise<GalleryAlbum[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("gallery_albums").select("*, gallery_photos(*), courses(title)").eq("published", true).order("sort_order").order("created_at", { ascending: false });
-  return ((data ?? []) as GalleryAlbum[]).map((a) => ({ ...a, gallery_photos: [...a.gallery_photos].sort((x, y) => x.sort_order - y.sort_order) }));
+  return localizeAll((data ?? []) as GalleryAlbum[]).map((a) => ({ ...a, gallery_photos: [...a.gallery_photos].sort((x, y) => x.sort_order - y.sort_order) }));
 }
 
 export async function getTestimonialVideos(): Promise<TestimonialVideo[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("testimonial_videos").select("*, courses(title)").eq("is_published", true).order("sort_order").order("created_at", { ascending: false });
-  return (data ?? []) as TestimonialVideo[];
+  return localizeAll((data ?? []) as TestimonialVideo[]);
 }

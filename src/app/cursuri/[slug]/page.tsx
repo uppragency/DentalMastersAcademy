@@ -1,3 +1,4 @@
+import { getLocale, lp } from "@/lib/i18n/server";
 import { tr } from "@/lib/i18n/server";
 import { courseMethods, formatDeadline } from "@/lib/transfer";
 import type { Metadata } from "next";
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: course.title,
     description: course.summary ?? undefined,
-    alternates: { canonical: `/cursuri/${course.slug}` },
+    alternates: { canonical: lp(`/cursuri/${course.slug}`) },
     openGraph: { title: course.title, description: course.summary ?? undefined, type: "website" },
   };
 }
@@ -43,6 +44,7 @@ function paragraphsOf(c: { description: string | null }) {
 }
 
 export default async function CoursePage({ params }: Props) {
+  await getLocale();
   const { slug } = await params;
   const [course, profile, loyalty] = await Promise.all([getCourseBySlug(slug), getCurrentProfile(), getLoyaltySettings()]);
   if (!course) notFound();

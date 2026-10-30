@@ -1,8 +1,10 @@
+import { getLocale } from "@/lib/i18n/server";
 import { tr } from "@/lib/i18n/server";
 import { Container } from "@/components/ui";
 import { LoadingRegion, Skeleton } from "@/components/skeleton";
 
-export default function Loading() {
+export default async function Loading() {
+  await getLocale();
   return (
     <LoadingRegion label={tr("Se încarcă comanda")}>
       <Container className="py-10 sm:py-16">

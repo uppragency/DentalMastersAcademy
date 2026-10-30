@@ -14,6 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const kindLabel = { earn: "Câștigate", redeem: "Folosite", restore: "Returnate", expire: "Expirate", adjust: "Ajustare" } as const;
 
 export default async function ProgramPage() {
+  await getLocale();
   const profile = (await getCurrentProfile())!;
   const s = await getLoyaltySettings();
   if (!s || !s.is_active) {
@@ -42,7 +43,7 @@ export default async function ProgramPage() {
   const missing = next
     ? [
         next.spend ? tr("{v1} în achiziții", { v1: formatPrice(Math.max(0, next.spend - state.spentCents), cur) }) : null,
-        next.courses ? `${Math.max(0, next.courses - state.courses)} ${next.courses - state.courses === 1 ? "curs" : "cursuri"}` : null,
+        next.courses ? `${Math.max(0, next.courses - state.courses)} ${next.courses - state.courses === 1 ? tr("curs") : tr("cursuri")}` : null,
       ].filter(Boolean).join(tr(" sau "))
     : "";
   const perksFor = (t: Tier) => tierPerks(t, s);
@@ -91,7 +92,7 @@ export default async function ProgramPage() {
         ) : (
           <p className="mt-3 text-sm text-muted">{tr("Păstrezi nivelul Platinum cât timp îndeplinești condițiile în ultimele")}{" "}{s.window_days ?? 365} {" "}{tr("de zile.")}</p>
         )}
-        <p className="mt-4 text-sm text-muted">{tr("Ai cheltuit")}{" "}{formatPrice(state.spentCents, cur)} {" "}{tr("la")}{" "}{state.courses} {state.courses === 1 ? "curs" : "cursuri"} {" "}{tr("în această perioadă.")}</p>
+        <p className="mt-4 text-sm text-muted">{tr("Ai cheltuit")}{" "}{formatPrice(state.spentCents, cur)} {" "}{tr("la")}{" "}{state.courses} {state.courses === 1 ? tr("curs") : tr("cursuri")} {" "}{tr("în această perioadă.")}</p>
       </section>
 
       <section aria-labelledby="levels">

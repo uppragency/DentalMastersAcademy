@@ -20,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type Props = { searchParams: Promise<{ format?: string; perioada?: string }> };
 
 export default async function CoursesPage({ searchParams }: Props) {
+  await getLocale();
   const { format, perioada } = await searchParams;
   const all = await getCourses({ format });
   const now = nowMs();
@@ -46,7 +47,7 @@ export default async function CoursesPage({ searchParams }: Props) {
             upcoming={all.filter((c) => !isEnded(c, now)).map((c) => ({ id: c.id, slug: c.slug, title: c.title, starts_at: c.starts_at }))}
           />
 
-          <p className="mt-10 text-sm text-muted" aria-live="polite">{courses.length} {courses.length === 1 ? "curs" : "cursuri"}</p>
+          <p className="mt-10 text-sm text-muted" aria-live="polite">{courses.length} {courses.length === 1 ? tr("curs") : tr("cursuri")}</p>
           {courses.length > 0 ? (
             <div className="mt-6 space-y-16">
               {groups.map((g) => (

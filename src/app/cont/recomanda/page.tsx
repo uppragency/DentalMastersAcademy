@@ -11,6 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ReferralPage() {
+  await getLocale();
   const profile = (await getCurrentProfile())!;
   const settings = await getLoyaltySettings();
   const supabase = await createClient();

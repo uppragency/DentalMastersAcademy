@@ -1,3 +1,4 @@
+import { getLocale } from "@/lib/i18n/server";
 import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
@@ -14,6 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PostPage({ params }: Props) {
+  await getLocale();
   const p = await getPostBySlug((await params).slug);
   if (!p) notFound();
   const blocks = p.body.split(/\n\n+/).filter(Boolean);

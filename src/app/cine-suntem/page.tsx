@@ -21,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
+  await getLocale();
   const founders = (await getTrainers()).filter((t) => t.is_founder);
   const testimonials = await getTestimonials();
   return (
@@ -45,7 +46,7 @@ export default async function AboutPage() {
               {stats.map((s) => (
                 <div key={s.label} className="border-t border-line pt-4">
                   <dd className="font-display text-5xl text-foreground"><Counter value={s.value} suffix={s.suffix} /></dd>
-                  <dt className="mt-1 text-sm">{s.label}</dt>
+                  <dt className="mt-1 text-sm">{tr(s.label)}</dt>
                 </div>
               ))}
             </dl>
@@ -63,8 +64,8 @@ export default async function AboutPage() {
                   <CourseArt seed={`about-${i}`} className="absolute inset-0 size-full scale-150 opacity-40" />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-transparent" />
                   <div className="relative flex h-full flex-col justify-end">
-                    <h3 className="font-display text-2xl leading-snug">{f.title}</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-white/65">{f.text}</p>
+                    <h3 className="font-display text-2xl leading-snug">{tr(f.title)}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-white/65">{tr(f.text)}</p>
                   </div>
                 </article>
               </Reveal>
@@ -73,7 +74,7 @@ export default async function AboutPage() {
           <Reveal>
             <ul className="mt-16 grid gap-x-10 gap-y-4 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-3">
               {advantages.map((a) => (
-                <li key={a} className="flex gap-3 text-white/75"><span className="mt-2.5 size-1.5 shrink-0 rotate-45 bg-gold-bright" />{a}</li>
+                <li key={a} className="flex gap-3 text-white/75"><span className="mt-2.5 size-1.5 shrink-0 rotate-45 bg-gold-bright" />{tr(a)}</li>
               ))}
             </ul>
           </Reveal>
@@ -124,9 +125,9 @@ export default async function AboutPage() {
               <Reveal as="li" key={m.n}>
                 <div className="grid items-baseline gap-2 py-7 sm:grid-cols-12 sm:gap-6">
                   <span className="font-display text-4xl text-gold sm:col-span-1">{m.n}</span>
-                  <h3 className="font-display text-2xl sm:col-span-5">{m.title}</h3>
-                  <p className="text-muted sm:col-span-4">{m.text}</p>
-                  <p className="text-sm font-semibold text-foreground sm:col-span-2 sm:text-right">{m.when}</p>
+                  <h3 className="font-display text-2xl sm:col-span-5">{tr(m.title)}</h3>
+                  <p className="text-muted sm:col-span-4">{tr(m.text)}</p>
+                  <p className="text-sm font-semibold text-foreground sm:col-span-2 sm:text-right">{tr(m.when)}</p>
                 </div>
               </Reveal>
             ))}

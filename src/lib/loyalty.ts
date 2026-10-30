@@ -36,7 +36,7 @@ export function tierProgress(tier: Tier, s: LoyaltySettings | null, spentCents: 
   const percent = ratios.length ? Math.min(100, Math.round(Math.max(...ratios) * 100)) : 0;
   const parts = [
     spend ? `${new Intl.NumberFormat("ro-RO", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Math.max(0, spend - spentCents) / 100)}` : null,
-    need ? `${Math.max(0, need - courses)} ${need - courses === 1 ? "curs" : "cursuri"}` : null,
+    need ? `${Math.max(0, need - courses)} ${need - courses === 1 ? tr("curs") : tr("cursuri")}` : null,
   ].filter(Boolean);
   return { next, percent, missing: parts.join(tr(" sau ")) };
 }

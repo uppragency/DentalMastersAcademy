@@ -11,6 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function FreeThankYou({ params }: { params: Promise<{ slug: string }> }) {
+  await getLocale();
   const { slug } = await params;
   const profile = await getCurrentProfile();
   if (!profile) redirect(`/autentificare?next=/multumim/gratuit/${slug}`);

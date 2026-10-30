@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TestimonialsPage() {
+  await getLocale();
   const [items, albums, videos] = await Promise.all([getTestimonials(), getAlbums(), getTestimonialVideos()]);
   const withPhotos = albums.filter((a) => a.gallery_photos.length > 0).map((a) => ({ ...a, courseTitle: a.courses?.title ?? null }));
   const playable = videos.map((v) => ({ v, source: parseVideo(v.video_url) })).filter((x) => x.source);

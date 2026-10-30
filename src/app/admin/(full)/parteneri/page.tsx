@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { EnglishFields } from "@/components/english-fields";
+import { partnerEnFields } from "@/lib/translations";
 import { deletePartner, savePartner } from "@/actions/dma";
 import { Button } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
@@ -23,6 +25,7 @@ function PartnerForm({ p }: { p?: Partner }) {
         <label className="block text-sm font-medium">Logo (JPG, PNG, WebP, maximum 6 MB)<input type="file" name="logo" accept="image/jpeg,image/png,image/webp,image/avif" className={`${fileCls} mt-1.5`} /></label>
         <label className="block text-sm font-medium">Ordine<input name="sort_order" type="number" defaultValue={p?.sort_order ?? 0} className={`${input} mt-1.5`} /></label>
       </div>
+      <EnglishFields fields={partnerEnFields} translations={p?.translations} />
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={p ? p.published : true} className="size-4 accent-[#a9833d]" /> Afișat pe site</label>
       <Button type="submit">{p ? "Salvează" : "Adaugă partener"}</Button>
     </form>

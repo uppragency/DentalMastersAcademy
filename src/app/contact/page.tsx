@@ -12,9 +12,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: tr("Contact"), description: tr("Contactează Dental Masters Academy: telefon, email, adresa din București și program. Răspundem la întrebări despre cursuri, înscriere și plată.") };
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  await getLocale();
   const items = [
-    { k: tr("Adresă"), v: contact.address, href: undefined },
+    { k: tr("Adresă"), v: tr(contact.address), href: undefined },
     { k: tr("Telefon"), v: contact.phone, href: contact.phoneHref },
     { k: tr("Email"), v: contact.email, href: `mailto:${contact.email}` },
     { k: tr("Social"), v: contact.social, href: contact.socialHref },

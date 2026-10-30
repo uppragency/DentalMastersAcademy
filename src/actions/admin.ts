@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data";
+import { courseEnFields, readEnglish } from "@/lib/translations";
 import type { FormState } from "@/actions/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMail } from "@/lib/email";
@@ -233,7 +234,8 @@ export async function saveCourse(id: string | null, _: FormState, formData: Form
   if (methods.length === 0) return { message: "Alege cel puțin o metodă de plată (card sau transfer bancar)." };
   Object.assign(row, { payment_methods: methods });
 
-  const { data: prev } = id ? await supabase.from("courses").select("starts_at, ends_at, location, status").eq("id", id).maybeSingle() : { data: null };
+  const { data: prev } = id ? await supabase.from("courses").select("starts_at, ends_at, location, status, translations").eq("id", id).maybeSingle() : { data: null };
+  Object.assign(row, { translations: readEnglish(formData, courseEnFields, prev?.translations) });
 
   const saved = id
     ? await supabase.from("courses").update(row).eq("id", id).select("id").maybeSingle()

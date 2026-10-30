@@ -1,5 +1,8 @@
 "use client";
 
+import { EnglishFields } from "@/components/english-fields";
+import { postEnFields, trainerEnFields } from "@/lib/translations";
+
 import { useActionState } from "react";
 import { addEvent, savePost, saveTrainer } from "@/actions/content";
 import { Button, Field } from "@/components/ui";
@@ -28,6 +31,7 @@ export function TrainerForm({ trainer }: { trainer: Trainer }) {
       <div><label htmlFor={`ph-${trainer.id}`} className="mb-1.5 block text-sm font-medium">Fotografie (JPG, PNG, WebP, maximum 6 MB)</label><input id={`ph-${trainer.id}`} type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/avif" className={fileCls} /></div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_founder" defaultChecked={trainer.is_founder} className="size-4 accent-[#a9833d]" /> Fondator (apare în meniul Cine suntem)</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={trainer.published} className="size-4 accent-[#a9833d]" /> Afișat pe site</label>
+      <EnglishFields fields={trainerEnFields} translations={trainer.translations} />
       <Status message={state?.message} />
       <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează"}</Button>
     </form>
@@ -58,6 +62,7 @@ export function PostForm({ post, trainers = [] }: { post?: BlogPost; trainers?: 
       <div><label htmlFor="cover" className="mb-1.5 block text-sm font-medium">Imagine (opțional)</label><input id="cover" type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/avif" className={fileCls} /></div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={post?.published} className="size-4 accent-[#a9833d]" /> Publicat (vizibil pe site)</label>
       <Field label="Programează publicarea (opțional, ora României). Gol = vizibil imediat" name="publish_at" type="datetime-local" defaultValue={toBucharestLocal(post?.published_at)} />
+      <EnglishFields fields={postEnFields} translations={post?.translations} />
       <Status message={state?.message} />
       <Button type="submit" disabled={pending}>{pending ? "Se salvează..." : "Salvează articolul"}</Button>
     </form>

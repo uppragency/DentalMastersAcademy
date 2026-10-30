@@ -1,3 +1,4 @@
+import { getLocale } from "@/lib/i18n/server";
 import { tr } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/locale-link";
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function TrainerPage({ params }: Props) {
+  await getLocale();
   const t = await getTrainerBySlug((await params).slug);
   if (!t) notFound();
   const [all, posts, cases] = await Promise.all([getCourses(), getPosts(), getClinicalCases(t.id)]);

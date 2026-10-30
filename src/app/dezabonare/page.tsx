@@ -12,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function Unsubscribe({ searchParams }: { searchParams: Promise<{ u?: string; t?: string }> }) {
+  await getLocale();
   const { u, t } = await searchParams;
   let ok = false;
   if (u && t && UUID.test(u) && validUnsubToken(u, t)) {

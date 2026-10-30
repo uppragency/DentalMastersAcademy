@@ -9,11 +9,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase.from("blog_posts").select("slug, published_at").eq("published", true),
     supabase.from("trainers").select("slug").eq("published", true),
   ]);
-  const fixed = ["", "/cursuri", "/cine-suntem", "/lectori", "/parteneri", "/mentorat", "/blog", "/evenimente", "/testimoniale", "/contact", "/rambursare"].map((p) => ({ url: `${base}${p}` }));
+  // Every page exists in Romanian (no prefix) and English (/en), with hreflang alternates.
+  const entry = (path: string, lastModified?: string) => {
+    const ro = `${base}${path}`;
+    const en = `${base}/en${path}`;
+    const alternates = { languages: { ro, en, "x-default": ro } };
+    return [
+      { url: ro, lastModified, alternates },
+      { url: en, lastModified, alternates },
+    ];
+  };
+  const fixed = ["", "/cursuri", "/cine-suntem", "/lectori", "/parteneri", "/mentorat", "/blog", "/evenimente", "/testimoniale", "/contact", "/rambursare"].flatMap((p) => entry(p));
   return [
     ...fixed,
-    ...(courses.data ?? []).map((c) => ({ url: `${base}/cursuri/${c.slug}`, lastModified: c.updated_at })),
-    ...(posts.data ?? []).map((p) => ({ url: `${base}/blog/${p.slug}`, lastModified: p.published_at ?? undefined })),
-    ...(trainers.data ?? []).map((t) => ({ url: `${base}/lectori/${t.slug}` })),
+    ...(courses.data ?? []).flatMap((c) => entry(`/cursuri/${c.slug}`, c.updated_at)),
+    ...(posts.data ?? []).flatMap((p) => entry(`/blog/${p.slug}`, p.published_at ?? undefined)),
+    ...(trainers.data ?? []).flatMap((t) => entry(`/lectori/${t.slug}`)),
   ];
 }

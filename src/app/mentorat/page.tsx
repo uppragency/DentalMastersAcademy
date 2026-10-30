@@ -12,7 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
 };
 }
 
-export default function MentorshipPage() {
+export default async function MentorshipPage() {
+  await getLocale();
   return (
     <>
       <PageHero eyebrow={tr("Mentorat clinic")} title={<>{tr("Cazul tău, cu")}{" "}<span className="text-gold-sheen">{tr("experții DMA.")}</span></>} lead={tr("Vino cu propriul pacient în cabinetul DMA și beneficiază de experiența echipei noastre.")} />

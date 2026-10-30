@@ -1,4 +1,4 @@
-import { tr, getLocale } from "@/lib/i18n/server";
+import { tr, getLocale, lp } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { contact } from "@/content/site";
 import { LegalShell, LegalText } from "@/components/legal-text";
@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
   title: tr("Politica de rambursare și transfer de loc"),
   description: tr("Cum poți anula o înscriere, cum se returnează banii și cum îți transferi locul unui coleg."),
-  alternates: { canonical: "/rambursare" },
+  alternates: { canonical: lp("/rambursare") },
 };
 }
 
@@ -61,6 +61,7 @@ const sections = [
 ];
 
 export default async function Page() {
+  await getLocale();
   const custom = await getLegalText("legal_rambursare");
   return (
     <LegalShell title={tr("Politica de rambursare și transfer de loc")} lead={tr("Condițiile de retragere, transfer și rambursare pentru cursurile noastre.")}>

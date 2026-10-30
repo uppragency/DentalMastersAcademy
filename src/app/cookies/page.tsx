@@ -17,6 +17,7 @@ const rows = [
 ];
 
 export default async function Page() {
+  await getLocale();
   const custom = await getLegalText("legal_cookies");
   if (custom) {
     return (

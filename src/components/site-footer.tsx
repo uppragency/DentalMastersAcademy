@@ -39,7 +39,7 @@ export function SiteFooter() {
         </div>
         <div className="space-y-3 text-sm text-white/60 md:col-span-3">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-bright">{tr("Contact")}</p>
-          <p>{contact.address}</p>
+          <p>{tr(contact.address)}</p>
           <a className="block transition-colors hover:text-white" href={contact.phoneHref}>{contact.phone}</a>
           <a className="block break-all transition-colors hover:text-white" href={`mailto:${contact.email}`}>{contact.email}</a>
           <a className="block transition-colors hover:text-white" href={contact.socialHref} rel="noopener noreferrer" target="_blank">{contact.social}</a>

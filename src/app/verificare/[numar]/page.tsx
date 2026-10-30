@@ -11,6 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Verify({ params }: { params: Promise<{ numar: string }> }) {
+  await getLocale();
   const { numar } = await params;
   const supabase = await createClient();
   const { data } = await supabase.rpc("verify_certificate", { p_number: decodeURIComponent(numar).slice(0, 40) });

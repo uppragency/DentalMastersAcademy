@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TrainersPage() {
+  await getLocale();
   const trainers = (await getTrainers()).filter((t) => !t.is_founder);
   return (
     <>

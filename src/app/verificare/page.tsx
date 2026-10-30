@@ -14,7 +14,8 @@ async function go(formData: FormData) {
   redirect(n ? `/verificare/${n}` : "/verificare");
 }
 
-export default function VerifyIndex() {
+export default async function VerifyIndex() {
+  await getLocale();
   return (
     <Container className="max-w-xl py-16">
       <h1 className="text-4xl font-semibold tracking-tight">{tr("Verificare adeverință")}</h1>

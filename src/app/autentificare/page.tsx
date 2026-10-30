@@ -9,6 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
+  await getLocale();
   const { next, error } = await searchParams;
   return (
     <AuthShell title={tr("Intră în cont")} lead={tr("Accesează cursurile plătite și istoricul achizițiilor.")}>

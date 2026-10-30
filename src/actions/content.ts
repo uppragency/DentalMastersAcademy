@@ -6,6 +6,7 @@ import * as z from "zod";
 import { requireAdminClient } from "@/lib/require-admin";
 import { uploadImage } from "@/lib/media";
 import { bucharestInstant } from "@/lib/format";
+import { postEnFields, readEnglish, trainerEnFields } from "@/lib/translations";
 import type { FormState } from "@/actions/auth";
 
 const slugify = (input: string) =>
@@ -37,6 +38,8 @@ export async function saveTrainer(id: string, _: FormState, formData: FormData):
     if ("error" in up) return { message: up.error };
     row.photo_url = up.url;
   }
+  const { data: prevT } = await supabase.from("trainers").select("translations").eq("id", id).maybeSingle();
+  row.translations = readEnglish(formData, trainerEnFields, prevT?.translations);
   const { error } = await supabase.from("trainers").update(row).eq("id", id);
   if (error) return { message: "Profilul nu a putut fi salvat." };
   revalidatePath("/", "layout");
@@ -81,6 +84,8 @@ export async function savePost(id: string | null, _: FormState, formData: FormDa
     if ("error" in up) return { message: up.error };
     row.cover_url = up.url;
   }
+  const { data: prevP } = id ? await supabase.from("blog_posts").select("translations").eq("id", id).maybeSingle() : { data: null };
+  row.translations = readEnglish(formData, postEnFields, prevP?.translations);
   const { error } = id ? await supabase.from("blog_posts").update(row).eq("id", id) : await supabase.from("blog_posts").insert(row);
   if (error) return { message: error.code === "23505" ? "Există deja un articol cu acest slug." : "Articolul nu a putut fi salvat." };
   revalidatePath("/blog");

@@ -17,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const sourceLabel = { purchase: "Achiziționat", gold_free: "Acces Gold", admin: "Acordat" } as const;
 
 export default async function MyCourses({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  await getLocale();
   const { tab } = await searchParams;
   const profile = (await getCurrentProfile())!;
   const all = await getMyEnrollments(profile.id);

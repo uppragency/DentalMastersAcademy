@@ -19,6 +19,7 @@ type Row = {
 };
 
 export default async function PortfolioPage() {
+  await getLocale();
   const profile = (await getCurrentProfile())!;
   const supabase = await createClient();
   const { data } = await supabase
@@ -59,7 +60,7 @@ export default async function PortfolioPage() {
                     {formatDateRange(c.starts_at, c.ends_at)}
                     {c.location ? `, ${c.location}` : ""}
                     {c.duration_hours ? `, ${c.duration_hours} ore` : ""}
-                    {ce?.days_attended ? tr(", {days_attended} {v2} de prezență", { days_attended: ce.days_attended, v2: ce.days_attended === 1 ? "zi" : "zile" }) : ""}
+                    {ce?.days_attended ? tr(", {days_attended} {v2} de prezență", { days_attended: ce.days_attended, v2: ce.days_attended === 1 ? tr("zi") : tr("zile") }) : ""}
                   </p>
                   {c.trainer_name ? <p className="mt-1 text-sm text-muted">{tr("Lector:")}{" "}{c.trainer_name}</p> : null}
                   {ce?.number ? <p className="mt-1 text-xs text-muted">{tr("Adeverință")}{" "}{ce.number}</p> : null}
@@ -67,7 +68,7 @@ export default async function PortfolioPage() {
               );
             })}
           </ol>
-          <p className="mt-6 text-xs text-muted">{tr("Emis de Dental Masters Academy,")}{" "}{contact.address}{tr(". Adeverințele se verifică pe site la /verificare.")}</p>
+          <p className="mt-6 text-xs text-muted">{tr("Emis de Dental Masters Academy,")}{" "}{tr(contact.address)}{tr(". Adeverințele se verifică pe site la /verificare.")}</p>
           <div className="mt-6 print:hidden"><PrintButton /></div>
         </>
       ) : (

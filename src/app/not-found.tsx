@@ -11,6 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NotFound() {
+  await getLocale();
   let courses: Course[] = [];
   try {
     courses = (await getCourses({ limit: 3 })).slice(0, 3);

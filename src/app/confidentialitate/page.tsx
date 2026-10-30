@@ -10,6 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
+  await getLocale();
   const text = await getLegalText("legal_confidentialitate");
   return <LegalShell title={tr("Politica de confidențialitate")} lead={tr("Ce date colectăm, de ce și cum îți exerciți drepturile.")}>{text ? <LegalText text={text} /> : <DefaultLegal doc={confidentialitate} />}</LegalShell>;
 }

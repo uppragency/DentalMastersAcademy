@@ -21,6 +21,7 @@ function daysUntil(iso: string) {
 }
 
 export default async function AccountOverview({ searchParams }: { searchParams: Promise<{ plata?: string }> }) {
+  await getLocale();
   const { plata } = await searchParams;
   const profile = (await getCurrentProfile())!;
   const [enrollments, loyalty, orders, unread] = await Promise.all([getMyEnrollments(profile.id), getLoyaltySettings(), getMyOrders(profile.id), getUnreadCount(profile.id)]);
@@ -81,7 +82,7 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
               <p className="mt-2 text-sm text-white/60">{formatDate(next.starts_at)}{next.location ? ` · ${next.location}` : ""}</p>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-gold-bright px-3.5 py-1.5 text-xs font-bold text-ink">
-                  {daysUntil(next.starts_at!) <= 0 ? tr("Astăzi") : tr("În {v1} {v2}", { v1: daysUntil(next.starts_at!), v2: daysUntil(next.starts_at!) === 1 ? "zi" : "zile" })}
+                  {daysUntil(next.starts_at!) <= 0 ? tr("Astăzi") : tr("În {v1} {v2}", { v1: daysUntil(next.starts_at!), v2: daysUntil(next.starts_at!) === 1 ? tr("zi") : tr("zile") })}
                 </span>
                 <Link href={`/cont/cursuri/${next.slug}`} className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink">{tr("Detalii curs")}</Link>
               </div>

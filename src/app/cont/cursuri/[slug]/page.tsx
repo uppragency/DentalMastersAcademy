@@ -30,6 +30,7 @@ export default async function MyCoursePage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ lectia?: string }>;
 }) {
+  await getLocale();
   const { slug } = await params;
   const { lectia } = await searchParams;
   const profile = await getCurrentProfile();
@@ -67,7 +68,7 @@ export default async function MyCoursePage({
   const physical = course.format !== "online";
   const timeFmt = new Intl.DateTimeFormat("ro-RO", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Bucharest" });
   const dayFmt = new Intl.DateTimeFormat("ro-RO", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Bucharest" });
-  const address = course.location || contact.address;
+  const address = course.location || tr(contact.address);
   const parking = course.parking_info || directions.parking;
   const mapQ = encodeURIComponent(address.includes("București") ? address : tr("{address}, București", { address: address }));
   const chapters = lessons.reduce<{ name: string | null; items: typeof lessons }[]>((acc, l) => {
